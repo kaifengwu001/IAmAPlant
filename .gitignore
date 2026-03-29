@@ -1,4 +1,8 @@
 .DS_Store
+
+# Cursor / local IDE (never publish)
+.cursor/
+
 **/xcuserdata/
 **/xcshareddata/WorkspaceSettings.xcsettings
 *.xcuserstate
