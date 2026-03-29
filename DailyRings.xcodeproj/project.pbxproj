@@ -1,0 +1,985 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		018131FBB836273AAAE64681 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6079EFEB2D6E3ACD6B3204F /* Theme.swift */; };
+		0303FECC9D45ED3D11AEF657 /* ProductivityCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7468B640D0293211DE7791BC /* ProductivityCalculatorTests.swift */; };
+		090FDFE34AC8DE3CE5CC4D26 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB8FAC2D129F630311FF3964 /* AppConstants.swift */; };
+		0B1A63A1E1B9540A79622107 /* ExerciseDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658381B3263F078257EFE2C2 /* ExerciseDetailView.swift */; };
+		0C8E99040221BE7CBF223180 /* PomodoroSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F425DA4163988FEE88C84DEA /* PomodoroSessionView.swift */; };
+		0CCE30179C69DFDC8DF5C87C /* FeatureDrawerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D8A008A674E7161BB6955E /* FeatureDrawerView.swift */; };
+		0DB7293D3883AF77DF2032D7 /* PomodoroActivityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB45787C32970572063811D5 /* PomodoroActivityMonitor.swift */; };
+		0F2899977B6C24F10936C93A /* ProductivityCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED6D116109A1C541F3282ED /* ProductivityCalculator.swift */; };
+		1BA2F9919657AA937980DFC9 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 4088D5692BE15B19C377052C /* Supabase */; };
+		1C7440DD173909C7F1778D98 /* VerticalSnapContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91440E04FC2DDFC23826B94A /* VerticalSnapContainer.swift */; };
+		21308B5B78A986EBF6D2D5BC /* DateBoundaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF987F847EB66B3D256FF3F6 /* DateBoundaryTests.swift */; };
+		224072E05D0A547AED588EE2 /* ClockDriftService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074379523278D60092F23FDC /* ClockDriftService.swift */; };
+		260D2FD4C9490F6A8318E447 /* DaySummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA085E61E6F18B17743A0D5C /* DaySummaryView.swift */; };
+		27CCCB96FD5A0DCE075AD233 /* RingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B916F7716F77CBEEB390960E /* RingView.swift */; };
+		2A038AE6FB9F7BD94504E08F /* ProductivityDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0B448F1A0B349400270F27 /* ProductivityDetailView.swift */; };
+		2BEA2E9EF4BD0A2B344B7247 /* PomodoroTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43F922C4A7F99FAD042E5CE /* PomodoroTimerView.swift */; };
+		2C93CF9214B52001A8BBDEEA /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB8FAC2D129F630311FF3964 /* AppConstants.swift */; };
+		2E4ACB3281F2F96CA23BBFFE /* DailyRingsMonitorExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 74423A6FAA667C282C0F879E /* DailyRingsMonitorExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		30340D74B32C9AB47BDD7ABE /* PomodoroSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF63E7DA92294443FBBEB1EE /* PomodoroSession.swift */; };
+		31AAB13D12BF8807559D00A9 /* SleepSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BBB130925FEB6FC61745E5 /* SleepSessionView.swift */; };
+		3C61087003D438066797CF3E /* SharedPomodoroState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307888CEF958E164025969A9 /* SharedPomodoroState.swift */; };
+		4195DCD9A4151FDFE4067657 /* SyncCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163E7816751365BB38C26E75 /* SyncCoordinator.swift */; };
+		48140784ECADE043AB32F8BD /* ScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E69704E4847AFCE6DF010181 /* ScoreCalculator.swift */; };
+		5841744BE6904FB83AEFD21C /* SleepManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6B890B16D8DB28C44C25F3A /* SleepManager.swift */; };
+		59E71C6F5A1A62F187AEE70E /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562047DDBD39DCEE25D2742F /* HealthKitManager.swift */; };
+		5CACFD4836D261F5AEBFCA71 /* MealPhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E0653CA891F4F454B9ACA37 /* MealPhotoStore.swift */; };
+		5E7737DCD503D091AA8311B4 /* ScoreCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5683A36D055095014309BA82 /* ScoreCalculatorTests.swift */; };
+		614B373AC0F274C74660AEFB /* SleepSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7A6D131AB1E7030771D6D3 /* SleepSession.swift */; };
+		633B0CBABE9362C33F06C715 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFDC550211AE50AC0A8A598 /* SettingsView.swift */; };
+		6B204B238E583C8235D0365B /* DailySummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5A9EA51A6B1408B805FB8A /* DailySummary.swift */; };
+		6E569D1BB6E2502CAE2D1078 /* NutritionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD8171EA62886E660098D01 /* NutritionView.swift */; };
+		743E4691433312CB2B4B8743 /* MealCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDDC4E45DA47DFA985110A4 /* MealCameraView.swift */; };
+		7868CB003E27D39AAE869467 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB8FAC2D129F630311FF3964 /* AppConstants.swift */; };
+		797DBB2256044EF7966896AB /* DrawerHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28EC6B6FBBCC095D35B29D35 /* DrawerHeaderView.swift */; };
+		7FE65D58BBBCFEA6ADCF256D /* MealScoringService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA689301003192C1E467C4CB /* MealScoringService.swift */; };
+		8AC812A0AB5053AE7B3104FF /* SharedPomodoroState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307888CEF958E164025969A9 /* SharedPomodoroState.swift */; };
+		8B6842288422E9683EBBD79A /* PomodoroManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DF71191D9EE6F478DD136A /* PomodoroManager.swift */; };
+		908C119F70B60017E82A24DE /* DailyRingsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA7954E233DBF9CFAFB54A9 /* DailyRingsApp.swift */; };
+		91AD29A2D1A724DD805B4907 /* RescueTimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF580A0EBC624BE6F8AC4B18 /* RescueTimeService.swift */; };
+		A7D986A56516A65FFE499AEA /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EBC8FD1DEC9830A80D8AFB2 /* UserSettings.swift */; };
+		B174B2525F003FEF8D8A36C0 /* ManualAdjustmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25253E75C988C85C7BF555CC /* ManualAdjustmentView.swift */; };
+		B41C1F321AB7261A2CE2696B /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19107B9978155A149D124B5C /* SupabaseService.swift */; };
+		C85FFD6D2F91199003270F3B /* SleepDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDD0AA46E6E14C00681D61F7 /* SleepDetailView.swift */; };
+		CA83CED09E3517EC8755CD22 /* DateBoundary.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C3C4B2739A5ED5820F2F82 /* DateBoundary.swift */; };
+		D667D9A5A30E5D56160F6478 /* YearGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506E84D654961065A84EF261 /* YearGridView.swift */; };
+		E37CF161A285A12163B545D1 /* PomodoroUsageReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B29BEC868AADBC9CFB9DE26 /* PomodoroUsageReport.swift */; };
+		EA2C80CA85D9ED049EA6B5E5 /* BackgroundStateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 403CD000FCA57D8EE98A097D /* BackgroundStateService.swift */; };
+		EA966C92DD5929E75C4C9D3B /* SharedPomodoroState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307888CEF958E164025969A9 /* SharedPomodoroState.swift */; };
+		F094675520A2D1FD30123FC7 /* DailyRingsReportExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2B29AA8821E15A285050A7D4 /* DailyRingsReportExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F96D3B80A303D61996E603AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4C7AD4A57A3B55E1EADEBC09 /* Assets.xcassets */; };
+		FB3A1026F1523CAC73F57E7C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B135E0DDE2C264CC4961D2CA /* ContentView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2F7C56AA0A62B4B362FBA4CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1CCF77BAF094998783A6C11D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FC98F98871E2A87393BEC73E;
+			remoteInfo = DailyRingsMonitorExtension;
+		};
+		7B25B2809C0EEEAE12C92242 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1CCF77BAF094998783A6C11D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A56B74CB11C544EE17C55A51;
+			remoteInfo = DailyRingsReportExtension;
+		};
+		EE7EF0B349FA8EF73E56AEF3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1CCF77BAF094998783A6C11D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E54B1096CC3C594C151AAFD9;
+			remoteInfo = DailyRings;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		038B8F3139CA44BE70790626 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				2E4ACB3281F2F96CA23BBFFE /* DailyRingsMonitorExtension.appex in Embed Foundation Extensions */,
+				F094675520A2D1FD30123FC7 /* DailyRingsReportExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		05CE9E2C6AD56FD24193530B /* Report.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Report.entitlements; sourceTree = "<group>"; };
+		074379523278D60092F23FDC /* ClockDriftService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockDriftService.swift; sourceTree = "<group>"; };
+		07BBB130925FEB6FC61745E5 /* SleepSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepSessionView.swift; sourceTree = "<group>"; };
+		0DDDC4E45DA47DFA985110A4 /* MealCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealCameraView.swift; sourceTree = "<group>"; };
+		0EBC8FD1DEC9830A80D8AFB2 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
+		0FA7954E233DBF9CFAFB54A9 /* DailyRingsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyRingsApp.swift; sourceTree = "<group>"; };
+		163E7816751365BB38C26E75 /* SyncCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncCoordinator.swift; sourceTree = "<group>"; };
+		19107B9978155A149D124B5C /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
+		25253E75C988C85C7BF555CC /* ManualAdjustmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManualAdjustmentView.swift; sourceTree = "<group>"; };
+		28EC6B6FBBCC095D35B29D35 /* DrawerHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawerHeaderView.swift; sourceTree = "<group>"; };
+		2B29AA8821E15A285050A7D4 /* DailyRingsReportExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DailyRingsReportExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B5A9EA51A6B1408B805FB8A /* DailySummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailySummary.swift; sourceTree = "<group>"; };
+		2B72446E949FB4858D17C312 /* DailyRings.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DailyRings.entitlements; sourceTree = "<group>"; };
+		307888CEF958E164025969A9 /* SharedPomodoroState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPomodoroState.swift; sourceTree = "<group>"; };
+		403CD000FCA57D8EE98A097D /* BackgroundStateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundStateService.swift; sourceTree = "<group>"; };
+		4C7AD4A57A3B55E1EADEBC09 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		506E84D654961065A84EF261 /* YearGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YearGridView.swift; sourceTree = "<group>"; };
+		562047DDBD39DCEE25D2742F /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		5683A36D055095014309BA82 /* ScoreCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCalculatorTests.swift; sourceTree = "<group>"; };
+		5BA97FA216022FE4010E0E09 /* DailyRings.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DailyRings.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		60D8A008A674E7161BB6955E /* FeatureDrawerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureDrawerView.swift; sourceTree = "<group>"; };
+		658381B3263F078257EFE2C2 /* ExerciseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDetailView.swift; sourceTree = "<group>"; };
+		6A091EFC4191BBF5EF17FBB4 /* DailyRingsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DailyRingsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6ED6D116109A1C541F3282ED /* ProductivityCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductivityCalculator.swift; sourceTree = "<group>"; };
+		74423A6FAA667C282C0F879E /* DailyRingsMonitorExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DailyRingsMonitorExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		7468B640D0293211DE7791BC /* ProductivityCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductivityCalculatorTests.swift; sourceTree = "<group>"; };
+		7B29BEC868AADBC9CFB9DE26 /* PomodoroUsageReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroUsageReport.swift; sourceTree = "<group>"; };
+		8145C1BBA1C877554F48B9D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		91440E04FC2DDFC23826B94A /* VerticalSnapContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalSnapContainer.swift; sourceTree = "<group>"; };
+		9E0653CA891F4F454B9ACA37 /* MealPhotoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealPhotoStore.swift; sourceTree = "<group>"; };
+		A6079EFEB2D6E3ACD6B3204F /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		ABFDC550211AE50AC0A8A598 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AE0B448F1A0B349400270F27 /* ProductivityDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductivityDetailView.swift; sourceTree = "<group>"; };
+		AF63E7DA92294443FBBEB1EE /* PomodoroSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroSession.swift; sourceTree = "<group>"; };
+		B0DF71191D9EE6F478DD136A /* PomodoroManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroManager.swift; sourceTree = "<group>"; };
+		B135E0DDE2C264CC4961D2CA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B551051B39C54AACCA661BC1 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		B916F7716F77CBEEB390960E /* RingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RingView.swift; sourceTree = "<group>"; };
+		BA689301003192C1E467C4CB /* MealScoringService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealScoringService.swift; sourceTree = "<group>"; };
+		C43F922C4A7F99FAD042E5CE /* PomodoroTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroTimerView.swift; sourceTree = "<group>"; };
+		CAD8171EA62886E660098D01 /* NutritionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutritionView.swift; sourceTree = "<group>"; };
+		CAE13E87B90E87C6B39B2875 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CB8FAC2D129F630311FF3964 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
+		CF7A6D131AB1E7030771D6D3 /* SleepSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepSession.swift; sourceTree = "<group>"; };
+		D13BF12E2EE87ED71DF96EFE /* Monitor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Monitor.entitlements; sourceTree = "<group>"; };
+		D3FF8FB28D4E32D968921B11 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		D6B890B16D8DB28C44C25F3A /* SleepManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepManager.swift; sourceTree = "<group>"; };
+		D8C3C4B2739A5ED5820F2F82 /* DateBoundary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateBoundary.swift; sourceTree = "<group>"; };
+		DC48786C540E88DE9D3D1BF4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		DF987F847EB66B3D256FF3F6 /* DateBoundaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateBoundaryTests.swift; sourceTree = "<group>"; };
+		E69704E4847AFCE6DF010181 /* ScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCalculator.swift; sourceTree = "<group>"; };
+		EA085E61E6F18B17743A0D5C /* DaySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySummaryView.swift; sourceTree = "<group>"; };
+		F425DA4163988FEE88C84DEA /* PomodoroSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroSessionView.swift; sourceTree = "<group>"; };
+		FB45787C32970572063811D5 /* PomodoroActivityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroActivityMonitor.swift; sourceTree = "<group>"; };
+		FDD0AA46E6E14C00681D61F7 /* SleepDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepDetailView.swift; sourceTree = "<group>"; };
+		FF580A0EBC624BE6F8AC4B18 /* RescueTimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RescueTimeService.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6EBE8DBB80AB16BDC409BBAB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BA2F9919657AA937980DFC9 /* Supabase in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		098A5D2BBE91A4CB136D152D /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				B551051B39C54AACCA661BC1 /* Debug.xcconfig */,
+				D3FF8FB28D4E32D968921B11 /* Release.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		11653A225F95575F281DFE44 /* functions */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = functions;
+			sourceTree = "<group>";
+		};
+		1683F3235B89F9100C6E819E /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				D8C3C4B2739A5ED5820F2F82 /* DateBoundary.swift */,
+				E69704E4847AFCE6DF010181 /* ScoreCalculator.swift */,
+				A6079EFEB2D6E3ACD6B3204F /* Theme.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		1E0A9FA12ED36473FEBAE7D4 /* Productivity */ = {
+			isa = PBXGroup;
+			children = (
+				25253E75C988C85C7BF555CC /* ManualAdjustmentView.swift */,
+				B0DF71191D9EE6F478DD136A /* PomodoroManager.swift */,
+				F425DA4163988FEE88C84DEA /* PomodoroSessionView.swift */,
+				C43F922C4A7F99FAD042E5CE /* PomodoroTimerView.swift */,
+				6ED6D116109A1C541F3282ED /* ProductivityCalculator.swift */,
+				AE0B448F1A0B349400270F27 /* ProductivityDetailView.swift */,
+			);
+			path = Productivity;
+			sourceTree = "<group>";
+		};
+		42E4EC53F209C0D5B66639E1 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				CB8FAC2D129F630311FF3964 /* AppConstants.swift */,
+				307888CEF958E164025969A9 /* SharedPomodoroState.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		4489564CE8AEC4185253B10E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2B5A9EA51A6B1408B805FB8A /* DailySummary.swift */,
+				AF63E7DA92294443FBBEB1EE /* PomodoroSession.swift */,
+				CF7A6D131AB1E7030771D6D3 /* SleepSession.swift */,
+				0EBC8FD1DEC9830A80D8AFB2 /* UserSettings.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		44D089E44519B841A0C4AF8D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5BA97FA216022FE4010E0E09 /* DailyRings.app */,
+				74423A6FAA667C282C0F879E /* DailyRingsMonitorExtension.appex */,
+				2B29AA8821E15A285050A7D4 /* DailyRingsReportExtension.appex */,
+				6A091EFC4191BBF5EF17FBB4 /* DailyRingsTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		48C85A7C5301048F1B68C840 /* DeviceActivityMonitorExtension */ = {
+			isa = PBXGroup;
+			children = (
+				CAE13E87B90E87C6B39B2875 /* Info.plist */,
+				D13BF12E2EE87ED71DF96EFE /* Monitor.entitlements */,
+				FB45787C32970572063811D5 /* PomodoroActivityMonitor.swift */,
+			);
+			path = DeviceActivityMonitorExtension;
+			sourceTree = "<group>";
+		};
+		55A36E7F29ECB9567F935153 /* Nutrition */ = {
+			isa = PBXGroup;
+			children = (
+				0DDDC4E45DA47DFA985110A4 /* MealCameraView.swift */,
+				9E0653CA891F4F454B9ACA37 /* MealPhotoStore.swift */,
+				BA689301003192C1E467C4CB /* MealScoringService.swift */,
+				CAD8171EA62886E660098D01 /* NutritionView.swift */,
+			);
+			path = Nutrition;
+			sourceTree = "<group>";
+		};
+		56F7B4A86B25001D1927ECE2 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				4489564CE8AEC4185253B10E /* Models */,
+				8F97D6D1847BD44F9E572AAA /* Services */,
+				1683F3235B89F9100C6E819E /* Utilities */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		5ADB88534B0A4A768EEF57BE /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				ABFDC550211AE50AC0A8A598 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		69104C34B7AECFB578AA0F0D /* Exercise */ = {
+			isa = PBXGroup;
+			children = (
+				658381B3263F078257EFE2C2 /* ExerciseDetailView.swift */,
+				562047DDBD39DCEE25D2742F /* HealthKitManager.swift */,
+			);
+			path = Exercise;
+			sourceTree = "<group>";
+		};
+		72B33189AFD4565F1A4FC0C1 /* DailyRings */ = {
+			isa = PBXGroup;
+			children = (
+				9028D0907DD4357CEB2A7A52 /* App */,
+				56F7B4A86B25001D1927ECE2 /* Core */,
+				F7BE4FC835F6609AE20ED48A /* Extensions */,
+				98B1EF57EFAD615CA48E4164 /* Features */,
+				B5DE980C9A30BCC127D8B879 /* Resources */,
+				F4E2C3A0F76613A1F0639A14 /* Supabase */,
+			);
+			path = DailyRings;
+			sourceTree = "<group>";
+		};
+		8F97D6D1847BD44F9E572AAA /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				403CD000FCA57D8EE98A097D /* BackgroundStateService.swift */,
+				074379523278D60092F23FDC /* ClockDriftService.swift */,
+				FF580A0EBC624BE6F8AC4B18 /* RescueTimeService.swift */,
+				19107B9978155A149D124B5C /* SupabaseService.swift */,
+				163E7816751365BB38C26E75 /* SyncCoordinator.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		9028D0907DD4357CEB2A7A52 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B135E0DDE2C264CC4961D2CA /* ContentView.swift */,
+				0FA7954E233DBF9CFAFB54A9 /* DailyRingsApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		98B1EF57EFAD615CA48E4164 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				69104C34B7AECFB578AA0F0D /* Exercise */,
+				F75B0E9D9A252B6B39A2F9B6 /* Navigation */,
+				55A36E7F29ECB9567F935153 /* Nutrition */,
+				1E0A9FA12ED36473FEBAE7D4 /* Productivity */,
+				5ADB88534B0A4A768EEF57BE /* Settings */,
+				C84CDC66293FB51172448A9A /* Sleep */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		B5DE980C9A30BCC127D8B879 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				4C7AD4A57A3B55E1EADEBC09 /* Assets.xcassets */,
+				2B72446E949FB4858D17C312 /* DailyRings.entitlements */,
+				DC48786C540E88DE9D3D1BF4 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		BA9EAF08331DC915D2AE122F /* DailyRingsTests */ = {
+			isa = PBXGroup;
+			children = (
+				DF987F847EB66B3D256FF3F6 /* DateBoundaryTests.swift */,
+				7468B640D0293211DE7791BC /* ProductivityCalculatorTests.swift */,
+				5683A36D055095014309BA82 /* ScoreCalculatorTests.swift */,
+			);
+			path = DailyRingsTests;
+			sourceTree = "<group>";
+		};
+		C84CDC66293FB51172448A9A /* Sleep */ = {
+			isa = PBXGroup;
+			children = (
+				FDD0AA46E6E14C00681D61F7 /* SleepDetailView.swift */,
+				D6B890B16D8DB28C44C25F3A /* SleepManager.swift */,
+				07BBB130925FEB6FC61745E5 /* SleepSessionView.swift */,
+			);
+			path = Sleep;
+			sourceTree = "<group>";
+		};
+		CA70B33AF77153A42507CD0A /* DeviceActivityReportExtension */ = {
+			isa = PBXGroup;
+			children = (
+				8145C1BBA1C877554F48B9D0 /* Info.plist */,
+				7B29BEC868AADBC9CFB9DE26 /* PomodoroUsageReport.swift */,
+				05CE9E2C6AD56FD24193530B /* Report.entitlements */,
+			);
+			path = DeviceActivityReportExtension;
+			sourceTree = "<group>";
+		};
+		F4E2C3A0F76613A1F0639A14 /* Supabase */ = {
+			isa = PBXGroup;
+			children = (
+				11653A225F95575F281DFE44 /* functions */,
+			);
+			path = Supabase;
+			sourceTree = "<group>";
+		};
+		F75B0E9D9A252B6B39A2F9B6 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				EA085E61E6F18B17743A0D5C /* DaySummaryView.swift */,
+				28EC6B6FBBCC095D35B29D35 /* DrawerHeaderView.swift */,
+				60D8A008A674E7161BB6955E /* FeatureDrawerView.swift */,
+				B916F7716F77CBEEB390960E /* RingView.swift */,
+				91440E04FC2DDFC23826B94A /* VerticalSnapContainer.swift */,
+				506E84D654961065A84EF261 /* YearGridView.swift */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
+		F7BE4FC835F6609AE20ED48A /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				48C85A7C5301048F1B68C840 /* DeviceActivityMonitorExtension */,
+				CA70B33AF77153A42507CD0A /* DeviceActivityReportExtension */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		FB2522957E94288E95C7CEDE = {
+			isa = PBXGroup;
+			children = (
+				098A5D2BBE91A4CB136D152D /* Config */,
+				72B33189AFD4565F1A4FC0C1 /* DailyRings */,
+				BA9EAF08331DC915D2AE122F /* DailyRingsTests */,
+				42E4EC53F209C0D5B66639E1 /* Shared */,
+				44D089E44519B841A0C4AF8D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		970FFD29CE9A25915410BAF4 /* DailyRingsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 85A4C9D5EA7885C3CF5666B6 /* Build configuration list for PBXNativeTarget "DailyRingsTests" */;
+			buildPhases = (
+				C85635F78B254B51DE4B3924 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				22A5795C258DE6F2356A42B6 /* PBXTargetDependency */,
+			);
+			name = DailyRingsTests;
+			packageProductDependencies = (
+			);
+			productName = DailyRingsTests;
+			productReference = 6A091EFC4191BBF5EF17FBB4 /* DailyRingsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		A56B74CB11C544EE17C55A51 /* DailyRingsReportExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 09887916DE2ACF3149C842B0 /* Build configuration list for PBXNativeTarget "DailyRingsReportExtension" */;
+			buildPhases = (
+				BAEF3B02A5DD7C374F91502D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DailyRingsReportExtension;
+			packageProductDependencies = (
+			);
+			productName = DailyRingsReportExtension;
+			productReference = 2B29AA8821E15A285050A7D4 /* DailyRingsReportExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		E54B1096CC3C594C151AAFD9 /* DailyRings */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B33EDA3CC1978FAB9332E7FC /* Build configuration list for PBXNativeTarget "DailyRings" */;
+			buildPhases = (
+				C549DB28F8759D2D2BB04530 /* Sources */,
+				FA017D33871117577A4240EE /* Resources */,
+				6EBE8DBB80AB16BDC409BBAB /* Frameworks */,
+				038B8F3139CA44BE70790626 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				29ED01320F5B8ED1DBDB1BD3 /* PBXTargetDependency */,
+				D6DAC6E81EB0985B93C0310F /* PBXTargetDependency */,
+			);
+			name = DailyRings;
+			packageProductDependencies = (
+				4088D5692BE15B19C377052C /* Supabase */,
+			);
+			productName = DailyRings;
+			productReference = 5BA97FA216022FE4010E0E09 /* DailyRings.app */;
+			productType = "com.apple.product-type.application";
+		};
+		FC98F98871E2A87393BEC73E /* DailyRingsMonitorExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AD764176C6D28F9C10AE3117 /* Build configuration list for PBXNativeTarget "DailyRingsMonitorExtension" */;
+			buildPhases = (
+				B2736902455375CFAF753943 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DailyRingsMonitorExtension;
+			packageProductDependencies = (
+			);
+			productName = DailyRingsMonitorExtension;
+			productReference = 74423A6FAA667C282C0F879E /* DailyRingsMonitorExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1CCF77BAF094998783A6C11D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					970FFD29CE9A25915410BAF4 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					A56B74CB11C544EE17C55A51 = {
+						ProvisioningStyle = Automatic;
+					};
+					E54B1096CC3C594C151AAFD9 = {
+						ProvisioningStyle = Automatic;
+					};
+					FC98F98871E2A87393BEC73E = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = A40A16FEF65026576AC3B53D /* Build configuration list for PBXProject "DailyRings" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = FB2522957E94288E95C7CEDE;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A9C8BE867EB9E6826555FD2C /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 44D089E44519B841A0C4AF8D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E54B1096CC3C594C151AAFD9 /* DailyRings */,
+				FC98F98871E2A87393BEC73E /* DailyRingsMonitorExtension */,
+				A56B74CB11C544EE17C55A51 /* DailyRingsReportExtension */,
+				970FFD29CE9A25915410BAF4 /* DailyRingsTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FA017D33871117577A4240EE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F96D3B80A303D61996E603AD /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B2736902455375CFAF753943 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2C93CF9214B52001A8BBDEEA /* AppConstants.swift in Sources */,
+				0DB7293D3883AF77DF2032D7 /* PomodoroActivityMonitor.swift in Sources */,
+				8AC812A0AB5053AE7B3104FF /* SharedPomodoroState.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BAEF3B02A5DD7C374F91502D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				090FDFE34AC8DE3CE5CC4D26 /* AppConstants.swift in Sources */,
+				E37CF161A285A12163B545D1 /* PomodoroUsageReport.swift in Sources */,
+				3C61087003D438066797CF3E /* SharedPomodoroState.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C549DB28F8759D2D2BB04530 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7868CB003E27D39AAE869467 /* AppConstants.swift in Sources */,
+				EA2C80CA85D9ED049EA6B5E5 /* BackgroundStateService.swift in Sources */,
+				224072E05D0A547AED588EE2 /* ClockDriftService.swift in Sources */,
+				FB3A1026F1523CAC73F57E7C /* ContentView.swift in Sources */,
+				908C119F70B60017E82A24DE /* DailyRingsApp.swift in Sources */,
+				6B204B238E583C8235D0365B /* DailySummary.swift in Sources */,
+				CA83CED09E3517EC8755CD22 /* DateBoundary.swift in Sources */,
+				260D2FD4C9490F6A8318E447 /* DaySummaryView.swift in Sources */,
+				797DBB2256044EF7966896AB /* DrawerHeaderView.swift in Sources */,
+				0B1A63A1E1B9540A79622107 /* ExerciseDetailView.swift in Sources */,
+				0CCE30179C69DFDC8DF5C87C /* FeatureDrawerView.swift in Sources */,
+				59E71C6F5A1A62F187AEE70E /* HealthKitManager.swift in Sources */,
+				B174B2525F003FEF8D8A36C0 /* ManualAdjustmentView.swift in Sources */,
+				743E4691433312CB2B4B8743 /* MealCameraView.swift in Sources */,
+				5CACFD4836D261F5AEBFCA71 /* MealPhotoStore.swift in Sources */,
+				7FE65D58BBBCFEA6ADCF256D /* MealScoringService.swift in Sources */,
+				6E569D1BB6E2502CAE2D1078 /* NutritionView.swift in Sources */,
+				8B6842288422E9683EBBD79A /* PomodoroManager.swift in Sources */,
+				30340D74B32C9AB47BDD7ABE /* PomodoroSession.swift in Sources */,
+				0C8E99040221BE7CBF223180 /* PomodoroSessionView.swift in Sources */,
+				2BEA2E9EF4BD0A2B344B7247 /* PomodoroTimerView.swift in Sources */,
+				0F2899977B6C24F10936C93A /* ProductivityCalculator.swift in Sources */,
+				2A038AE6FB9F7BD94504E08F /* ProductivityDetailView.swift in Sources */,
+				91AD29A2D1A724DD805B4907 /* RescueTimeService.swift in Sources */,
+				27CCCB96FD5A0DCE075AD233 /* RingView.swift in Sources */,
+				48140784ECADE043AB32F8BD /* ScoreCalculator.swift in Sources */,
+				633B0CBABE9362C33F06C715 /* SettingsView.swift in Sources */,
+				EA966C92DD5929E75C4C9D3B /* SharedPomodoroState.swift in Sources */,
+				C85FFD6D2F91199003270F3B /* SleepDetailView.swift in Sources */,
+				5841744BE6904FB83AEFD21C /* SleepManager.swift in Sources */,
+				614B373AC0F274C74660AEFB /* SleepSession.swift in Sources */,
+				31AAB13D12BF8807559D00A9 /* SleepSessionView.swift in Sources */,
+				B41C1F321AB7261A2CE2696B /* SupabaseService.swift in Sources */,
+				4195DCD9A4151FDFE4067657 /* SyncCoordinator.swift in Sources */,
+				018131FBB836273AAAE64681 /* Theme.swift in Sources */,
+				A7D986A56516A65FFE499AEA /* UserSettings.swift in Sources */,
+				1C7440DD173909C7F1778D98 /* VerticalSnapContainer.swift in Sources */,
+				D667D9A5A30E5D56160F6478 /* YearGridView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C85635F78B254B51DE4B3924 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				21308B5B78A986EBF6D2D5BC /* DateBoundaryTests.swift in Sources */,
+				0303FECC9D45ED3D11AEF657 /* ProductivityCalculatorTests.swift in Sources */,
+				5E7737DCD503D091AA8311B4 /* ScoreCalculatorTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		22A5795C258DE6F2356A42B6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E54B1096CC3C594C151AAFD9 /* DailyRings */;
+			targetProxy = EE7EF0B349FA8EF73E56AEF3 /* PBXContainerItemProxy */;
+		};
+		29ED01320F5B8ED1DBDB1BD3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FC98F98871E2A87393BEC73E /* DailyRingsMonitorExtension */;
+			targetProxy = 2F7C56AA0A62B4B362FBA4CC /* PBXContainerItemProxy */;
+		};
+		D6DAC6E81EB0985B93C0310F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A56B74CB11C544EE17C55A51 /* DailyRingsReportExtension */;
+			targetProxy = 7B25B2809C0EEEAE12C92242 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1512CC8DE48B9497F626183F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = DailyRings/Extensions/DeviceActivityMonitorExtension/Monitor.entitlements;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = DailyRings/Extensions/DeviceActivityMonitorExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kai.dailyrings.monitor;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1CF033CF863412A616B52120 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B551051B39C54AACCA661BC1 /* Debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		6404D7273E8792DDFC63C678 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = DailyRings/Extensions/DeviceActivityMonitorExtension/Monitor.entitlements;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = DailyRings/Extensions/DeviceActivityMonitorExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kai.dailyrings.monitor;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		76E82F5336EBA388999BE017 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D3FF8FB28D4E32D968921B11 /* Release.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		8DAA4E831EEEDAB43399E21A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = DailyRings/Extensions/DeviceActivityReportExtension/Report.entitlements;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = DailyRings/Extensions/DeviceActivityReportExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kai.dailyrings.report;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9F87118E43359E66AB0C36C4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = DailyRings/Resources/DailyRings.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = DailyRings/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kai.dailyrings;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AEE222E938170D526883C6FF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = DailyRings/Resources/DailyRings.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = DailyRings/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kai.dailyrings;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BC390B5A66BD148249E9EE91 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kai.dailyrings.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DailyRings.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DailyRings";
+			};
+			name = Release;
+		};
+		BCEA771975E21726B1E1B959 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kai.dailyrings.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DailyRings.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DailyRings";
+			};
+			name = Debug;
+		};
+		E819C831917D32FD69CB8E1E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = DailyRings/Extensions/DeviceActivityReportExtension/Report.entitlements;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = DailyRings/Extensions/DeviceActivityReportExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kai.dailyrings.report;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		09887916DE2ACF3149C842B0 /* Build configuration list for PBXNativeTarget "DailyRingsReportExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8DAA4E831EEEDAB43399E21A /* Debug */,
+				E819C831917D32FD69CB8E1E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		85A4C9D5EA7885C3CF5666B6 /* Build configuration list for PBXNativeTarget "DailyRingsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BCEA771975E21726B1E1B959 /* Debug */,
+				BC390B5A66BD148249E9EE91 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A40A16FEF65026576AC3B53D /* Build configuration list for PBXProject "DailyRings" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1CF033CF863412A616B52120 /* Debug */,
+				76E82F5336EBA388999BE017 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AD764176C6D28F9C10AE3117 /* Build configuration list for PBXNativeTarget "DailyRingsMonitorExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1512CC8DE48B9497F626183F /* Debug */,
+				6404D7273E8792DDFC63C678 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B33EDA3CC1978FAB9332E7FC /* Build configuration list for PBXNativeTarget "DailyRings" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AEE222E938170D526883C6FF /* Debug */,
+				9F87118E43359E66AB0C36C4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A9C8BE867EB9E6826555FD2C /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4088D5692BE15B19C377052C /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A9C8BE867EB9E6826555FD2C /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 1CCF77BAF094998783A6C11D /* Project object */;
+}

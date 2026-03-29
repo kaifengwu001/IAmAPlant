@@ -1,0 +1,10 @@
+.DS_Store
+**/xcuserdata/
+**/xcshareddata/WorkspaceSettings.xcsettings
+*.xcuserstate
+DerivedData/
+build/
+.swiftpm/configuration/registries.json
+*.ipa
+*.dSYM.zip
+*.dSYM
