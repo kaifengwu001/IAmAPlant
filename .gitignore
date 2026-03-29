@@ -8,3 +8,25 @@ build/
 *.ipa
 *.dSYM.zip
 *.dSYM
+
+# Local secrets & env (never commit)
+Config/Secrets.xcconfig
+.env
+.env.*
+!.env.example
+supabase/.env
+supabase/.env.*
+.xcode.env.local
+
+# Common mobile / signing material
+*.p12
+*.mobileprovision
+*.cer
+GoogleService-Info.plist
+AuthKey_*.p8
+
+# Certificates & keys
+*.pem
+id_rsa
+id_ed25519
+*.key

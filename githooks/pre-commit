@@ -1,0 +1,60 @@
+#!/bin/sh
+# Blocks common secret filenames and obvious secret material from being committed.
+set -e
+ROOT=$(git rev-parse --show-toplevel)
+cd "$ROOT"
+
+blocked_path_regex='^(Config/Secrets\.xcconfig|\.env$|\.env\.local$|\.env\.production$|supabase/\.env$|\.xcode\.env\.local)$'
+while IFS= read -r f; do
+	[ -z "$f" ] && continue
+	if echo "$f" | grep -Eq "$blocked_path_regex"; then
+		echo "pre-commit: blocked path (use gitignored local files or templates): $f"
+		exit 1
+	fi
+done <<EOF
+$(git diff --cached --name-only)
+EOF
+
+# Disallow real Supabase JWT-style anon keys in tracked xcconfig (Secrets.xcconfig is gitignored).
+while IFS= read -r f; do
+	[ -z "$f" ] && continue
+	case "$f" in
+		*.xcconfig)
+			if [ "$f" = "Config/Secrets.example.xcconfig" ]; then
+				continue
+			fi
+			if git show ":$f" 2>/dev/null | grep -Eq '^[[:space:]]*SUPABASE_ANON_KEY[[:space:]]*=[[:space:]]*eyJ'; then
+				echo "pre-commit: SUPABASE_ANON_KEY looks like a real JWT in $f — use Config/Secrets.xcconfig (gitignored) instead."
+				exit 1
+			fi
+			;;
+	esac
+done <<EOF
+$(git diff --cached --name-only)
+EOF
+
+# High-signal patterns in staged text (skip binary / large).
+while IFS= read -r f; do
+	[ -z "$f" ] && continue
+	case "$f" in
+		githooks/*|scripts/install-git-hooks.sh) continue ;;
+		*.png|*.jpg|*.jpeg|*.gif|*.ico|*.pdf|*.zip|*.ipa|*.xcassets/*) continue ;;
+	esac
+	staged=$(git show ":$f" 2>/dev/null) || continue
+	if printf '%s\n' "$staged" | grep -Fq 'PRIVATE KEY-----'; then
+		echo "pre-commit: possible private key material in $f"
+		exit 1
+	fi
+	if printf '%s\n' "$staged" | grep -Eq 'sk_live_[0-9a-zA-Z]{20,}'; then
+		echo "pre-commit: possible live API secret in $f"
+		exit 1
+	fi
+	if printf '%s\n' "$staged" | grep -Eq 'ghp_[0-9a-zA-Z]{20,}'; then
+		echo "pre-commit: possible GitHub token in $f"
+		exit 1
+	fi
+done <<EOF
+$(git diff --cached --name-only)
+EOF
+
+exit 0
