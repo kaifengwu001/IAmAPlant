@@ -7,6 +7,12 @@ cd "$ROOT"
 blocked_path_regex='^(Config/Secrets\.xcconfig|\.env$|\.env\.local$|\.env\.production$|supabase/\.env$|\.xcode\.env\.local)$'
 while IFS= read -r f; do
 	[ -z "$f" ] && continue
+	case "$f" in
+		.cursor/*)
+			echo "pre-commit: do not commit .cursor/ (IDE-only; see .gitignore)."
+			exit 1
+			;;
+	esac
 	if echo "$f" | grep -Eq "$blocked_path_regex"; then
 		echo "pre-commit: blocked path (use gitignored local files or templates): $f"
 		exit 1
