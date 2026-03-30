@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import FamilyControls
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -22,6 +23,7 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 goalsSection
+                pomodoroSection
                 integrationSection
                 dataSection
                 accountSection
@@ -72,6 +74,27 @@ struct SettingsView: View {
             .listRowBackground(Color.white.opacity(0.05))
         } header: {
             Text("Goals")
+                .font(.system(.caption, design: .monospaced, weight: .bold))
+        }
+    }
+
+    private var pomodoroSection: some View {
+        Section {
+            NavigationLink {
+                DistractionPickerView()
+            } label: {
+                HStack {
+                    Text("Distracting Apps")
+                        .font(.system(.subheadline, design: .monospaced))
+                    Spacer()
+                    Text(DistractionPickerView.hasSelection ? "Configured" : "Not set")
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+            }
+            .listRowBackground(Color.white.opacity(0.05))
+        } header: {
+            Text("Pomodoro")
                 .font(.system(.caption, design: .monospaced, weight: .bold))
         }
     }

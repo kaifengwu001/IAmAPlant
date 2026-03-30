@@ -48,6 +48,7 @@
 		8DF43104609D91982EC78DCA /* PomodoroDebugStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5312FA53F738281A727E36 /* PomodoroDebugStatusView.swift */; };
 		908C119F70B60017E82A24DE /* DailyRingsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA7954E233DBF9CFAFB54A9 /* DailyRingsApp.swift */; };
 		91AD29A2D1A724DD805B4907 /* RescueTimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF580A0EBC624BE6F8AC4B18 /* RescueTimeService.swift */; };
+		9A7CA6402D39BEDCE1A4AD8D /* DistractionPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E51EA78C7BBE910B917F8E /* DistractionPickerView.swift */; };
 		A7D986A56516A65FFE499AEA /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EBC8FD1DEC9830A80D8AFB2 /* UserSettings.swift */; };
 		B174B2525F003FEF8D8A36C0 /* ManualAdjustmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25253E75C988C85C7BF555CC /* ManualAdjustmentView.swift */; };
 		B41C1F321AB7261A2CE2696B /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19107B9978155A149D124B5C /* SupabaseService.swift */; };
@@ -117,6 +118,7 @@
 		2B72446E949FB4858D17C312 /* DailyRings.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DailyRings.entitlements; sourceTree = "<group>"; };
 		307888CEF958E164025969A9 /* SharedPomodoroState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPomodoroState.swift; sourceTree = "<group>"; };
 		403CD000FCA57D8EE98A097D /* BackgroundStateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundStateService.swift; sourceTree = "<group>"; };
+		43E51EA78C7BBE910B917F8E /* DistractionPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistractionPickerView.swift; sourceTree = "<group>"; };
 		4C7AD4A57A3B55E1EADEBC09 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		506E84D654961065A84EF261 /* YearGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YearGridView.swift; sourceTree = "<group>"; };
 		562047DDBD39DCEE25D2742F /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 		1E0A9FA12ED36473FEBAE7D4 /* Productivity */ = {
 			isa = PBXGroup;
 			children = (
+				43E51EA78C7BBE910B917F8E /* DistractionPickerView.swift */,
 				25253E75C988C85C7BF555CC /* ManualAdjustmentView.swift */,
 				DD5312FA53F738281A727E36 /* PomodoroDebugStatusView.swift */,
 				B0DF71191D9EE6F478DD136A /* PomodoroManager.swift */,
@@ -593,6 +596,7 @@
 				6B204B238E583C8235D0365B /* DailySummary.swift in Sources */,
 				CA83CED09E3517EC8755CD22 /* DateBoundary.swift in Sources */,
 				260D2FD4C9490F6A8318E447 /* DaySummaryView.swift in Sources */,
+				9A7CA6402D39BEDCE1A4AD8D /* DistractionPickerView.swift in Sources */,
 				797DBB2256044EF7966896AB /* DrawerHeaderView.swift in Sources */,
 				0B1A63A1E1B9540A79622107 /* ExerciseDetailView.swift in Sources */,
 				0CCE30179C69DFDC8DF5C87C /* FeatureDrawerView.swift in Sources */,

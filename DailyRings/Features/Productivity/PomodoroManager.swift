@@ -14,41 +14,16 @@ final class PomodoroManager {
     private(set) var backgroundHandlerConnected = false
     private(set) var debugLog: [String] = []
 
-    private let clockDriftService = ClockDriftService()
-    private let backgroundStateService = BackgroundStateService()
     private let userDefaults = UserDefaults(suiteName: AppConstants.appGroupID)
     private var timerTask: Task<Void, Never>?
     private var modelContext: ModelContext?
-
-    private var foregroundEntryTime: Date?
-    private var accumulatedForegroundSeconds: Int = 0
 
     private static let totalSeconds = AppConstants.pomodoroWorkMinutes * 60
 
     // MARK: - Computed Properties (for debug view)
 
-    var currentForegroundSeconds: Int {
-        var total = accumulatedForegroundSeconds
-        if let entry = foregroundEntryTime {
-            total += Int(Date.now.timeIntervalSince(entry))
-        }
-        return total
-    }
-
     var currentDistractionLevel: Int {
         SharedPomodoroStorage.loadDistractionLevel()
-    }
-
-    var distractionEventsThisSession: [PomodoroEvent] {
-        guard let session = activeSession else { return [] }
-        return SharedPomodoroStorage.loadEvents()
-            .filter { $0.sessionID == session.sessionID && $0.eventType == .screenTimeThreshold }
-    }
-
-    var allEventsThisSession: [PomodoroEvent] {
-        guard let session = activeSession else { return [] }
-        return SharedPomodoroStorage.loadEvents()
-            .filter { $0.sessionID == session.sessionID }
     }
 
     var extensionLog: [String] {
@@ -56,7 +31,7 @@ final class PomodoroManager {
     }
 
     var distractionSource: String {
-        isFamilyControlsAvailable ? "FamilyControls + Clock Drift" : "Clock Drift Only"
+        isFamilyControlsAvailable ? "ScreenTime" : "Unavailable"
     }
 
     // MARK: - Configuration
@@ -86,9 +61,7 @@ final class PomodoroManager {
         activeSession = session
         isRunning = true
         remainingSeconds = remaining
-        foregroundEntryTime = .now
-        accumulatedForegroundSeconds = SharedPomodoroStorage.loadForegroundSeconds()
-        appendDebug("Restored session \(sessionID.uuidString.prefix(8)), \(remaining)s left, fg=\(accumulatedForegroundSeconds)s")
+        appendDebug("Restored session \(sessionID.uuidString.prefix(8)), \(remaining)s left")
 
         if remaining <= 0 {
             Task { await completeSession() }
@@ -125,9 +98,6 @@ final class PomodoroManager {
         activeSession = session
         isRunning = true
         remainingSeconds = Self.totalSeconds
-        foregroundEntryTime = .now
-        accumulatedForegroundSeconds = 0
-        SharedPomodoroStorage.saveForegroundSeconds(0)
         SharedPomodoroStorage.saveDistractionLevel(0)
         persistSessionID(session.sessionID)
 
@@ -147,7 +117,7 @@ final class PomodoroManager {
             stopDeviceActivityMonitoring(sessionID: session.sessionID)
         }
 
-        let distractedSeconds = computeDistractedSeconds(for: session.sessionID)
+        let distractedSeconds = distractedSecondsFromLevel()
         session.markInterrupted(distractedSeconds: distractedSeconds)
         try? modelContext?.save()
 
@@ -159,39 +129,17 @@ final class PomodoroManager {
         backgroundHandlerConnected = true
         guard isRunning, let session = activeSession else { return }
 
-        foregroundEntryTime = .now
-
         let elapsed = Int(Date.now.timeIntervalSince(session.startTime))
         let recalculated = max(0, Self.totalSeconds - elapsed)
         appendDebug("Foreground: elapsed \(elapsed)s, remaining \(recalculated)s (was \(remainingSeconds)s)")
         remainingSeconds = recalculated
 
-        if let gap = await clockDriftService.analyzeBackgroundGap() {
-            appendDebug("Clock drift: wall=\(String(format: "%.1f", gap.wallDuration))s, awake=\(String(format: "%.2f", gap.awakeRatio)), used=\(gap.phoneWasUsed)")
-            if gap.phoneWasUsed {
-                let durationSecs = Int(gap.wallDuration)
-                SharedPomodoroStorage.saveEvent(PomodoroEvent(
-                    sessionID: session.sessionID,
-                    timestamp: .now,
-                    eventType: .distractionDetected,
-                    durationSeconds: durationSecs
-                ))
-            }
-        } else {
-            appendDebug("Clock drift: no background entry recorded")
-        }
-
         let level = SharedPomodoroStorage.loadDistractionLevel()
-        appendDebug("Distraction level: \(level), fg=\(currentForegroundSeconds)s")
+        appendDebug("Distraction level: \(level)")
 
         if level >= 3 {
             appendDebug("FAIL detected on foreground return")
             await failSession()
-            return
-        }
-
-        if sessionEvents(for: session.sessionID).contains(where: { $0.eventType == .completed }) {
-            await completeSession()
             return
         }
 
@@ -207,16 +155,7 @@ final class PomodoroManager {
     func onAppEnterBackground() async {
         backgroundHandlerConnected = true
         guard isRunning else { return }
-
-        if let entry = foregroundEntryTime {
-            accumulatedForegroundSeconds += Int(Date.now.timeIntervalSince(entry))
-            foregroundEntryTime = nil
-            SharedPomodoroStorage.saveForegroundSeconds(accumulatedForegroundSeconds)
-        }
-
-        appendDebug("Background: remaining \(remainingSeconds)s, fg=\(accumulatedForegroundSeconds)s")
-        await clockDriftService.recordBackgroundEntry()
-        await backgroundStateService.checkLockStateDuringPomodoro()
+        appendDebug("Background: remaining \(remainingSeconds)s")
     }
 
     // MARK: - Timer
@@ -224,17 +163,15 @@ final class PomodoroManager {
     private func startTimer() {
         timerTask?.cancel()
         timerTask = Task { @MainActor in
-            var ticksSinceLastSync = 0
+            var ticksSinceLastPoll = 0
 
             while remainingSeconds > 0 && !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(1))
                 remainingSeconds -= 1
-                ticksSinceLastSync += 1
+                ticksSinceLastPoll += 1
 
-                if ticksSinceLastSync >= 5 {
-                    ticksSinceLastSync = 0
-                    syncForegroundTime()
-
+                if ticksSinceLastPoll >= 5 {
+                    ticksSinceLastPoll = 0
                     let level = SharedPomodoroStorage.loadDistractionLevel()
                     if level >= 3 {
                         appendDebug("Poll: FAIL (level=3)")
@@ -250,12 +187,6 @@ final class PomodoroManager {
         }
     }
 
-    private func syncForegroundTime() {
-        guard foregroundEntryTime != nil else { return }
-        let total = currentForegroundSeconds
-        SharedPomodoroStorage.saveForegroundSeconds(total)
-    }
-
     // MARK: - Session Completion
 
     private func completeSession() async {
@@ -265,7 +196,7 @@ final class PomodoroManager {
             stopDeviceActivityMonitoring(sessionID: session.sessionID)
         }
 
-        let distractedSeconds = computeDistractedSeconds(for: session.sessionID)
+        let distractedSeconds = distractedSecondsFromLevel()
         session.markCompleted(distractedSeconds: distractedSeconds)
         try? modelContext?.save()
 
@@ -280,35 +211,20 @@ final class PomodoroManager {
             stopDeviceActivityMonitoring(sessionID: session.sessionID)
         }
 
-        let distractedSeconds = computeDistractedSeconds(for: session.sessionID)
-        session.markInterrupted(distractedSeconds: distractedSeconds)
+        session.markInterrupted(distractedSeconds: 180)
         try? modelContext?.save()
 
-        appendDebug("FAILED: \(distractedSeconds)s distracted, \(session.durationMinutes)m (3 min limit)")
+        appendDebug("FAILED: 180s distracted, \(session.durationMinutes)m (3 min limit)")
         cleanup()
     }
 
-    private func computeDistractedSeconds(for sessionID: UUID) -> Int {
-        let events = sessionEvents(for: sessionID)
-        let fg = currentForegroundSeconds
-        let baseline = SharedPomodoroStorage.loadScreenTimeBaseline()
-
-        let highestThreshold = events
-            .filter { $0.eventType == .screenTimeThreshold }
-            .map(\.durationSeconds)
-            .max() ?? 0
-        let newScreenTime = max(0, highestThreshold - baseline)
-        let adjustedFromThreshold = max(0, newScreenTime - fg)
-
-        let clockDriftSeconds = events
-            .filter { $0.eventType == .distractionDetected }
-            .reduce(0) { $0 + $1.durationSeconds }
-
-        return max(adjustedFromThreshold, clockDriftSeconds)
-    }
-
-    private func sessionEvents(for sessionID: UUID) -> [PomodoroEvent] {
-        SharedPomodoroStorage.loadEvents().filter { $0.sessionID == sessionID }
+    private func distractedSecondsFromLevel() -> Int {
+        switch SharedPomodoroStorage.loadDistractionLevel() {
+        case 3: return 180
+        case 2: return 150
+        case 1: return 60
+        default: return 0
+        }
     }
 
     private func cleanup() {
@@ -317,13 +233,11 @@ final class PomodoroManager {
         activeSession = nil
         isRunning = false
         remainingSeconds = 0
-        foregroundEntryTime = nil
-        accumulatedForegroundSeconds = 0
         clearPersistedSessionID()
         SharedPomodoroStorage.clearSessionData()
     }
 
-    // MARK: - DeviceActivity
+    // MARK: - DeviceActivity Monitoring
 
     private func checkFamilyControlsAvailability() {
         Task {
@@ -341,11 +255,11 @@ final class PomodoroManager {
         let activityName = DeviceActivityName(rawValue: sessionID.uuidString)
 
         let calendar = Calendar.current
-        let startDate = Date.now.addingTimeInterval(10)
+        let now = Date.now
         let sessionDuration = TimeInterval(Self.totalSeconds)
-        let endDate = Date.now.addingTimeInterval(sessionDuration + 60)
+        let endDate = now.addingTimeInterval(sessionDuration + 60)
 
-        let start = calendar.dateComponents([.hour, .minute, .second], from: startDate)
+        let start = calendar.dateComponents([.hour, .minute, .second], from: now)
         let end = calendar.dateComponents([.hour, .minute, .second], from: endDate)
 
         let schedule = DeviceActivitySchedule(
@@ -354,21 +268,47 @@ final class PomodoroManager {
             repeats: false
         )
 
-        var events: [DeviceActivityEvent.Name: DeviceActivityEvent] = [:]
-        let thresholds = Self.buildThresholdSeconds()
-        for s in thresholds {
-            let name = DeviceActivityEvent.Name(rawValue: "t\(s)_\(sessionID.uuidString)")
-            let threshold = DateComponents(hour: s / 3600, minute: (s % 3600) / 60, second: s % 60)
-            events[name] = DeviceActivityEvent(threshold: threshold)
-        }
+        let selection = DistractionPickerView.loadSelection()
+        let appTokens = selection?.applicationTokens ?? []
+        let catTokens = selection?.categoryTokens ?? []
+        let webTokens = selection?.webDomainTokens ?? []
 
+        let warn1Name = DeviceActivityEvent.Name(rawValue: "warn1_\(sessionID.uuidString)")
+        let warn2Name = DeviceActivityEvent.Name(rawValue: "warn2_\(sessionID.uuidString)")
+        let failName = DeviceActivityEvent.Name(rawValue: "fail_\(sessionID.uuidString)")
+
+        let warn1 = DeviceActivityEvent(
+            applications: appTokens,
+            categories: catTokens,
+            webDomains: webTokens,
+            threshold: DateComponents(minute: 1)
+        )
+        let warn2 = DeviceActivityEvent(
+            applications: appTokens,
+            categories: catTokens,
+            webDomains: webTokens,
+            threshold: DateComponents(minute: 2, second: 30)
+        )
+        let fail = DeviceActivityEvent(
+            applications: appTokens,
+            categories: catTokens,
+            webDomains: webTokens,
+            threshold: DateComponents(minute: 3)
+        )
+
+        let events: [DeviceActivityEvent.Name: DeviceActivityEvent] = [
+            warn1Name: warn1,
+            warn2Name: warn2,
+            failName: fail,
+        ]
+
+        let hasFilter = !appTokens.isEmpty || !catTokens.isEmpty || !webTokens.isEmpty
         appendDebug("DA schedule: \(start.hour ?? 0):\(start.minute ?? 0):\(start.second ?? 0) → \(end.hour ?? 0):\(end.minute ?? 0):\(end.second ?? 0)")
-        appendDebug("DA events: \(events.count) thresholds (up to \(thresholds.last ?? 0)s)")
+        appendDebug("DA events: 3 thresholds (1m, 2:30, 3m), filter=\(hasFilter ? "apps" : "all")")
 
         do {
             try center.startMonitoring(activityName, during: schedule, events: events)
-            appendDebug("DA monitoring started OK")
-            appendDebug("DA active monitors: \(center.activities.count)")
+            appendDebug("DA monitoring started OK, active=\(center.activities.count)")
         } catch {
             appendDebug("DA monitoring FAILED: \(error.localizedDescription)")
             isFamilyControlsAvailable = false
