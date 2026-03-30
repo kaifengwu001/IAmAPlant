@@ -21,7 +21,7 @@ struct RingView: View {
         Color(red: 0.90, green: 0.35, blue: 0.40),  // Productivity — coral red
     ]
 
-    private static let trackColor = Color.white.opacity(0.08)
+    private static let trackColor = Color.white.opacity(0.15)
 
     var body: some View {
         ZStack {

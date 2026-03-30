@@ -9,7 +9,7 @@ struct YearGridView: View {
     @Query private var summaries: [DailySummary]
 
     private let calendar = Calendar.current
-    private let titleHeight: CGFloat = 52
+    private let titleHeight: CGFloat = 100
 
     private var summaryLookup: [String: [Double]] {
         Dictionary(
@@ -27,20 +27,19 @@ struct YearGridView: View {
 
         VStack(spacing: 0) {
             Text(String(format: "%d", calendar.component(.year, from: selectedDate)))
-                .font(.system(size: 28, weight: .bold, design: .monospaced))
+                .font(.system(size: 42, weight: .bold, design: .monospaced))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, layout.padding)
-                .padding(.top, 16)
-                .padding(.bottom, 4)
-                .frame(height: titleHeight)
+                .padding(.top, 24)
+                .frame(height: titleHeight, alignment: .top)
 
             LazyVGrid(
                 columns: Array(
-                    repeating: GridItem(.fixed(layout.cellSize), spacing: layout.spacing),
+                    repeating: GridItem(.fixed(layout.cellSize), spacing: layout.horizontalSpacing),
                     count: layout.columns
                 ),
-                spacing: layout.spacing
+                spacing: layout.verticalSpacing
             ) {
                 ForEach(cells) { cell in
                     cellView(cell, layout: layout)
@@ -73,18 +72,18 @@ struct YearGridView: View {
 
             Button { onDayTap(date) } label: {
                 ZStack {
-                    if let scores, !isFuture {
-                        MiniRingView(scores: scores, size: layout.cellSize * 0.85)
-                    } else {
+                    if isFuture {
                         Circle()
                             .stroke(
-                                Color.white.opacity(isFuture ? 0.04 : 0.12),
+                                Color.white.opacity(0.20),
                                 lineWidth: 0.75
                             )
                             .frame(
                                 width: layout.cellSize * 0.7,
                                 height: layout.cellSize * 0.7
                             )
+                    } else {
+                        MiniRingView(scores: scores ?? [0, 0, 0, 0], size: layout.cellSize * 0.85)
                     }
 
                     if isToday {
@@ -143,7 +142,8 @@ struct YearGridView: View {
 private struct GridLayout {
     let columns: Int
     let cellSize: CGFloat
-    let spacing: CGFloat
+    let horizontalSpacing: CGFloat
+    let verticalSpacing: CGFloat
     let padding: CGFloat
 
     init(screenWidth: CGFloat, availableHeight: CGFloat) {
@@ -151,26 +151,39 @@ private struct GridLayout {
 
         var bestColumns = 14
         var bestCellSize: CGFloat = 10
+        let sp: CGFloat = 2
+        let pad: CGFloat = 8
 
         for cols in 12...20 {
             let rows = Int(ceil(Double(totalCells) / Double(cols)))
-            let sp: CGFloat = 2
-            let pad: CGFloat = 8
             let availWidth = screenWidth - pad * 2 - sp * CGFloat(cols - 1)
             let cellW = availWidth / CGFloat(cols)
             let totalHeight = CGFloat(rows) * (cellW + sp)
+            let heightWithMargin = totalHeight + (cellW * 2)
 
-            if totalHeight <= availableHeight && cellW > bestCellSize {
+            if heightWithMargin <= availableHeight && cellW > bestCellSize {
                 bestColumns = cols
                 bestCellSize = cellW
             }
         }
 
         self.columns = bestColumns
-        self.spacing = 2
-        self.padding = 8
-        let availWidth = screenWidth - padding * 2 - spacing * CGFloat(columns - 1)
+        self.horizontalSpacing = sp
+        self.padding = pad
+        
+        let availWidth = screenWidth - padding * 2 - horizontalSpacing * CGFloat(columns - 1)
         self.cellSize = floor(availWidth / CGFloat(columns))
+        
+        let rows = Int(ceil(Double(totalCells) / Double(columns)))
+        let requiredHeight = CGFloat(rows) * self.cellSize
+        let bottomMargin = self.cellSize * 2
+        let spaceToDistribute = availableHeight - requiredHeight - bottomMargin
+        
+        if rows > 1 && spaceToDistribute > 0 {
+            self.verticalSpacing = max(sp, spaceToDistribute / CGFloat(rows - 1))
+        } else {
+            self.verticalSpacing = sp
+        }
     }
 }
 

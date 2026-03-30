@@ -88,8 +88,7 @@ struct VerticalSnapContainer: View {
         let pageHeight = viewportHeight - headerHeight
 
         return VStack(spacing: 0) {
-            yearHeader
-            sectionContent(.yearOverview, availableHeight: pageHeight - headerHeight)
+            sectionContent(.yearOverview, availableHeight: pageHeight)
         }
         .frame(height: pageHeight)
         .clipped()
@@ -154,30 +153,10 @@ struct VerticalSnapContainer: View {
             .zIndex(1)
     }
 
-    private var yearHeader: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "calendar")
-                .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(.white.opacity(0.5))
-                .frame(width: 24)
-
-            Text(String(format: "%d", Calendar.current.component(.year, from: selectedDate)))
-                .font(.system(.subheadline, design: .monospaced, weight: .medium))
-                .foregroundStyle(.white)
-
-            Spacer()
-        }
-        .padding(.horizontal, 20)
-        .frame(height: headerHeight)
-        .background(Color.white.opacity(0.04))
-    }
-
     private func accordionHeader(for section: DrawerSection) -> some View {
         switch section {
         case .daySummary:
             return AnyView(daySummaryHeader(explicitDate: false))
-        case .yearOverview:
-            return AnyView(yearHeader)
         default:
             return AnyView(
                 DrawerHeaderView(
@@ -210,13 +189,6 @@ struct VerticalSnapContainer: View {
     }
 
     private func formattedDate(explicitDate: Bool) -> String {
-        if !explicitDate {
-            let selectedStr = DateBoundary.dateString(from: selectedDate)
-            if selectedStr == DateBoundary.dateString(from: DateBoundary.today()) {
-                return "Today"
-            }
-        }
-
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM d"
         return formatter.string(from: selectedDate)

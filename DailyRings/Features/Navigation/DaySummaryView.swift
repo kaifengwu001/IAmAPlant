@@ -6,16 +6,9 @@ struct DaySummaryView: View {
     let isExpanded: Bool
 
     private var dateLabel: String {
-        let selectedStr = DateBoundary.dateString(from: selectedDate)
-        if selectedStr == DateBoundary.dateString(from: DateBoundary.today()) {
-            return "Today"
-        } else if selectedStr == DateBoundary.dateString(from: DateBoundary.yesterday()) {
-            return "Yesterday"
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "MMM d, yyyy"
-            return formatter.string(from: selectedDate)
-        }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM d"
+        return formatter.string(from: selectedDate)
     }
 
     private var weekdayLabel: String {
