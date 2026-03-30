@@ -27,34 +27,32 @@ struct ProductivityDetailView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                if isToday {
-                    PomodoroTimerView()
-                        .environment(pomodoroManager)
-                } else {
-                    pastDayBanner
-                }
-
-                if isToday {
-                    debugToggle
-                    if showDebugPanel {
-                        PomodoroDebugStatusView()
-                            .environment(pomodoroManager)
-                            .padding(.vertical, 8)
-                    }
-                }
-
-                Divider().background(Color.white.opacity(0.1))
-
-                summaryBar
-
-                Divider().background(Color.white.opacity(0.1))
-
-                sessionsList
-
-                manualAdjustButton
+        VStack(spacing: 0) {
+            if isToday {
+                PomodoroTimerView()
+                    .environment(pomodoroManager)
+            } else {
+                pastDayBanner
             }
+
+            if isToday {
+                debugToggle
+                if showDebugPanel {
+                    PomodoroDebugStatusView()
+                        .environment(pomodoroManager)
+                        .padding(.vertical, 8)
+                }
+            }
+
+            Divider().background(Color.white.opacity(0.1))
+
+            summaryBar
+
+            Divider().background(Color.white.opacity(0.1))
+
+            sessionsList
+
+            manualAdjustButton
         }
         .sheet(isPresented: $showManualAdjustment) {
             ManualAdjustmentView(selectedDate: selectedDate)

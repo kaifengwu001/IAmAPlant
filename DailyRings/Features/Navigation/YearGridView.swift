@@ -17,33 +17,29 @@ struct YearGridView: View {
     }
 
     var body: some View {
-        GeometryReader { geo in
-            let layout = GridLayout(screenWidth: geo.size.width, screenHeight: geo.size.height)
-            let cells = buildCells()
+        let layout = GridLayout(screenWidth: UIScreen.main.bounds.width)
+        let cells = buildCells()
 
-            VStack(spacing: 0) {
-                Text(String(format: "%d", calendar.component(.year, from: selectedDate)))
-                    .font(.system(size: 28, weight: .bold, design: .monospaced))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, layout.padding)
-                    .padding(.top, 60)
-                    .padding(.bottom, 8)
-
-                LazyVGrid(
-                    columns: Array(repeating: GridItem(.fixed(layout.cellSize), spacing: layout.spacing), count: layout.columns),
-                    spacing: layout.spacing
-                ) {
-                    ForEach(cells) { cell in
-                        cellView(cell, layout: layout)
-                    }
-                }
+        VStack(spacing: 0) {
+            Text(String(format: "%d", calendar.component(.year, from: selectedDate)))
+                .font(.system(size: 28, weight: .bold, design: .monospaced))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, layout.padding)
+                .padding(.top, 16)
+                .padding(.bottom, 8)
 
-                Spacer(minLength: 0)
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.fixed(layout.cellSize), spacing: layout.spacing), count: layout.columns),
+                spacing: layout.spacing
+            ) {
+                ForEach(cells) { cell in
+                    cellView(cell, layout: layout)
+                }
             }
+            .padding(.horizontal, layout.padding)
         }
-        .background(Color.black)
+        .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder
@@ -93,7 +89,7 @@ struct YearGridView: View {
 
         for month in 1...12 {
             let monthName = calendar.shortMonthSymbols[month - 1].uppercased()
-            result.append(YearCell(cellType: .monthLabel(monthName)))
+            result.append(YearCell(id: "m\(month)", cellType: .monthLabel(monthName)))
 
             guard let monthStart = calendar.date(from: DateComponents(year: year, month: month, day: 1)),
                   let range = calendar.range(of: .day, in: .month, for: monthStart) else {
@@ -106,7 +102,7 @@ struct YearGridView: View {
                 }
                 let dateStr = DateBoundary.dateString(from: date)
                 let scores = summaryLookup[dateStr]
-                result.append(YearCell(cellType: .day(date, scores)))
+                result.append(YearCell(id: dateStr, cellType: .day(date, scores)))
             }
         }
 
@@ -122,40 +118,17 @@ private struct GridLayout {
     let spacing: CGFloat
     let padding: CGFloat
 
-    init(screenWidth: CGFloat, screenHeight: CGFloat) {
-        // 365 days + 12 month labels = 377 cells
-        // We need to fit all cells in the available height (screen - header ~90pt)
-        let availableHeight = screenHeight - 90
-        let totalCells = 377
-
-        // Try different column counts to find one that fits
-        var bestColumns = 14
-        var bestCellSize: CGFloat = 10
-
-        for cols in 12...20 {
-            let rows = Int(ceil(Double(totalCells) / Double(cols)))
-            let sp: CGFloat = 2
-            let pad: CGFloat = 8
-            let availWidth = screenWidth - pad * 2 - sp * CGFloat(cols - 1)
-            let cellW = availWidth / CGFloat(cols)
-            let totalHeight = CGFloat(rows) * (cellW + sp)
-
-            if totalHeight <= availableHeight && cellW > bestCellSize {
-                bestColumns = cols
-                bestCellSize = cellW
-            }
-        }
-
-        self.columns = bestColumns
+    init(screenWidth: CGFloat) {
+        self.columns = 14
         self.spacing = 2
         self.padding = 8
-        let availWidth = screenWidth - padding * 2 - self.spacing * CGFloat(columns - 1)
+        let availWidth = screenWidth - padding * 2 - spacing * CGFloat(columns - 1)
         self.cellSize = floor(availWidth / CGFloat(columns))
     }
 }
 
 struct YearCell: Identifiable {
-    let id = UUID()
+    let id: String
     let cellType: CellType
 
     enum CellType {

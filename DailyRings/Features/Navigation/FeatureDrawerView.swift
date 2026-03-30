@@ -28,6 +28,8 @@ struct FeatureDrawerView: View {
             return "\(hours)h \(mins)m"
         case .daySummary:
             return ""
+        case .yearOverview:
+            return ""
         }
     }
 
@@ -62,6 +64,8 @@ struct FeatureDrawerView: View {
             ProductivityDetailView(selectedDate: selectedDate)
                 .frame(minHeight: UIScreen.main.bounds.height * 0.5)
         case .daySummary:
+            EmptyView()
+        case .yearOverview:
             EmptyView()
         }
     }
