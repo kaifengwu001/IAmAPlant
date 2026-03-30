@@ -17,6 +17,7 @@
 		0F2899977B6C24F10936C93A /* ProductivityCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED6D116109A1C541F3282ED /* ProductivityCalculator.swift */; };
 		1BA2F9919657AA937980DFC9 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 4088D5692BE15B19C377052C /* Supabase */; };
 		1C7440DD173909C7F1778D98 /* VerticalSnapContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91440E04FC2DDFC23826B94A /* VerticalSnapContainer.swift */; };
+		1DC2964C1A2E4F4D8C52C329 /* NotificationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F709FA8324A95E85DC85B9B3 /* NotificationDelegate.swift */; };
 		21308B5B78A986EBF6D2D5BC /* DateBoundaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF987F847EB66B3D256FF3F6 /* DateBoundaryTests.swift */; };
 		224072E05D0A547AED588EE2 /* ClockDriftService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074379523278D60092F23FDC /* ClockDriftService.swift */; };
 		260D2FD4C9490F6A8318E447 /* DaySummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA085E61E6F18B17743A0D5C /* DaySummaryView.swift */; };
@@ -44,6 +45,7 @@
 		7FE65D58BBBCFEA6ADCF256D /* MealScoringService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA689301003192C1E467C4CB /* MealScoringService.swift */; };
 		8AC812A0AB5053AE7B3104FF /* SharedPomodoroState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307888CEF958E164025969A9 /* SharedPomodoroState.swift */; };
 		8B6842288422E9683EBBD79A /* PomodoroManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DF71191D9EE6F478DD136A /* PomodoroManager.swift */; };
+		8DF43104609D91982EC78DCA /* PomodoroDebugStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5312FA53F738281A727E36 /* PomodoroDebugStatusView.swift */; };
 		908C119F70B60017E82A24DE /* DailyRingsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA7954E233DBF9CFAFB54A9 /* DailyRingsApp.swift */; };
 		91AD29A2D1A724DD805B4907 /* RescueTimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF580A0EBC624BE6F8AC4B18 /* RescueTimeService.swift */; };
 		A7D986A56516A65FFE499AEA /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EBC8FD1DEC9830A80D8AFB2 /* UserSettings.swift */; };
@@ -149,10 +151,12 @@
 		D6B890B16D8DB28C44C25F3A /* SleepManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepManager.swift; sourceTree = "<group>"; };
 		D8C3C4B2739A5ED5820F2F82 /* DateBoundary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateBoundary.swift; sourceTree = "<group>"; };
 		DC48786C540E88DE9D3D1BF4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		DD5312FA53F738281A727E36 /* PomodoroDebugStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroDebugStatusView.swift; sourceTree = "<group>"; };
 		DF987F847EB66B3D256FF3F6 /* DateBoundaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateBoundaryTests.swift; sourceTree = "<group>"; };
 		E69704E4847AFCE6DF010181 /* ScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCalculator.swift; sourceTree = "<group>"; };
 		EA085E61E6F18B17743A0D5C /* DaySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySummaryView.swift; sourceTree = "<group>"; };
 		F425DA4163988FEE88C84DEA /* PomodoroSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroSessionView.swift; sourceTree = "<group>"; };
+		F709FA8324A95E85DC85B9B3 /* NotificationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDelegate.swift; sourceTree = "<group>"; };
 		FB45787C32970572063811D5 /* PomodoroActivityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroActivityMonitor.swift; sourceTree = "<group>"; };
 		FDD0AA46E6E14C00681D61F7 /* SleepDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepDetailView.swift; sourceTree = "<group>"; };
 		FF580A0EBC624BE6F8AC4B18 /* RescueTimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RescueTimeService.swift; sourceTree = "<group>"; };
@@ -200,6 +204,7 @@
 			isa = PBXGroup;
 			children = (
 				25253E75C988C85C7BF555CC /* ManualAdjustmentView.swift */,
+				DD5312FA53F738281A727E36 /* PomodoroDebugStatusView.swift */,
 				B0DF71191D9EE6F478DD136A /* PomodoroManager.swift */,
 				F425DA4163988FEE88C84DEA /* PomodoroSessionView.swift */,
 				C43F922C4A7F99FAD042E5CE /* PomodoroTimerView.swift */,
@@ -318,6 +323,7 @@
 			children = (
 				B135E0DDE2C264CC4961D2CA /* ContentView.swift */,
 				0FA7954E233DBF9CFAFB54A9 /* DailyRingsApp.swift */,
+				F709FA8324A95E85DC85B9B3 /* NotificationDelegate.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -595,7 +601,9 @@
 				743E4691433312CB2B4B8743 /* MealCameraView.swift in Sources */,
 				5CACFD4836D261F5AEBFCA71 /* MealPhotoStore.swift in Sources */,
 				7FE65D58BBBCFEA6ADCF256D /* MealScoringService.swift in Sources */,
+				1DC2964C1A2E4F4D8C52C329 /* NotificationDelegate.swift in Sources */,
 				6E569D1BB6E2502CAE2D1078 /* NutritionView.swift in Sources */,
+				8DF43104609D91982EC78DCA /* PomodoroDebugStatusView.swift in Sources */,
 				8B6842288422E9683EBBD79A /* PomodoroManager.swift in Sources */,
 				30340D74B32C9AB47BDD7ABE /* PomodoroSession.swift in Sources */,
 				0C8E99040221BE7CBF223180 /* PomodoroSessionView.swift in Sources */,
@@ -655,7 +663,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = DailyRings/Extensions/DeviceActivityMonitorExtension/Monitor.entitlements;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = W23Y365YR7;
+				ENABLE_PREVIEWS = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = DailyRings/Extensions/DeviceActivityMonitorExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -664,6 +674,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.kai.dailyrings.monitor;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -738,7 +749,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = DailyRings/Extensions/DeviceActivityMonitorExtension/Monitor.entitlements;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = W23Y365YR7;
+				ENABLE_PREVIEWS = NO;
 				INFOPLIST_FILE = DailyRings/Extensions/DeviceActivityMonitorExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -814,7 +826,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = DailyRings/Extensions/DeviceActivityReportExtension/Report.entitlements;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = W23Y365YR7;
+				ENABLE_PREVIEWS = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = DailyRings/Extensions/DeviceActivityReportExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -823,6 +837,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.kai.dailyrings.report;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -833,7 +848,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = DailyRings/Resources/DailyRings.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = W23Y365YR7;
 				INFOPLIST_FILE = DailyRings/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -851,7 +866,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = DailyRings/Resources/DailyRings.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = W23Y365YR7;
 				INFOPLIST_FILE = DailyRings/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -899,7 +914,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = DailyRings/Extensions/DeviceActivityReportExtension/Report.entitlements;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = W23Y365YR7;
+				ENABLE_PREVIEWS = NO;
 				INFOPLIST_FILE = DailyRings/Extensions/DeviceActivityReportExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

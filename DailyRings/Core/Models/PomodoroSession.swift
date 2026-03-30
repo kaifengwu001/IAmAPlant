@@ -23,9 +23,7 @@ final class PomodoroSession {
     ) {
         self.sessionID = UUID()
         self.date = date
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        self.dateString = formatter.string(from: date)
+        self.dateString = DateBoundary.dateString(from: date)
         self.goalLabel = goalLabel
         self.category = category
         self.startTime = .now
@@ -35,32 +33,18 @@ final class PomodoroSession {
         self.createdAt = .now
     }
 
-    func completed(distractedSeconds: Int) -> PomodoroSession {
-        let copy = PomodoroSession(goalLabel: goalLabel, category: category, date: date)
-        copy.sessionID = sessionID
-        copy.dateString = dateString
-        copy.startTime = startTime
-        copy.endTime = .now
-        copy.isCompleted = true
-        copy.distractedSeconds = distractedSeconds
-        copy.durationMinutes = AppConstants.pomodoroWorkMinutes
-        copy.createdAt = createdAt
-        copy.supabaseID = supabaseID
-        return copy
+    func markCompleted(distractedSeconds: Int) {
+        self.endTime = .now
+        self.isCompleted = true
+        self.distractedSeconds = distractedSeconds
+        self.durationMinutes = AppConstants.pomodoroWorkMinutes
     }
 
-    func interrupted(distractedSeconds: Int) -> PomodoroSession {
-        let copy = PomodoroSession(goalLabel: goalLabel, category: category, date: date)
-        copy.sessionID = sessionID
-        copy.dateString = dateString
-        copy.startTime = startTime
-        copy.endTime = .now
-        copy.isCompleted = false
-        copy.distractedSeconds = distractedSeconds
+    func markInterrupted(distractedSeconds: Int) {
+        self.endTime = .now
+        self.isCompleted = false
+        self.distractedSeconds = distractedSeconds
         let elapsed = Date.now.timeIntervalSince(startTime)
-        copy.durationMinutes = Int(elapsed / 60)
-        copy.createdAt = createdAt
-        copy.supabaseID = supabaseID
-        return copy
+        self.durationMinutes = max(1, Int(elapsed / 60))
     }
 }

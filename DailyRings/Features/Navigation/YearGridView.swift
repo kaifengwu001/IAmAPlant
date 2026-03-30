@@ -56,8 +56,8 @@ struct YearGridView: View {
                 .frame(width: layout.cellSize, height: layout.cellSize)
 
         case .day(let date, let scores):
-            let isToday = calendar.isDateInToday(date)
-            let isFuture = date > Date.now
+            let isToday = DateBoundary.dateString(from: date) == DateBoundary.dateString(from: DateBoundary.today())
+            let isFuture = date > DateBoundary.today()
 
             Button { onDayTap(date) } label: {
                 ZStack {

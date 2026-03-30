@@ -56,7 +56,8 @@ final class SyncCoordinator {
     func pullLatest(for date: Date) async {
         guard supabaseService.isAuthenticated, let context = modelContext else { return }
 
-        let dateStr = DateBoundary.dateString(from: date)
+        let logicalDate = DateBoundary.logicalDate(for: date)
+        let dateStr = DateBoundary.dateString(from: logicalDate)
 
         do {
             guard let remote = try await supabaseService.fetchDailySummary(date: dateStr) else { return }
@@ -71,7 +72,7 @@ final class SyncCoordinator {
                     applyDTO(remote, to: existing)
                 }
             } else {
-                let summary = DailySummary(date: date)
+                let summary = DailySummary(date: logicalDate)
                 applyDTO(remote, to: summary)
                 summary.status = .synced
                 context.insert(summary)

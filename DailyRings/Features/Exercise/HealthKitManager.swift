@@ -76,8 +76,8 @@ final class HealthKitManager {
     }
 
     private func fetchExerciseMinutes(for date: Date) async -> Int {
-        let start = Calendar.current.startOfDay(for: date)
-        guard let end = Calendar.current.date(byAdding: .day, value: 1, to: start) else { return 0 }
+        let start = DateBoundary.dayStart(for: date)
+        let end = DateBoundary.dayEnd(for: date)
 
         let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
         let exerciseType = HKQuantityType(.appleExerciseTime)
@@ -96,8 +96,8 @@ final class HealthKitManager {
     }
 
     private func fetchWorkoutSamples(for date: Date) async -> [WorkoutSample] {
-        let start = Calendar.current.startOfDay(for: date)
-        guard let end = Calendar.current.date(byAdding: .day, value: 1, to: start) else { return [] }
+        let start = DateBoundary.dayStart(for: date)
+        let end = DateBoundary.dayEnd(for: date)
 
         let predicate = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)

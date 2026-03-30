@@ -2,13 +2,14 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @State private var selectedDate: Date = DateBoundary.today()
     @State private var showSettings = false
     @State private var showYearGrid = false
     @State private var pomodoroManager = PomodoroManager()
 
     private var isToday: Bool {
-        Calendar.current.isDateInToday(selectedDate)
+        DateBoundary.dateString(from: selectedDate) == DateBoundary.dateString(from: DateBoundary.today())
     }
 
     var body: some View {
@@ -30,6 +31,16 @@ struct ContentView: View {
         }
         .onAppear {
             pomodoroManager.configure(modelContext: modelContext)
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .background:
+                Task { await pomodoroManager.onAppEnterBackground() }
+            case .active:
+                Task { await pomodoroManager.onAppReturnFromBackground() }
+            default:
+                break
+            }
         }
     }
 

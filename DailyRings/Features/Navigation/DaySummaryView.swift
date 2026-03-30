@@ -6,10 +6,10 @@ struct DaySummaryView: View {
     let isExpanded: Bool
 
     private var dateLabel: String {
-        let calendar = Calendar.current
-        if calendar.isDateInToday(selectedDate) {
+        let selectedStr = DateBoundary.dateString(from: selectedDate)
+        if selectedStr == DateBoundary.dateString(from: DateBoundary.today()) {
             return "Today"
-        } else if calendar.isDateInYesterday(selectedDate) {
+        } else if selectedStr == DateBoundary.dateString(from: DateBoundary.yesterday()) {
             return "Yesterday"
         } else {
             let formatter = DateFormatter()

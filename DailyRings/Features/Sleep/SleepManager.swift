@@ -139,9 +139,9 @@ final class SleepManager {
         let status = store.authorizationStatus(for: sleepType)
         guard status == .sharingAuthorized else { return nil }
 
-        let calendar = Calendar.current
-        let endDate = Date.now
-        guard let startDate = calendar.date(byAdding: .day, value: -1, to: endDate) else { return nil }
+        let logicalToday = DateBoundary.today()
+        let startDate = DateBoundary.dayStart(for: logicalToday)
+        let endDate = DateBoundary.dayEnd(for: logicalToday)
 
         let predicate = HKQuery.predicateForSamples(
             withStart: startDate,

@@ -2,8 +2,18 @@ import Foundation
 
 /// Detects phone usage during Pomodoro sessions by comparing ContinuousClock (ticks during sleep)
 /// vs SuspendingClock (pauses during device sleep). Only used as fallback when FamilyControls unavailable.
+///
+/// mach_absolute_time() pauses during deep sleep; CLOCK_MONOTONIC_RAW keeps ticking.
+/// awakeRatio = (suspending elapsed) / (wall elapsed):
+///   near 1.0 → phone was awake the whole time (user distracted)
+///   near 0.0 → phone was sleeping (user focused)
 actor ClockDriftService {
     private let userDefaults = UserDefaults(suiteName: AppConstants.appGroupID)
+    private let machTimebaseNanosPerTick: Double = {
+        var info = mach_timebase_info_data_t()
+        mach_timebase_info(&info)
+        return Double(info.numer) / Double(info.denom)
+    }()
 
     struct BackgroundGap {
         let wallDuration: TimeInterval
@@ -13,49 +23,44 @@ actor ClockDriftService {
         let phoneWasUsed: Bool
     }
 
-    /// Records clock values when the app enters background during an active Pomodoro.
     func recordBackgroundEntry() {
         let wallTime = Date.now.timeIntervalSince1970
         let continuousNanos = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW)
-        let absoluteNanos = mach_absolute_time()
+        let absoluteTicks = mach_absolute_time()
 
         userDefaults?.set(wallTime, forKey: AppConstants.UserDefaultsKey.pomodoroBackgroundEntryWall)
         userDefaults?.set(Double(continuousNanos), forKey: AppConstants.UserDefaultsKey.pomodoroBackgroundEntryContinuous)
-        userDefaults?.set(Double(absoluteNanos), forKey: AppConstants.UserDefaultsKey.pomodoroBackgroundEntryAbsolute)
+        userDefaults?.set(Double(absoluteTicks), forKey: AppConstants.UserDefaultsKey.pomodoroBackgroundEntryAbsolute)
     }
 
-    /// Computes the awake ratio for the gap between background entry and now.
-    /// awakeRatio near 1.0 = phone was active (user was on it).
-    /// awakeRatio near 0 = phone was sleeping (user was not on it).
     func analyzeBackgroundGap() -> BackgroundGap? {
         guard let entryWall = userDefaults?.double(forKey: AppConstants.UserDefaultsKey.pomodoroBackgroundEntryWall),
               entryWall > 0,
-              let entryContinuous = userDefaults?.double(forKey: AppConstants.UserDefaultsKey.pomodoroBackgroundEntryContinuous),
-              let entryAbsolute = userDefaults?.double(forKey: AppConstants.UserDefaultsKey.pomodoroBackgroundEntryAbsolute) else {
+              let entryContinuousNanos = userDefaults?.double(forKey: AppConstants.UserDefaultsKey.pomodoroBackgroundEntryContinuous),
+              let entryAbsoluteTicks = userDefaults?.double(forKey: AppConstants.UserDefaultsKey.pomodoroBackgroundEntryAbsolute) else {
             return nil
         }
 
         let nowWall = Date.now.timeIntervalSince1970
-        let nowContinuous = Double(clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW))
-        let nowAbsolute = Double(mach_absolute_time())
+        let nowContinuousNanos = Double(clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW))
+        let nowAbsoluteTicks = Double(mach_absolute_time())
 
         let wallDuration = nowWall - entryWall
         guard wallDuration > 1 else { return nil }
 
-        let continuousDuration = (nowContinuous - entryContinuous) / 1_000_000_000.0
-        let absoluteDuration = (nowAbsolute - entryAbsolute) / 1_000_000_000.0
+        let continuousDuration = (nowContinuousNanos - entryContinuousNanos) / 1_000_000_000.0
 
-        // ContinuousClock ticks even during device sleep; SuspendingClock doesn't.
-        // mach_absolute_time approximates SuspendingClock behavior.
-        // If awake ratio is high, the phone was being used during the gap.
-        let awakeRatio = wallDuration > 0 ? min(absoluteDuration / wallDuration, 1.0) : 0
+        let absoluteTicksDelta = nowAbsoluteTicks - entryAbsoluteTicks
+        let suspendingDuration = (absoluteTicksDelta * machTimebaseNanosPerTick) / 1_000_000_000.0
+
+        let awakeRatio = wallDuration > 0 ? min(suspendingDuration / wallDuration, 1.0) : 0
 
         clearBackgroundEntry()
 
         return BackgroundGap(
             wallDuration: wallDuration,
             continuousDuration: continuousDuration,
-            suspendingDuration: absoluteDuration,
+            suspendingDuration: suspendingDuration,
             awakeRatio: awakeRatio,
             phoneWasUsed: awakeRatio > 0.5
         )

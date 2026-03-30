@@ -82,11 +82,16 @@ targets:
         INFOPLIST_FILE: DailyRings/Extensions/DeviceActivityMonitorExtension/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.kai.dailyrings.monitor
         CODE_SIGN_ENTITLEMENTS: DailyRings/Extensions/DeviceActivityMonitorExtension/Monitor.entitlements
+        ENABLE_PREVIEWS: NO
+      configs:
+        Debug:
+          SWIFT_OPTIMIZATION_LEVEL: -O
+          GCC_OPTIMIZATION_LEVEL: s
     info:
       path: DailyRings/Extensions/DeviceActivityMonitorExtension/Info.plist
       properties:
         NSExtension:
-          NSExtensionPointIdentifier: com.apple.deviceactivitymonitor
+          NSExtensionPointIdentifier: com.apple.deviceactivity.monitor-extension
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).PomodoroActivityMonitor
     entitlements:
       path: DailyRings/Extensions/DeviceActivityMonitorExtension/Monitor.entitlements
@@ -119,6 +124,11 @@ targets:
         INFOPLIST_FILE: DailyRings/Extensions/DeviceActivityReportExtension/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.kai.dailyrings.report
         CODE_SIGN_ENTITLEMENTS: DailyRings/Extensions/DeviceActivityReportExtension/Report.entitlements
+        ENABLE_PREVIEWS: NO
+      configs:
+        Debug:
+          SWIFT_OPTIMIZATION_LEVEL: -O
+          GCC_OPTIMIZATION_LEVEL: s
     info:
       path: DailyRings/Extensions/DeviceActivityReportExtension/Info.plist
       properties:

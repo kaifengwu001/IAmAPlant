@@ -42,9 +42,7 @@ final class DailySummary {
     var supabaseID: String?
 
     init(date: Date, timezone: String = TimeZone.current.identifier) {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        self.dateString = formatter.string(from: date)
+        self.dateString = DateBoundary.dateString(from: date)
         self.date = date
         self.timezone = timezone
 

@@ -5,6 +5,10 @@ import SwiftData
 struct DailyRingsApp: App {
     @State private var supabaseService = SupabaseService()
 
+    init() {
+        NotificationDelegate.shared.requestPermission()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

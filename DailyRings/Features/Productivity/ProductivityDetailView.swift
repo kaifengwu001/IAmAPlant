@@ -11,6 +11,7 @@ struct ProductivityDetailView: View {
     @Query private var summaries: [DailySummary]
 
     @State private var showManualAdjustment = false
+    @State private var showDebugPanel = false
 
     private var dateString: String {
         DateBoundary.dateString(from: selectedDate)
@@ -26,26 +27,56 @@ struct ProductivityDetailView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            if isToday {
-                PomodoroTimerView()
-                    .environment(pomodoroManager)
-            } else {
-                pastDayBanner
+        ScrollView {
+            VStack(spacing: 0) {
+                if isToday {
+                    PomodoroTimerView()
+                        .environment(pomodoroManager)
+                } else {
+                    pastDayBanner
+                }
+
+                if isToday {
+                    debugToggle
+                    if showDebugPanel {
+                        PomodoroDebugStatusView()
+                            .environment(pomodoroManager)
+                            .padding(.vertical, 8)
+                    }
+                }
+
+                Divider().background(Color.white.opacity(0.1))
+
+                summaryBar
+
+                Divider().background(Color.white.opacity(0.1))
+
+                sessionsList
+
+                manualAdjustButton
             }
-
-            Divider().background(Color.white.opacity(0.1))
-
-            summaryBar
-
-            Divider().background(Color.white.opacity(0.1))
-
-            sessionsList
-
-            manualAdjustButton
         }
         .sheet(isPresented: $showManualAdjustment) {
             ManualAdjustmentView(selectedDate: selectedDate)
+        }
+    }
+
+    private var debugToggle: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showDebugPanel.toggle()
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "ant.fill")
+                    .font(.system(size: 9))
+                Text(showDebugPanel ? "Hide Debug" : "Show Debug")
+                    .font(.system(.caption2, design: .monospaced))
+                Image(systemName: showDebugPanel ? "chevron.up" : "chevron.down")
+                    .font(.system(size: 8))
+            }
+            .foregroundStyle(.white.opacity(0.25))
+            .padding(.vertical, 6)
         }
     }
 
@@ -61,15 +92,19 @@ struct ProductivityDetailView: View {
         .padding(.vertical, 24)
     }
 
+    private var completedSessions: [PomodoroSession] {
+        todaySessions.filter(\.isCompleted)
+    }
+
     private var summaryBar: some View {
         HStack(spacing: 20) {
             statItem(
                 label: "Pomodoros",
-                value: "\(todaySessions.filter(\.isCompleted).count)"
+                value: "\(completedSessions.count)"
             )
             statItem(
                 label: "Productive",
-                value: formatMinutes(currentSummary?.productiveMinutesTotal ?? 0)
+                value: formatMinutes(completedSessions.count * AppConstants.pomodoroWorkMinutes)
             )
             statItem(
                 label: "Score",
