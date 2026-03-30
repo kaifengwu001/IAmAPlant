@@ -10,28 +10,34 @@ enum DrawerSection: Int, CaseIterable, Identifiable {
     case productivity = 4
 
     var id: Int { rawValue }
+}
 
-    var next: DrawerSection? {
-        DrawerSection(rawValue: rawValue + 1)
-    }
+private enum VerticalPage: Int, Identifiable {
+    case year
+    case accordion
 
-    var previous: DrawerSection? {
-        DrawerSection(rawValue: rawValue - 1)
-    }
+    var id: Int { rawValue }
 }
 
 struct VerticalSnapContainer: View {
     @Binding var selectedDate: Date
-    @Binding var showYearGrid: Bool
+    @Binding var currentSection: DrawerSection?
     let isToday: Bool
-
-    @State private var expandedDrawer: DrawerSection = .daySummary
-    @State private var topOverscroll: CGFloat = 0
-    @State private var bottomOverscroll: CGFloat = 0
+    var onDayTap: ((Date) -> Void)?
 
     @Query private var summaries: [DailySummary]
 
-    private let collapsedHeight: CGFloat = 56
+    private let headerHeight: CGFloat = 56
+    @State private var outerPage: VerticalPage? = .accordion
+    @State private var accordionTarget: DrawerSection? = .daySummary
+    @State private var accordionOffset: CGFloat = 0
+    @State private var dragStartAccordionOffset: CGFloat?
+    @State private var suppressCurrentSectionSync = false
+    @State private var suppressOuterPageSync = false
+
+    private var nonYearSections: [DrawerSection] {
+        DrawerSection.allCases.filter { $0 != .yearOverview }
+    }
 
     private var currentSummary: DailySummary? {
         let dateStr = DateBoundary.dateString(from: selectedDate)
@@ -42,101 +48,113 @@ struct VerticalSnapContainer: View {
         currentSummary?.scores ?? [0, 0, 0, 0]
     }
 
-    private var sectionsAbove: [DrawerSection] {
-        DrawerSection.allCases.filter { $0.rawValue < expandedDrawer.rawValue }
-    }
-
-    private var sectionsBelow: [DrawerSection] {
-        DrawerSection.allCases.filter { $0.rawValue > expandedDrawer.rawValue }
-    }
-
     var body: some View {
-        snapStack
-            .onChange(of: expandedDrawer) { _, newValue in
-                let isYear = newValue == .yearOverview
-                if showYearGrid != isYear {
-                    showYearGrid = isYear
-                }
-            }
-            .onChange(of: showYearGrid) { _, newValue in
-                if newValue && expandedDrawer != .yearOverview {
-                    snapTo(.yearOverview)
-                } else if !newValue && expandedDrawer == .yearOverview {
-                    snapTo(.daySummary)
-                }
-            }
-    }
-
-    // MARK: - Snap Stack
-
-    private var snapStack: some View {
         GeometryReader { geo in
-            let aboveCount = CGFloat(sectionsAbove.count)
-            let belowCount = CGFloat(sectionsBelow.count)
-            let expandedHeight = geo.size.height
-                - (aboveCount + belowCount) * collapsedHeight
+            ScrollView(.vertical, showsIndicators: false) {
+                LazyVStack(spacing: 0) {
+                    yearPage(viewportHeight: geo.size.height)
+                        .id(VerticalPage.year)
 
-            VStack(spacing: 0) {
-                ForEach(sectionsAbove) { section in
-                    let isAdjacent = section == sectionsAbove.last
-                    collapsedHeader(
-                        for: section,
-                        highlightProgress: isAdjacent
-                            ? min(topOverscroll / 80, 1) : 0
-                    )
+                    accordionPage(viewportHeight: geo.size.height)
+                        .id(VerticalPage.accordion)
                 }
-
-                expandedPanel(height: expandedHeight)
-
-                ForEach(sectionsBelow) { section in
-                    let isAdjacent = section == sectionsBelow.first
-                    collapsedHeader(
-                        for: section,
-                        highlightProgress: isAdjacent
-                            ? min(bottomOverscroll / 80, 1) : 0
-                    )
+                .scrollTargetLayout()
+            }
+            .scrollTargetBehavior(.paging)
+            .scrollPosition(id: $outerPage)
+            .onAppear {
+                syncFromCurrentSection(viewportHeight: geo.size.height, animated: false)
+            }
+            .onChange(of: currentSection) { _, _ in
+                if suppressCurrentSectionSync {
+                    suppressCurrentSectionSync = false
+                    return
                 }
+                syncFromCurrentSection(viewportHeight: geo.size.height, animated: true)
+            }
+            .onChange(of: outerPage) { _, newPage in
+                if suppressOuterPageSync {
+                    suppressOuterPageSync = false
+                    return
+                }
+                handleOuterPageChange(newPage, viewportHeight: geo.size.height)
             }
         }
-        .animation(.spring(response: 0.35, dampingFraction: 0.88), value: expandedDrawer)
     }
 
-    // MARK: - Collapsed Headers
+    // MARK: - Year Page (special)
 
-    @ViewBuilder
-    private func collapsedHeader(
-        for section: DrawerSection,
-        highlightProgress: CGFloat
-    ) -> some View {
-        if section == .yearOverview {
-            yearCollapsedHeader(highlightProgress: highlightProgress)
-                .frame(height: collapsedHeight)
-                .contentShape(Rectangle())
-                .onTapGesture { snapTo(section) }
-                .simultaneousGesture(headerDragGesture(for: section))
-        } else if section == .daySummary {
-            DaySummaryView(
-                scores: scores,
-                selectedDate: selectedDate,
-                isExpanded: false
-            )
-            .frame(height: collapsedHeight)
-            .contentShape(Rectangle())
-            .onTapGesture { snapTo(section) }
-            .simultaneousGesture(headerDragGesture(for: section))
-        } else {
-            DrawerHeaderView(
-                section: section,
-                summaryText: summaryText(for: section),
-                highlightProgress: highlightProgress,
-                onTap: { snapTo(section) }
-            )
-            .frame(height: collapsedHeight)
-            .simultaneousGesture(headerDragGesture(for: section))
+    private func yearPage(viewportHeight: CGFloat) -> some View {
+        let pageHeight = viewportHeight - headerHeight
+
+        return VStack(spacing: 0) {
+            yearHeader
+            sectionContent(.yearOverview, availableHeight: pageHeight - headerHeight)
         }
+        .frame(height: pageHeight)
+        .clipped()
     }
 
-    private func yearCollapsedHeader(highlightProgress: CGFloat) -> some View {
+    // MARK: - Accordion Page
+
+    private func accordionPage(viewportHeight: CGFloat) -> some View {
+        let metrics = accordionMetrics(viewportHeight: viewportHeight)
+
+        return accordionVisibleLayer(viewportHeight: viewportHeight, metrics: metrics)
+            .frame(height: viewportHeight)
+            .clipped()
+            .contentShape(Rectangle())
+            .simultaneousGesture(accordionDragGesture(metrics: metrics))
+    }
+
+    // MARK: - Accordion Layout
+
+    private func accordionVisibleLayer(
+        viewportHeight: CGFloat,
+        metrics: AccordionMetrics
+    ) -> some View {
+        return ZStack(alignment: .top) {
+            ForEach(Array(nonYearSections.enumerated()), id: \.element.id) { index, section in
+                let headerTop = headerY(for: index, metrics: metrics)
+                let nextTop = nextHeaderY(after: index, metrics: metrics)
+                let contentTop = headerTop + headerHeight
+                let contentHeight = max(0, nextTop - contentTop)
+
+                accordionContent(
+                    for: section,
+                    height: contentHeight,
+                    top: contentTop
+                )
+                .allowsHitTesting(contentHeight > 1)
+            }
+
+            ForEach(Array(nonYearSections.enumerated()), id: \.element.id) { index, section in
+                accordionHeader(for: section)
+                    .offset(y: headerY(for: index, metrics: metrics))
+                    .zIndex(3)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
+    private func accordionContent(
+        for section: DrawerSection,
+        height: CGFloat,
+        top: CGFloat
+    ) -> some View {
+        sectionContent(section, availableHeight: height)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .frame(height: height, alignment: .top)
+            .mask(alignment: .top) {
+                Rectangle()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: height, alignment: .top)
+            }
+            .offset(y: top)
+            .zIndex(1)
+    }
+
+    private var yearHeader: some View {
         HStack(spacing: 12) {
             Image(systemName: "calendar")
                 .font(.system(size: 16, weight: .medium))
@@ -148,60 +166,287 @@ struct VerticalSnapContainer: View {
                 .foregroundStyle(.white)
 
             Spacer()
-
-            Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(.white.opacity(0.3))
         }
         .padding(.horizontal, 20)
-        .frame(height: collapsedHeight)
-        .background(Color.white.opacity(0.04 + highlightProgress * 0.06))
+        .frame(height: headerHeight)
+        .background(Color.white.opacity(0.04))
     }
 
-    // MARK: - Header Drag
+    private func accordionHeader(for section: DrawerSection) -> some View {
+        switch section {
+        case .daySummary:
+            return AnyView(daySummaryHeader(explicitDate: false))
+        case .yearOverview:
+            return AnyView(yearHeader)
+        default:
+            return AnyView(
+                DrawerHeaderView(
+                    section: section,
+                    summaryText: summaryText(for: section),
+                    onTap: { selectAccordionSection(section) }
+                )
+            )
+        }
+    }
 
-    private func headerDragGesture(for section: DrawerSection) -> some Gesture {
-        DragGesture(minimumDistance: 20)
+    private func daySummaryHeader(explicitDate: Bool) -> some View {
+        Button {
+            selectAccordionSection(.daySummary)
+        } label: {
+            HStack {
+                Text(formattedDate(explicitDate: explicitDate))
+                    .font(.system(.subheadline, design: .monospaced, weight: .medium))
+                    .foregroundStyle(.white)
+
+                Spacer()
+
+                MiniRingView(scores: scores, size: 32)
+            }
+            .padding(.horizontal, 20)
+            .frame(height: headerHeight)
+            .background(Color.white.opacity(0.04))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func formattedDate(explicitDate: Bool) -> String {
+        if !explicitDate {
+            let selectedStr = DateBoundary.dateString(from: selectedDate)
+            if selectedStr == DateBoundary.dateString(from: DateBoundary.today()) {
+                return "Today"
+            }
+        }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM d"
+        return formatter.string(from: selectedDate)
+    }
+
+    // MARK: - Accordion State
+
+    private func accordionMetrics(viewportHeight: CGFloat) -> AccordionMetrics {
+        AccordionMetrics(
+            viewportHeight: viewportHeight,
+            headerHeight: headerHeight,
+            sectionCount: nonYearSections.count
+        )
+    }
+
+    private func clampedAccordionOffset(
+        _ offset: CGFloat,
+        metrics: AccordionMetrics
+    ) -> CGFloat {
+        min(max(offset, 0), metrics.maxOffset)
+    }
+
+    private func headerY(
+        for index: Int,
+        metrics: AccordionMetrics
+    ) -> CGFloat {
+        guard index > 0 else { return CGFloat(index) * headerHeight }
+
+        let offset = clampedAccordionOffset(accordionOffset, metrics: metrics)
+        let startOffset = CGFloat(index - 1) * metrics.contentHeight
+        let endOffset = CGFloat(index) * metrics.contentHeight
+        let topY = CGFloat(index) * headerHeight
+        let bottomY = metrics.viewportHeight
+            - headerHeight * CGFloat(nonYearSections.count - index)
+
+        if offset <= startOffset {
+            return bottomY
+        }
+
+        if offset >= endOffset {
+            return topY
+        }
+
+        let progress = (offset - startOffset) / metrics.contentHeight
+        return bottomY + (topY - bottomY) * progress
+    }
+
+    private func nextHeaderY(
+        after index: Int,
+        metrics: AccordionMetrics
+    ) -> CGFloat {
+        guard index + 1 < nonYearSections.count else {
+            return metrics.viewportHeight
+        }
+
+        return headerY(for: index + 1, metrics: metrics)
+    }
+
+    private func syncFromCurrentSection(
+        viewportHeight: CGFloat,
+        animated: Bool
+    ) {
+        let resolvedSection = currentSection ?? .daySummary
+        let targetOuterPage: VerticalPage = resolvedSection == .yearOverview ? .year : .accordion
+        let targetOffset = offset(for: resolvedSection, viewportHeight: viewportHeight)
+        let isAlreadySynced =
+            outerPage == targetOuterPage
+            && (resolvedSection == .yearOverview
+                || (accordionTarget == resolvedSection
+                    && abs(accordionOffset - targetOffset) < 0.5))
+
+        guard !isAlreadySynced else { return }
+
+        let updates = {
+            if resolvedSection == .yearOverview {
+                suppressOuterPageSync = true
+                outerPage = .year
+            } else {
+                suppressOuterPageSync = true
+                outerPage = .accordion
+                accordionTarget = resolvedSection
+                accordionOffset = targetOffset
+            }
+        }
+
+        if animated {
+            withAnimation {
+                updates()
+            }
+        } else {
+            updates()
+        }
+    }
+
+    private func handleOuterPageChange(
+        _ newPage: VerticalPage?,
+        viewportHeight: CGFloat
+    ) {
+        guard let newPage else { return }
+
+        switch newPage {
+        case .year:
+            if currentSection != .yearOverview {
+                suppressCurrentSectionSync = true
+                currentSection = .yearOverview
+            }
+        case .accordion:
+            let fallback = accordionTarget ?? nearestAccordionSection(viewportHeight: viewportHeight)
+            accordionOffset = offset(for: fallback, viewportHeight: viewportHeight)
+            if currentSection != fallback {
+                suppressCurrentSectionSync = true
+                currentSection = fallback
+            }
+        }
+    }
+
+    private func nearestAccordionSection(viewportHeight: CGFloat) -> DrawerSection {
+        let metrics = accordionMetrics(viewportHeight: viewportHeight)
+        let clampedOffset = clampedAccordionOffset(accordionOffset, metrics: metrics)
+        let nearestIndex = Int(round(clampedOffset / metrics.contentHeight))
+        let clampedIndex = min(max(nearestIndex, 0), max(nonYearSections.count - 1, 0))
+        return nonYearSections[clampedIndex]
+    }
+
+    private func selectAccordionSection(_ section: DrawerSection) {
+        guard section != .yearOverview else {
+            withAnimation {
+                suppressOuterPageSync = true
+                suppressCurrentSectionSync = true
+                outerPage = .year
+                currentSection = .yearOverview
+            }
+            return
+        }
+
+        withAnimation {
+            suppressOuterPageSync = true
+            suppressCurrentSectionSync = true
+            outerPage = .accordion
+            accordionTarget = section
+            accordionOffset = offset(for: section)
+            currentSection = section
+        }
+    }
+
+    private func offset(
+        for section: DrawerSection,
+        viewportHeight: CGFloat? = nil
+    ) -> CGFloat {
+        guard let index = nonYearSections.firstIndex(of: section) else { return 0 }
+        let metrics = accordionMetrics(viewportHeight: viewportHeight ?? UIScreen.main.bounds.height)
+        return CGFloat(index) * metrics.contentHeight
+    }
+
+    private func accordionDragGesture(metrics: AccordionMetrics) -> some Gesture {
+        DragGesture(minimumDistance: 3)
+            .onChanged { value in
+                if dragStartAccordionOffset == nil {
+                    dragStartAccordionOffset = accordionOffset
+                }
+
+                let startOffset = dragStartAccordionOffset ?? accordionOffset
+                let proposedOffset = startOffset - value.translation.height
+                accordionOffset = rubberBandedOffset(proposedOffset, metrics: metrics)
+            }
             .onEnded { value in
-                let predicted = value.predictedEndTranslation.height
-                if abs(predicted) > 60 {
-                    snapTo(section)
+                let startOffset = dragStartAccordionOffset ?? accordionOffset
+                dragStartAccordionOffset = nil
+
+                let projectedOffset = startOffset - value.predictedEndTranslation.height
+                let shouldPageToYear =
+                    projectedOffset < -headerHeight * 0.75
+                    && startOffset <= 1
+
+                if shouldPageToYear {
+                    withAnimation(.easeOut(duration: 0.22)) {
+                        accordionOffset = 0
+                        suppressOuterPageSync = true
+                        suppressCurrentSectionSync = true
+                        outerPage = .year
+                        currentSection = .yearOverview
+                    }
+                    return
+                }
+
+                let resolvedOffset = clampedAccordionOffset(projectedOffset, metrics: metrics)
+                let snappedIndex = Int(round(resolvedOffset / metrics.contentHeight))
+                let clampedIndex = min(max(snappedIndex, 0), nonYearSections.count - 1)
+                let section = nonYearSections[clampedIndex]
+
+                withAnimation(.easeOut(duration: 0.22)) {
+                    accordionOffset = CGFloat(clampedIndex) * metrics.contentHeight
+                    accordionTarget = section
+                    suppressOuterPageSync = true
+                    suppressCurrentSectionSync = true
+                    outerPage = .accordion
+                    currentSection = section
                 }
             }
     }
 
-    // MARK: - Expanded Panel
+    private func rubberBandedOffset(
+        _ offset: CGFloat,
+        metrics: AccordionMetrics
+    ) -> CGFloat {
+        if offset < 0 {
+            return offset * 0.28
+        }
 
-    private func expandedPanel(height: CGFloat) -> some View {
-        EdgeAwareScrollView(
-            panelID: expandedDrawer.rawValue,
-            topOverscroll: $topOverscroll,
-            bottomOverscroll: $bottomOverscroll,
-            onTransition: handlePanelTransition,
-            onHorizontalSwipe: handleDaySwipe
-        ) {
-            expandedContent
+        if offset > metrics.maxOffset {
+            return metrics.maxOffset + (offset - metrics.maxOffset) * 0.28
         }
-        .frame(height: max(height, collapsedHeight))
-        .clipped()
-        .overlay(alignment: .top) {
-            transitionHint(amount: topOverscroll, direction: .top)
-        }
-        .overlay(alignment: .bottom) {
-            transitionHint(amount: bottomOverscroll, direction: .bottom)
-        }
+
+        return offset
     }
 
-    // MARK: - Expanded Content
+    // MARK: - Section Content
 
     @ViewBuilder
-    private var expandedContent: some View {
-        switch expandedDrawer {
+    private func sectionContent(
+        _ section: DrawerSection,
+        availableHeight: CGFloat
+    ) -> some View {
+        switch section {
         case .yearOverview:
-            YearGridView(selectedDate: $selectedDate, onDayTap: { date in
-                selectedDate = date
-                snapTo(.daySummary)
-            })
+            YearGridView(
+                selectedDate: $selectedDate,
+                availableHeight: availableHeight,
+                onDayTap: { date in onDayTap?(date) }
+            )
         case .daySummary:
             DaySummaryView(
                 scores: scores,
@@ -209,71 +454,21 @@ struct VerticalSnapContainer: View {
                 isExpanded: true
             )
         case .sleep:
-            SleepDetailView(selectedDate: selectedDate, isToday: isToday)
+            ScrollView(.vertical, showsIndicators: false) {
+                SleepDetailView(selectedDate: selectedDate, isToday: isToday)
+            }
         case .exercise:
-            ExerciseDetailView(selectedDate: selectedDate)
+            ScrollView(.vertical, showsIndicators: false) {
+                ExerciseDetailView(selectedDate: selectedDate)
+            }
         case .nutrition:
-            NutritionView(selectedDate: selectedDate, isToday: isToday)
+            ScrollView(.vertical, showsIndicators: false) {
+                NutritionView(selectedDate: selectedDate, isToday: isToday)
+            }
         case .productivity:
-            ProductivityDetailView(selectedDate: selectedDate, isToday: isToday)
-        }
-    }
-
-    // MARK: - Transition Hints
-
-    @ViewBuilder
-    private func transitionHint(
-        amount: CGFloat,
-        direction: VerticalEdge
-    ) -> some View {
-        if amount > 8 {
-            let progress = min(amount / 80, 1.0)
-            Image(
-                systemName: direction == .top
-                    ? "chevron.compact.up"
-                    : "chevron.compact.down"
-            )
-            .font(.system(size: 18, weight: .medium))
-            .foregroundStyle(.white.opacity(0.15 + progress * 0.35))
-            .scaleEffect(0.8 + progress * 0.3)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 6)
-            .allowsHitTesting(false)
-        }
-    }
-
-    // MARK: - Transition Handling
-
-    private func handlePanelTransition(_ edge: VerticalEdge) {
-        if edge == .top, let prev = expandedDrawer.previous {
-            snapTo(prev)
-        } else if edge == .bottom, let next = expandedDrawer.next {
-            snapTo(next)
-        }
-    }
-
-    private func handleDaySwipe(_ direction: Int) {
-        advanceDay(by: direction)
-    }
-
-    // MARK: - Actions
-
-    private func snapTo(_ section: DrawerSection) {
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.88)) {
-            expandedDrawer = section
-            topOverscroll = 0
-            bottomOverscroll = 0
-        }
-    }
-
-    private func advanceDay(by offset: Int) {
-        guard let newDate = Calendar.current.date(
-            byAdding: .day, value: offset, to: selectedDate
-        ) else { return }
-        let today = DateBoundary.today()
-        guard newDate <= today else { return }
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
-            selectedDate = newDate
+            ScrollView(.vertical, showsIndicators: false) {
+                ProductivityDetailView(selectedDate: selectedDate, isToday: isToday)
+            }
         }
     }
 
@@ -303,5 +498,19 @@ struct VerticalSnapContainer: View {
         case .daySummary:
             return ""
         }
+    }
+}
+
+private struct AccordionMetrics {
+    let viewportHeight: CGFloat
+    let headerHeight: CGFloat
+    let sectionCount: Int
+
+    var contentHeight: CGFloat {
+        max(viewportHeight - CGFloat(sectionCount) * headerHeight, 1)
+    }
+
+    var maxOffset: CGFloat {
+        CGFloat(max(sectionCount - 1, 0)) * contentHeight
     }
 }

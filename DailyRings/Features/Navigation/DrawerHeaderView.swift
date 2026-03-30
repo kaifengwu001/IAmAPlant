@@ -3,7 +3,6 @@ import SwiftUI
 struct DrawerHeaderView: View {
     let section: DrawerSection
     let summaryText: String
-    var highlightProgress: CGFloat = 0
     let onTap: () -> Void
 
     private var ring: AppConstants.Ring? {
@@ -46,14 +45,10 @@ struct DrawerHeaderView: View {
                 Text(summaryText)
                     .font(.system(.subheadline, design: .monospaced))
                     .foregroundStyle(.white.opacity(0.5))
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.3))
             }
             .padding(.horizontal, 20)
             .frame(height: 56)
-            .background(Color.white.opacity(0.04 + highlightProgress * 0.06))
+            .background(Color.white.opacity(0.04))
         }
         .buttonStyle(.plain)
     }

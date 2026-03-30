@@ -3,11 +3,13 @@ import SwiftData
 
 struct YearGridView: View {
     @Binding var selectedDate: Date
+    let availableHeight: CGFloat
     let onDayTap: (Date) -> Void
 
     @Query private var summaries: [DailySummary]
 
     private let calendar = Calendar.current
+    private let titleHeight: CGFloat = 52
 
     private var summaryLookup: [String: [Double]] {
         Dictionary(
@@ -17,7 +19,10 @@ struct YearGridView: View {
     }
 
     var body: some View {
-        let layout = GridLayout(screenWidth: UIScreen.main.bounds.width)
+        let layout = GridLayout(
+            screenWidth: UIScreen.main.bounds.width,
+            availableHeight: availableHeight - titleHeight
+        )
         let cells = buildCells()
 
         VStack(spacing: 0) {
@@ -27,10 +32,14 @@ struct YearGridView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, layout.padding)
                 .padding(.top, 16)
-                .padding(.bottom, 8)
+                .padding(.bottom, 4)
+                .frame(height: titleHeight)
 
             LazyVGrid(
-                columns: Array(repeating: GridItem(.fixed(layout.cellSize), spacing: layout.spacing), count: layout.columns),
+                columns: Array(
+                    repeating: GridItem(.fixed(layout.cellSize), spacing: layout.spacing),
+                    count: layout.columns
+                ),
                 spacing: layout.spacing
             ) {
                 ForEach(cells) { cell in
@@ -38,8 +47,10 @@ struct YearGridView: View {
                 }
             }
             .padding(.horizontal, layout.padding)
+
+            Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     @ViewBuilder
@@ -47,12 +58,17 @@ struct YearGridView: View {
         switch cell.cellType {
         case .monthLabel(let text):
             Text(text)
-                .font(.system(size: max(layout.cellSize * 0.4, 7), weight: .bold, design: .monospaced))
+                .font(.system(
+                    size: max(layout.cellSize * 0.4, 7),
+                    weight: .bold,
+                    design: .monospaced
+                ))
                 .foregroundStyle(.white.opacity(0.5))
                 .frame(width: layout.cellSize, height: layout.cellSize)
 
         case .day(let date, let scores):
-            let isToday = DateBoundary.dateString(from: date) == DateBoundary.dateString(from: DateBoundary.today())
+            let isToday = DateBoundary.dateString(from: date)
+                == DateBoundary.dateString(from: DateBoundary.today())
             let isFuture = date > DateBoundary.today()
 
             Button { onDayTap(date) } label: {
@@ -61,14 +77,23 @@ struct YearGridView: View {
                         MiniRingView(scores: scores, size: layout.cellSize * 0.85)
                     } else {
                         Circle()
-                            .stroke(Color.white.opacity(isFuture ? 0.04 : 0.12), lineWidth: 0.75)
-                            .frame(width: layout.cellSize * 0.7, height: layout.cellSize * 0.7)
+                            .stroke(
+                                Color.white.opacity(isFuture ? 0.04 : 0.12),
+                                lineWidth: 0.75
+                            )
+                            .frame(
+                                width: layout.cellSize * 0.7,
+                                height: layout.cellSize * 0.7
+                            )
                     }
 
                     if isToday {
                         Circle()
                             .stroke(Color.white.opacity(0.8), lineWidth: 1.5)
-                            .frame(width: layout.cellSize * 0.9, height: layout.cellSize * 0.9)
+                            .frame(
+                                width: layout.cellSize * 0.9,
+                                height: layout.cellSize * 0.9
+                            )
                     }
                 }
                 .frame(width: layout.cellSize, height: layout.cellSize)
@@ -91,15 +116,18 @@ struct YearGridView: View {
             let monthName = calendar.shortMonthSymbols[month - 1].uppercased()
             result.append(YearCell(id: "m\(month)", cellType: .monthLabel(monthName)))
 
-            guard let monthStart = calendar.date(from: DateComponents(year: year, month: month, day: 1)),
-                  let range = calendar.range(of: .day, in: .month, for: monthStart) else {
+            guard let monthStart = calendar.date(
+                from: DateComponents(year: year, month: month, day: 1)
+            ),
+                let range = calendar.range(of: .day, in: .month, for: monthStart)
+            else {
                 continue
             }
 
             for day in range {
-                guard let date = calendar.date(from: DateComponents(year: year, month: month, day: day)) else {
-                    continue
-                }
+                guard let date = calendar.date(
+                    from: DateComponents(year: year, month: month, day: day)
+                ) else { continue }
                 let dateStr = DateBoundary.dateString(from: date)
                 let scores = summaryLookup[dateStr]
                 result.append(YearCell(id: dateStr, cellType: .day(date, scores)))
@@ -118,8 +146,27 @@ private struct GridLayout {
     let spacing: CGFloat
     let padding: CGFloat
 
-    init(screenWidth: CGFloat) {
-        self.columns = 14
+    init(screenWidth: CGFloat, availableHeight: CGFloat) {
+        let totalCells = 377
+
+        var bestColumns = 14
+        var bestCellSize: CGFloat = 10
+
+        for cols in 12...20 {
+            let rows = Int(ceil(Double(totalCells) / Double(cols)))
+            let sp: CGFloat = 2
+            let pad: CGFloat = 8
+            let availWidth = screenWidth - pad * 2 - sp * CGFloat(cols - 1)
+            let cellW = availWidth / CGFloat(cols)
+            let totalHeight = CGFloat(rows) * (cellW + sp)
+
+            if totalHeight <= availableHeight && cellW > bestCellSize {
+                bestColumns = cols
+                bestCellSize = cellW
+            }
+        }
+
+        self.columns = bestColumns
         self.spacing = 2
         self.padding = 8
         let availWidth = screenWidth - padding * 2 - spacing * CGFloat(columns - 1)
