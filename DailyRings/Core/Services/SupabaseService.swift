@@ -9,21 +9,46 @@ final class SupabaseService {
     var currentUserID: String?
 
     init() {
-        let supabaseURL = Bundle.main.infoDictionary?["SUPABASE_URL"] as? String ?? ""
-        let supabaseKey = Bundle.main.infoDictionary?["SUPABASE_ANON_KEY"] as? String ?? ""
+        let supabaseURL = Self.infoValue(forKey: "SUPABASE_URL")
+        let supabaseKey = Self.infoValue(forKey: "SUPABASE_ANON_KEY")
+        let resolvedURL = URL(string: supabaseURL)
+
+        guard let resolvedURL, resolvedURL.host != nil else {
+            preconditionFailure(
+                "Missing or invalid SUPABASE_URL. Check Config/Secrets.xcconfig, then clean and rebuild so Info.plist substitutes $(SUPABASE_URL)."
+            )
+        }
+
+        guard !supabaseKey.isEmpty else {
+            preconditionFailure(
+                "Missing SUPABASE_ANON_KEY. Check Config/Secrets.xcconfig, then clean and rebuild so Info.plist substitutes $(SUPABASE_ANON_KEY)."
+            )
+        }
 
         self.client = SupabaseClient(
-            supabaseURL: URL(string: supabaseURL) ?? URL(string: "https://placeholder.supabase.co")!,
+            supabaseURL: resolvedURL,
             supabaseKey: supabaseKey
         )
     }
 
+    private static func infoValue(forKey key: String) -> String {
+        let value = (Bundle.main.object(forInfoDictionaryKey: key) as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if value.hasPrefix("$(") || value.hasPrefix("${") {
+            return ""
+        }
+        return value
+    }
+
     // MARK: - Auth
 
-    func signInWithApple(idToken: String, nonce: String) async throws {
-        let session = try await client.auth.signInWithIdToken(
-            credentials: .init(provider: .apple, idToken: idToken, nonce: nonce)
-        )
+    func signUp(email: String, password: String) async throws {
+        let response = try await client.auth.signUp(email: email, password: password)
+        currentUserID = response.user.id.uuidString
+    }
+
+    func signIn(email: String, password: String) async throws {
+        let session = try await client.auth.signIn(email: email, password: password)
         currentUserID = session.user.id.uuidString
     }
 
@@ -65,7 +90,8 @@ final class SupabaseService {
     // MARK: - Edge Functions
 
     func scoreMeal(imageBase64: String, timestamp: Date) async throws -> MealScoreResponse {
-        let body = MealScoreRequest(image_base64: imageBase64, timestamp: timestamp)
+        let iso = ISO8601DateFormatter().string(from: timestamp)
+        let body = MealScoreRequest(image_base64: imageBase64, timestamp: iso)
         let response: MealScoreResponse = try await client.functions
             .invoke("score-meal", options: .init(body: body))
         return response
@@ -140,14 +166,13 @@ struct UserSettingsDTO: Codable {
 
 struct MealScoreRequest: Codable {
     let image_base64: String
-    let timestamp: Date
+    let timestamp: String
 }
 
 struct MealScoreResponse: Codable {
-    let meal_type: String
-    let time: String
     let score: Double
     let brief_description: String
+    let time: String
 }
 
 struct RescueTimeRequest: Codable {

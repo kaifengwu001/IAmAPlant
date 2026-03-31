@@ -138,16 +138,13 @@ struct SettingsView: View {
 
     private var accountSection: some View {
         Section {
-            if supabaseService.isAuthenticated {
-                Button("Sign Out", role: .destructive) {
-                    Task { try? await supabaseService.signOut() }
+            Button("Sign Out", role: .destructive) {
+                Task {
+                    try? await supabaseService.signOut()
+                    dismiss()
                 }
-                .font(.system(.subheadline, design: .monospaced))
-            } else {
-                Text("Sign in with Apple to sync data")
-                    .font(.system(.subheadline, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.5))
             }
+            .font(.system(.subheadline, design: .monospaced))
         } header: {
             Text("Account")
                 .font(.system(.caption, design: .monospaced, weight: .bold))

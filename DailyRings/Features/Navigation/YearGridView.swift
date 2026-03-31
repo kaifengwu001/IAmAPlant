@@ -83,7 +83,12 @@ struct YearGridView: View {
                                 height: layout.cellSize * 0.7
                             )
                     } else {
-                        MiniRingView(scores: scores ?? [0, 0, 0, 0], size: layout.cellSize * 0.85)
+                        MiniRingView(
+                            scores: scores ?? [0, 0, 0, 0],
+                            size: layout.cellSize * 0.95,
+                            lineWidthRatio: 0.08,
+                            gapRatio: 0.25
+                        )
                     }
 
                     if isToday {

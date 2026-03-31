@@ -6,15 +6,10 @@ struct ManualAdjustmentView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-    @Query private var summaries: [DailySummary]
 
     @State private var minutes: String = ""
     @State private var note: String = ""
     @State private var isAdding = true
-
-    private var dateString: String {
-        DateBoundary.dateString(from: selectedDate)
-    }
 
     var body: some View {
         NavigationStack {
@@ -68,19 +63,16 @@ struct ManualAdjustmentView: View {
         let adjustedMinutes = isAdding ? minuteValue : -minuteValue
         let adjustment = ManualAdjustment(minutes: adjustedMinutes, note: note)
 
-        let summary = summaries.first { $0.dateString == dateString }
-            ?? DailySummary(date: selectedDate)
+        do {
+            let summary = try DailySummary.fetchOrCreate(for: selectedDate, in: modelContext)
+            let adjustments = summary.manualAdjustments + [adjustment]
+            summary.manualAdjustments = adjustments
 
-        if summaries.first(where: { $0.dateString == dateString }) == nil {
-            modelContext.insert(summary)
+            _ = try DailySummary.refreshProductivity(for: selectedDate, in: modelContext)
+            try modelContext.save()
+        } catch {
+            return
         }
-
-        var adjustments = summary.manualAdjustments
-        adjustments.append(adjustment)
-        summary.manualAdjustments = adjustments
-        summary.manualAdjustmentMinutes = adjustments.reduce(0) { $0 + $1.minutes }
-
-        try? modelContext.save()
         dismiss()
     }
 }

@@ -120,6 +120,7 @@ final class PomodoroManager {
         let distractedSeconds = distractedSecondsFromLevel()
         session.markInterrupted(distractedSeconds: distractedSeconds)
         try? modelContext?.save()
+        refreshProductivitySummary(for: session.date)
 
         appendDebug("Cancelled: \(distractedSeconds)s distracted, \(session.durationMinutes)m")
         cleanup()
@@ -199,6 +200,7 @@ final class PomodoroManager {
         let distractedSeconds = distractedSecondsFromLevel()
         session.markCompleted(distractedSeconds: distractedSeconds)
         try? modelContext?.save()
+        refreshProductivitySummary(for: session.date)
 
         appendDebug("Completed: \(distractedSeconds)s distracted, \(session.durationMinutes)m")
         cleanup()
@@ -213,6 +215,7 @@ final class PomodoroManager {
 
         session.markInterrupted(distractedSeconds: 180)
         try? modelContext?.save()
+        refreshProductivitySummary(for: session.date)
 
         appendDebug("FAILED: 180s distracted, \(session.durationMinutes)m (3 min limit)")
         cleanup()
@@ -224,6 +227,17 @@ final class PomodoroManager {
         case 2: return 150
         case 1: return 60
         default: return 0
+        }
+    }
+
+    private func refreshProductivitySummary(for date: Date) {
+        guard let modelContext else { return }
+
+        do {
+            _ = try DailySummary.refreshProductivity(for: date, in: modelContext)
+            try modelContext.save()
+        } catch {
+            appendDebug("Summary refresh failed: \(error.localizedDescription)")
         }
     }
 

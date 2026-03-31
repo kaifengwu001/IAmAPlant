@@ -30,6 +30,10 @@
 	<string>Daily Rings reads your exercise and sleep data to track your daily activity rings.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Daily Rings can import meal photos from your library.</string>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>$(SUPABASE_ANON_KEY)</string>
+	<key>SUPABASE_URL</key>
+	<string>$(SUPABASE_URL)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -33,6 +33,22 @@ enum AppConstants {
         case nutrition = 2
         case productivity = 3
 
+        var scoreIndex: Int { rawValue }
+
+        static let displayOrderInnerToOuter: [Ring] = [
+            .sleep,
+            .nutrition,
+            .exercise,
+            .productivity
+        ]
+
+        static let displayOrderOuterToInner: [Ring] = [
+            .productivity,
+            .exercise,
+            .nutrition,
+            .sleep
+        ]
+
         var label: String {
             switch self {
             case .sleep: "Sleep"

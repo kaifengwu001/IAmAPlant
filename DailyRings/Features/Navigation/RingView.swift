@@ -4,34 +4,32 @@ struct RingView: View {
     let scores: [Double]
     let size: CGFloat
     let lineWidthRatio: CGFloat
+    let gapRatio: CGFloat
 
-    init(scores: [Double], size: CGFloat, lineWidthRatio: CGFloat = 0.08) {
+    init(
+        scores: [Double],
+        size: CGFloat,
+        lineWidthRatio: CGFloat = 0.08,
+        gapRatio: CGFloat = 0.4
+    ) {
         self.scores = scores
         self.size = size
         self.lineWidthRatio = lineWidthRatio
+        self.gapRatio = gapRatio
     }
 
     private var lineWidth: CGFloat { size * lineWidthRatio }
-    private var gap: CGFloat { lineWidth * 0.4 }
-
-    private static let ringColors: [Color] = [
-        Color(red: 0.40, green: 0.55, blue: 0.90),  // Sleep — muted blue
-        Color(red: 0.30, green: 0.85, blue: 0.55),  // Exercise — green
-        Color(red: 0.95, green: 0.65, blue: 0.25),  // Nutrition — amber
-        Color(red: 0.90, green: 0.35, blue: 0.40),  // Productivity — coral red
-    ]
-
-    private static let trackColor = Color.white.opacity(0.15)
+    private var gap: CGFloat { lineWidth * gapRatio }
 
     var body: some View {
         ZStack {
-            ForEach(Array(AppConstants.Ring.allCases.enumerated()), id: \.element) { index, ring in
+            ForEach(Array(AppConstants.Ring.displayOrderOuterToInner.enumerated()), id: \.element) { index, ring in
                 let ringRadius = radius(for: index)
-                let score = index < scores.count ? scores[index] : 0
-                let color = Self.ringColors[index]
+                let score = score(for: ring)
+                let color = Theme.ringColor(for: ring)
 
                 Circle()
-                    .stroke(Self.trackColor, lineWidth: lineWidth)
+                    .stroke(Theme.ringTrack, lineWidth: lineWidth)
                     .frame(width: ringRadius * 2, height: ringRadius * 2)
 
                 Circle()
@@ -51,19 +49,38 @@ struct RingView: View {
         let outerRadius = (size - lineWidth) / 2
         return outerRadius - CGFloat(index) * (lineWidth + gap)
     }
+
+    private func score(for ring: AppConstants.Ring) -> Double {
+        guard ring.scoreIndex < scores.count else { return 0 }
+        return scores[ring.scoreIndex]
+    }
 }
 
 struct MiniRingView: View {
     let scores: [Double]
     let size: CGFloat
+    let lineWidthRatio: CGFloat
+    let gapRatio: CGFloat
 
-    init(scores: [Double], size: CGFloat = 24) {
+    init(
+        scores: [Double],
+        size: CGFloat = 24,
+        lineWidthRatio: CGFloat = 0.10,
+        gapRatio: CGFloat = 0.4
+    ) {
         self.scores = scores
         self.size = size
+        self.lineWidthRatio = lineWidthRatio
+        self.gapRatio = gapRatio
     }
 
     var body: some View {
-        RingView(scores: scores, size: size, lineWidthRatio: 0.10)
+        RingView(
+            scores: scores,
+            size: size,
+            lineWidthRatio: lineWidthRatio,
+            gapRatio: gapRatio
+        )
     }
 }
 

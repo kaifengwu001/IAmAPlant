@@ -29,7 +29,6 @@ final class MealScoringService {
             let response = try await service.scoreMeal(imageBase64: base64, timestamp: timestamp)
             let score = MealScore(
                 timestamp: timestamp,
-                mealType: response.meal_type,
                 score: response.score,
                 briefDescription: response.brief_description,
                 photoFilename: filename
@@ -37,7 +36,7 @@ final class MealScoringService {
             scoringErrors.removeValue(forKey: filename)
             return score
         } catch {
-            scoringErrors[filename] = error.localizedDescription
+            scoringErrors[filename] = Self.friendlyError(from: error)
             return nil
         }
     }
@@ -67,5 +66,29 @@ final class MealScoringService {
 
     func cleanupExpiredPhotos(retentionDays: Int) async {
         try? await photoStore.deleteExpiredPhotos(retentionDays: retentionDays)
+    }
+
+    func clearError(for filename: String) {
+        scoringErrors.removeValue(forKey: filename)
+    }
+
+    private static func friendlyError(from error: Error) -> String {
+        let message = error.localizedDescription.lowercased()
+        if message.contains("422") || message.contains("no food") {
+            return "No food detected in this photo. Try a clearer shot."
+        }
+        if message.contains("401") || message.contains("unauthorized") {
+            return "Not signed in. Sign in and try again."
+        }
+        if message.contains("500") || message.contains("internal server") {
+            return "Scoring failed. Try again in a moment."
+        }
+        if message.contains("timeout") || message.contains("timed out") {
+            return "Request timed out. Check your connection."
+        }
+        if message.contains("non-2xx") || message.contains("edge function") {
+            return "Could not score this photo. Try again."
+        }
+        return "Something went wrong. Try again."
     }
 }

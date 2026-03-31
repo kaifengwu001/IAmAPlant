@@ -61,6 +61,8 @@ targets:
         NSHealthShareUsageDescription: "Daily Rings reads your exercise and sleep data to track your daily activity rings."
         NSCameraUsageDescription: "Daily Rings uses the camera to photograph your meals for nutrition scoring."
         NSPhotoLibraryUsageDescription: "Daily Rings can import meal photos from your library."
+        SUPABASE_URL: "$(SUPABASE_URL)"
+        SUPABASE_ANON_KEY: "$(SUPABASE_ANON_KEY)"
         UILaunchScreen:
           UIColorName: ""
         UIApplicationSceneManifest:

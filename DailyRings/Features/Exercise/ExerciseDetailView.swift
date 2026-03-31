@@ -4,6 +4,7 @@ import SwiftData
 struct ExerciseDetailView: View {
     let selectedDate: Date
 
+    @Environment(\.modelContext) private var modelContext
     @State private var healthKitManager = HealthKitManager()
     @Query private var summaries: [DailySummary]
 
@@ -29,12 +30,10 @@ struct ExerciseDetailView: View {
             }
         }
         .onAppear {
-            Task {
-                await healthKitManager.fetchExerciseData(for: selectedDate)
-            }
+            Task { await refreshExerciseData(for: selectedDate) }
         }
         .onChange(of: selectedDate) { _, newDate in
-            Task { await healthKitManager.fetchExerciseData(for: newDate) }
+            Task { await refreshExerciseData(for: newDate) }
         }
     }
 
@@ -220,5 +219,21 @@ struct ExerciseDetailView: View {
             .foregroundStyle(Color(red: 0.30, green: 0.85, blue: 0.55))
         }
         .padding(32)
+    }
+}
+
+private extension ExerciseDetailView {
+    func refreshExerciseData(for date: Date) async {
+        await healthKitManager.fetchExerciseData(for: date)
+
+        guard healthKitManager.authorizationStatus == .authorized else { return }
+
+        do {
+            let summary = try DailySummary.fetchOrCreate(for: date, in: modelContext)
+            summary.updateExercise(minutes: healthKitManager.exerciseMinutes)
+            try modelContext.save()
+        } catch {
+            // Keep showing live HealthKit data even if persistence fails.
+        }
     }
 }

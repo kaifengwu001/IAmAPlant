@@ -120,21 +120,118 @@ enum SyncStatus: String, Codable {
     case synced
 }
 
+extension DailySummary {
+    static func fetchOrCreate(for date: Date, in modelContext: ModelContext) throws -> DailySummary {
+        let normalizedDate = Calendar.current.startOfDay(for: date)
+        let dateString = DateBoundary.dateString(from: normalizedDate)
+        let descriptor = FetchDescriptor<DailySummary>(
+            predicate: #Predicate { $0.dateString == dateString }
+        )
+
+        if let existing = try modelContext.fetch(descriptor).first {
+            return existing
+        }
+
+        let summary = DailySummary(date: normalizedDate)
+        modelContext.insert(summary)
+        return summary
+    }
+
+    func updateExercise(minutes: Int, goalMinutes: Int = AppConstants.defaultExerciseGoalMinutes) {
+        exerciseMinutes = minutes
+        exerciseScore = ScoreCalculator.exerciseScore(minutes: minutes, goalMinutes: goalMinutes)
+        status = .partial
+    }
+
+    func applyProductivity(_ productivity: ProductivityCalculator.DailyProductivity) {
+        pomodoroCompleted = productivity.pomodoroCompletedCount
+        pomodoroInterrupted = productivity.pomodoroInterruptedCount
+        pomodoroTotalMinutes = productivity.pomodoroTotalMinutes
+        rescueTimeProductiveMinutes = productivity.rescueTimeProductiveMinutes
+        rescueTimeDistractingMinutes = productivity.rescueTimeDistractingMinutes
+        overlapMinutes = productivity.overlapMinutes
+        manualAdjustmentMinutes = productivity.manualAdjustmentMinutes
+        productiveMinutesTotal = productivity.totalProductiveMinutes
+        productivityScore = productivity.score
+        status = .partial
+    }
+
+    @discardableResult
+    static func refreshProductivity(
+        for date: Date,
+        in modelContext: ModelContext,
+        rescueTimeSummary: ProductivitySummary? = nil,
+        goalMinutes: Int = AppConstants.defaultProductivityGoalMinutes
+    ) throws -> DailySummary {
+        let normalizedDate = Calendar.current.startOfDay(for: date)
+        let dateString = DateBoundary.dateString(from: normalizedDate)
+        let summary = try fetchOrCreate(for: normalizedDate, in: modelContext)
+
+        let sessionDescriptor = FetchDescriptor<PomodoroSession>(
+            predicate: #Predicate { $0.dateString == dateString }
+        )
+        let sessions = try modelContext.fetch(sessionDescriptor)
+
+        let effectiveRescueTimeSummary = rescueTimeSummary ?? ProductivitySummary(
+            productiveMinutes: summary.rescueTimeProductiveMinutes,
+            distractingMinutes: summary.rescueTimeDistractingMinutes
+        )
+
+        let productivity = ProductivityCalculator.calculate(
+            sessions: sessions,
+            rescueTimeSummary: effectiveRescueTimeSummary,
+            manualAdjustments: summary.manualAdjustments,
+            goalMinutes: goalMinutes
+        )
+
+        summary.applyProductivity(productivity)
+        return summary
+    }
+}
+
 struct MealScore: Codable, Identifiable {
     let id: UUID
     let timestamp: Date
-    let mealType: String
     let score: Double
     let briefDescription: String
     let photoFilename: String
 
-    init(timestamp: Date, mealType: String, score: Double, briefDescription: String, photoFilename: String) {
+    init(timestamp: Date, score: Double, briefDescription: String, photoFilename: String) {
         self.id = UUID()
         self.timestamp = timestamp
-        self.mealType = mealType
         self.score = score
         self.briefDescription = briefDescription
         self.photoFilename = photoFilename
+    }
+
+    var timeLabel: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        return formatter.string(from: timestamp)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, timestamp, score, briefDescription, photoFilename
+        case mealType
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        timestamp = try container.decode(Date.self, forKey: .timestamp)
+        score = try container.decode(Double.self, forKey: .score)
+        briefDescription = try container.decode(String.self, forKey: .briefDescription)
+        photoFilename = try container.decode(String.self, forKey: .photoFilename)
+        _ = try? container.decode(String.self, forKey: .mealType)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(timestamp, forKey: .timestamp)
+        try container.encode(score, forKey: .score)
+        try container.encode(briefDescription, forKey: .briefDescription)
+        try container.encode(photoFilename, forKey: .photoFilename)
     }
 }
 

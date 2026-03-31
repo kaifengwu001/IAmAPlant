@@ -54,12 +54,12 @@ struct DaySummaryView: View {
 
     private var ringLegend: some View {
         HStack(spacing: 20) {
-            ForEach(AppConstants.Ring.allCases, id: \.self) { ring in
-                let score = ring.rawValue < scores.count ? scores[ring.rawValue] : 0
+            ForEach(AppConstants.Ring.displayOrderInnerToOuter, id: \.self) { ring in
+                let score = score(for: ring)
                 VStack(spacing: 4) {
                     Image(systemName: ring.iconName)
                         .font(.system(size: 14))
-                        .foregroundStyle(ringColor(for: ring))
+                        .foregroundStyle(Theme.ringColor(for: ring))
                     Text("\(Int(score * 100))%")
                         .font(.system(.caption2, design: .monospaced, weight: .medium))
                         .foregroundStyle(.white.opacity(0.7))
@@ -99,12 +99,8 @@ struct DaySummaryView: View {
 
     // MARK: - Helpers
 
-    private func ringColor(for ring: AppConstants.Ring) -> Color {
-        switch ring {
-        case .sleep: Color(red: 0.40, green: 0.55, blue: 0.90)
-        case .exercise: Color(red: 0.30, green: 0.85, blue: 0.55)
-        case .nutrition: Color(red: 0.95, green: 0.65, blue: 0.25)
-        case .productivity: Color(red: 0.90, green: 0.35, blue: 0.40)
-        }
+    private func score(for ring: AppConstants.Ring) -> Double {
+        guard ring.scoreIndex < scores.count else { return 0 }
+        return scores[ring.scoreIndex]
     }
 }

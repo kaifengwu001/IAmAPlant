@@ -52,6 +52,8 @@ struct ProductivityDetailView: View {
 
             sessionsList
 
+            manualAdjustmentsList
+
             manualAdjustButton
         }
         .sheet(isPresented: $showManualAdjustment) {
@@ -102,7 +104,7 @@ struct ProductivityDetailView: View {
             )
             statItem(
                 label: "Productive",
-                value: formatMinutes(completedSessions.count * AppConstants.pomodoroWorkMinutes)
+                value: formatMinutes(currentSummary?.productiveMinutesTotal ?? completedSessions.count * AppConstants.pomodoroWorkMinutes)
             )
             statItem(
                 label: "Score",
@@ -146,6 +148,44 @@ struct ProductivityDetailView: View {
                     .padding(.vertical, 8)
             }
         }
+    }
+
+    private var manualAdjustmentsList: some View {
+        let adjustments = currentSummary?.manualAdjustments ?? []
+
+        return VStack(spacing: 0) {
+            ForEach(adjustments) { adjustment in
+                manualAdjustmentRow(adjustment)
+                Divider().background(Color.white.opacity(0.05))
+            }
+        }
+    }
+
+    private func manualAdjustmentRow(_ adjustment: ManualAdjustment) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(adjustment.note)
+                    .font(.system(.subheadline, design: .monospaced))
+                    .foregroundStyle(.white)
+                Text(formatTimestamp(adjustment.timestamp))
+                    .font(.system(.caption2, design: .monospaced))
+                    .foregroundStyle(.white.opacity(0.3))
+            }
+
+            Spacer()
+
+            Text(adjustment.minutes > 0 ? "+\(adjustment.minutes)m" : "\(adjustment.minutes)m")
+                .font(.system(.subheadline, design: .monospaced, weight: .medium))
+                .foregroundStyle(adjustment.minutes > 0 ? .green.opacity(0.8) : .red.opacity(0.8))
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+    }
+
+    private func formatTimestamp(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        return formatter.string(from: date)
     }
 
     private var manualAdjustButton: some View {

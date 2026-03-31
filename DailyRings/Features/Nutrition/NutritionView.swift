@@ -151,7 +151,12 @@ struct NutritionView: View {
                 Divider().background(Color.white.opacity(0.05))
             }
 
-            if mealScores.isEmpty && scoringService.pendingScores.isEmpty {
+            ForEach(Array(scoringService.scoringErrors), id: \.key) { filename, message in
+                errorRow(message)
+                Divider().background(Color.white.opacity(0.05))
+            }
+
+            if mealScores.isEmpty && scoringService.pendingScores.isEmpty && scoringService.scoringErrors.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "fork.knife")
                         .font(.system(size: 32))
@@ -183,7 +188,7 @@ struct NutritionView: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(meal.mealType.capitalized)
+                Text(meal.timeLabel)
                     .font(.system(.subheadline, design: .monospaced, weight: .medium))
                     .foregroundStyle(.white)
 
@@ -217,6 +222,28 @@ struct NutritionView: View {
             Text("Scoring...")
                 .font(.system(.subheadline, design: .monospaced))
                 .foregroundStyle(.white.opacity(0.4))
+
+            Spacer()
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 10)
+    }
+
+    private func errorRow(_ message: String) -> some View {
+        HStack(spacing: 12) {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.white.opacity(0.05))
+                .frame(width: 48, height: 48)
+                .overlay {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Theme.nutrition.opacity(0.7))
+                }
+
+            Text(message)
+                .font(.system(.caption, design: .monospaced))
+                .foregroundStyle(.white.opacity(0.5))
+                .lineLimit(2)
 
             Spacer()
         }

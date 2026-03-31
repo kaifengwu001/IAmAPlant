@@ -40,8 +40,8 @@ final class ScoreCalculatorTests: XCTestCase {
 
     func testNutritionScore_average7_returns07() {
         let meals = [
-            MealScore(timestamp: .now, mealType: "lunch", score: 7, briefDescription: "test", photoFilename: "a.jpg"),
-            MealScore(timestamp: .now, mealType: "dinner", score: 7, briefDescription: "test", photoFilename: "b.jpg"),
+            MealScore(timestamp: .now, score: 7, briefDescription: "test", photoFilename: "a.jpg"),
+            MealScore(timestamp: .now, score: 7, briefDescription: "test", photoFilename: "b.jpg"),
         ]
         let score = ScoreCalculator.nutritionScore(mealScores: meals)
         XCTAssertEqual(score, 0.7, accuracy: 0.001)

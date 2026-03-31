@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const CLAUDE_API_KEY = Deno.env.get("CLAUDE_API_KEY")!;
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
@@ -10,10 +9,9 @@ interface MealScoreRequest {
 }
 
 interface MealScoreResponse {
-  meal_type: string;
-  time: string;
   score: number;
   brief_description: string;
+  time: string;
 }
 
 serve(async (req) => {
@@ -22,7 +20,8 @@ serve(async (req) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST",
-        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+        "Access-Control-Allow-Headers":
+          "authorization, x-client-info, apikey, content-type",
       },
     });
   }
@@ -61,21 +60,38 @@ serve(async (req) => {
               },
               {
                 type: "text",
-                text: `You are a nutritionist scoring a meal photo. Respond with ONLY valid JSON, no other text.
+                text: `Score this meal photo for nutritional quality. Respond with ONLY valid JSON, no other text.
 
-Evaluate this meal and return:
+If food is clearly visible, respond with:
 {
-  "meal_type": "breakfast" | "lunch" | "dinner" | "snack",
-  "score": <1-10 number, where 10 is extremely healthy and balanced>,
-  "brief_description": "<15 words max describing the meal>"
+  "score": <number from 1 to 10>,
+  "brief_description": "<20 words max: what the meal is>"
 }
 
-Scoring guide:
-- 9-10: Excellent balance of whole foods, vegetables, lean protein, whole grains
-- 7-8: Good nutritional value with minor areas for improvement
-- 5-6: Average, some healthy elements but could be more balanced
-- 3-4: Below average, high in processed foods or lacking key nutrients
-- 1-2: Very unhealthy, highly processed or extreme portions`,
+If no food is visible in the image, respond with:
+{
+  "score": null,
+  "brief_description": "No food detected"
+}
+
+Use these reference meals to calibrate your score:
+
+10: Grilled salmon with quinoa, roasted vegetables, and a side salad
+10: Tofu stir-fry with brown rice and steamed greens
+10: Grilled chicken breast with sweet potato and broccoli
+9.5: Lentil soup with whole grain bread and a side of vegetables
+9.5: Oatmeal with fresh berries, nuts, and seeds
+9.5: Home-cooked pasta with tomato sauce, vegetables, and lean meat
+9: Rice bowl with eggs and sauteed vegetables
+9: Sandwich on whole grain bread with lean protein and greens
+7.5: Simple home-cooked meal, protein with rice or noodles, no vegetables
+7: Takeout fried rice or basic fast-casual meal
+5: Pizza, burger with fries, or similar
+4: Large portion of fried food or heavily processed meal
+3: Pure fast food combo meal
+2: Bag of chips, candy, or soda as a meal
+
+Key principle: if a meal has protein + vegetables + reasonable carbs, it should score 8 or above. Home-cooked meals with good ingredients should be rewarded generously.`,
               },
             ],
           },
@@ -90,19 +106,28 @@ Scoring guide:
 
     const claudeResponse = await response.json();
     const content = claudeResponse.content[0].text;
-    const parsed: MealScoreResponse = JSON.parse(content);
-    parsed.time = timestamp;
+    const parsed = JSON.parse(content);
 
-    return new Response(JSON.stringify(parsed), {
+    if (parsed.score === null || parsed.score === undefined) {
+      return new Response(
+        JSON.stringify({ error: parsed.brief_description || "No food detected in image" }),
+        { status: 422, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const result: MealScoreResponse = {
+      score: parsed.score,
+      brief_description: parsed.brief_description,
+      time: String(timestamp),
+    };
+
+    return new Response(JSON.stringify(result), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 });

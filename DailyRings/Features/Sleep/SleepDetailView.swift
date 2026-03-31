@@ -10,6 +10,7 @@ struct SleepDetailView: View {
     @Query private var summaries: [DailySummary]
 
     @State private var sleepManager = SleepManager()
+    @State private var showManualAdjustment = false
 
     private var dateString: String {
         DateBoundary.dateString(from: selectedDate)
@@ -33,7 +34,12 @@ struct SleepDetailView: View {
 
             detectedGapsSection
 
+            manualLogButton
+
             Spacer()
+        }
+        .sheet(isPresented: $showManualAdjustment) {
+            SleepManualAdjustmentView(selectedDate: selectedDate)
         }
         .onAppear {
             let rtService = RescueTimeService(supabaseService: supabaseService)
@@ -93,6 +99,21 @@ struct SleepDetailView: View {
             Text(formatter.string(from: end))
                 .font(.system(.caption, design: .monospaced))
                 .foregroundStyle(.white.opacity(0.5))
+        }
+    }
+
+    private var manualLogButton: some View {
+        Button {
+            showManualAdjustment = true
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "plus.circle")
+                    .font(.system(size: 14))
+                Text("Log Sleep Manually")
+                    .font(.system(.caption, design: .monospaced, weight: .medium))
+            }
+            .foregroundStyle(.white.opacity(0.5))
+            .padding(.vertical, 12)
         }
     }
 
