@@ -322,6 +322,7 @@ struct VerticalSnapContainer: View {
         viewportHeight: CGFloat
     ) {
         guard let newPage else { return }
+        snapHaptic()
 
         switch newPage {
         case .year:
@@ -355,6 +356,8 @@ struct VerticalSnapContainer: View {
                 suppressCurrentSectionSync = true
                 outerPage = .year
                 currentSection = .yearOverview
+            } completion: {
+                self.snapHaptic()
             }
             schedulePanelScrollUnlock()
             return
@@ -368,6 +371,8 @@ struct VerticalSnapContainer: View {
             accordionTarget = section
             accordionOffset = offset(for: section, viewportHeight: accordionViewportHeight)
             currentSection = section
+        } completion: {
+            self.snapHaptic()
         }
         schedulePanelScrollUnlock()
     }
@@ -483,6 +488,8 @@ struct VerticalSnapContainer: View {
                 suppressCurrentSectionSync = true
                 outerPage = .year
                 currentSection = .yearOverview
+            } completion: {
+                self.snapHaptic()
             }
             schedulePanelScrollUnlock()
             return
@@ -500,8 +507,14 @@ struct VerticalSnapContainer: View {
             suppressCurrentSectionSync = true
             outerPage = .accordion
             currentSection = section
+        } completion: {
+            self.snapHaptic()
         }
         schedulePanelScrollUnlock()
+    }
+
+    private func snapHaptic() {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     private func schedulePanelScrollUnlock() {
