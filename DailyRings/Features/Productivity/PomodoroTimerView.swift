@@ -1,10 +1,15 @@
 import SwiftUI
+import SwiftData
 
 struct PomodoroTimerView: View {
     @Environment(PomodoroManager.self) private var pomodoroManager
 
+    @Query(sort: \PomodoroSession.startTime, order: .reverse)
+    private var recentSessions: [PomodoroSession]
+
     @State private var goalLabel = ""
     @State private var selectedCategory = "Work"
+    @State private var hasLoadedLastSession = false
 
     private let categories = ["Work", "Study", "Creative", "Admin", "Personal"]
 
@@ -17,6 +22,12 @@ struct PomodoroTimerView: View {
             }
         }
         .padding(24)
+        .onAppear {
+            guard !hasLoadedLastSession, let last = recentSessions.first else { return }
+            goalLabel = last.goalLabel
+            selectedCategory = last.category
+            hasLoadedLastSession = true
+        }
     }
 
     // MARK: - Active Timer

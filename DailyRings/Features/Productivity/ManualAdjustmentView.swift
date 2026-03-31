@@ -7,38 +7,52 @@ struct ManualAdjustmentView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @State private var minutes: String = ""
+    @State private var hours: Int = 0
+    @State private var minutes: Int = 25
     @State private var note: String = ""
     @State private var isAdding = true
 
+    private let hourRange = Array(0...8)
+    private let minuteRange = stride(from: 0, through: 55, by: 5).map { $0 }
+
+    private var totalMinutes: Int {
+        hours * 60 + minutes
+    }
+
+    private var formattedDuration: String {
+        if hours > 0 && minutes > 0 {
+            return "\(hours)h \(minutes)m"
+        } else if hours > 0 {
+            return "\(hours)h"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
+            VStack(spacing: 0) {
                 Picker("Type", selection: $isAdding) {
                     Text("Add Time").tag(true)
                     Text("Subtract Time").tag(false)
                 }
                 .pickerStyle(.segmented)
+                .padding(.horizontal, 24)
+                .padding(.top, 24)
 
-                TextField("Minutes", text: $minutes)
-                    .font(.system(.title, design: .monospaced))
-                    .keyboardType(.numberPad)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.white)
+                durationLabel
+                    .padding(.top, 28)
 
-                TextField("Note (required)", text: $note)
-                    .font(.system(.body, design: .monospaced))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.white.opacity(0.05))
-                    )
+                timeWheels
+                    .frame(height: 180)
+                    .padding(.horizontal, 40)
+
+                noteField
+                    .padding(.horizontal, 24)
+                    .padding(.top, 8)
 
                 Spacer()
             }
-            .padding(24)
             .background(Color.black)
             .navigationTitle("Manual Adjustment")
             .navigationBarTitleDisplayMode(.inline)
@@ -50,17 +64,64 @@ struct ManualAdjustmentView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
                         .font(.system(.body, design: .monospaced, weight: .bold))
-                        .disabled(minutes.isEmpty || note.isEmpty)
+                        .disabled(totalMinutes == 0 || note.isEmpty)
                 }
             }
         }
         .preferredColorScheme(.dark)
     }
 
-    private func save() {
-        guard let minuteValue = Int(minutes), !note.isEmpty else { return }
+    private var durationLabel: some View {
+        HStack(spacing: 6) {
+            Text(isAdding ? "+" : "−")
+                .font(.system(size: 28, weight: .light, design: .monospaced))
+                .foregroundStyle(isAdding ? .green.opacity(0.8) : Color(red: 0.90, green: 0.35, blue: 0.40))
 
-        let adjustedMinutes = isAdding ? minuteValue : -minuteValue
+            Text(formattedDuration)
+                .font(.system(size: 28, weight: .light, design: .monospaced))
+                .foregroundStyle(.white)
+        }
+        .animation(.none, value: isAdding)
+    }
+
+    private var timeWheels: some View {
+        HStack(spacing: 0) {
+            Picker("Hours", selection: $hours) {
+                ForEach(hourRange, id: \.self) { h in
+                    Text("\(h) hr")
+                        .font(.system(.title3, design: .monospaced))
+                        .tag(h)
+                }
+            }
+            .pickerStyle(.wheel)
+
+            Picker("Minutes", selection: $minutes) {
+                ForEach(minuteRange, id: \.self) { m in
+                    Text("\(m) min")
+                        .font(.system(.title3, design: .monospaced))
+                        .tag(m)
+                }
+            }
+            .pickerStyle(.wheel)
+        }
+    }
+
+    private var noteField: some View {
+        TextField("Note (required)", text: $note)
+            .font(.system(.body, design: .monospaced))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.white.opacity(0.05))
+            )
+    }
+
+    private func save() {
+        guard totalMinutes > 0, !note.isEmpty else { return }
+
+        let adjustedMinutes = isAdding ? totalMinutes : -totalMinutes
         let adjustment = ManualAdjustment(minutes: adjustedMinutes, note: note)
 
         do {

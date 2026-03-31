@@ -7,45 +7,49 @@ struct SleepManualAdjustmentView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @State private var bedtime: Date
-    @State private var wakeTime: Date
+    @State private var hours: Int = 7
+    @State private var minutes: Int = 0
+    @State private var isAdding = true
 
-    init(selectedDate: Date) {
-        self.selectedDate = selectedDate
+    private let hourRange = Array(0...16)
+    private let minuteRange = stride(from: 0, through: 55, by: 5).map { $0 }
 
-        let calendar = Calendar.current
-        let defaultBedtime = calendar.date(bySettingHour: 23, minute: 0, second: 0, of: selectedDate)
-            ?? selectedDate
-        let nextDay = calendar.date(byAdding: .day, value: 1, to: selectedDate) ?? selectedDate
-        let defaultWakeTime = calendar.date(bySettingHour: 7, minute: 0, second: 0, of: nextDay)
-            ?? nextDay
-
-        _bedtime = State(initialValue: defaultBedtime)
-        _wakeTime = State(initialValue: defaultWakeTime)
+    private var totalMinutes: Int {
+        hours * 60 + minutes
     }
 
-    private var durationHours: Double {
-        max(wakeTime.timeIntervalSince(bedtime) / 3600.0, 0)
+    private var formattedDuration: String {
+        if hours > 0 && minutes > 0 {
+            return "\(hours)h \(minutes)m"
+        } else if hours > 0 {
+            return "\(hours)h"
+        } else {
+            return "\(minutes)m"
+        }
     }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                Text(String(format: "%.1f hours", durationHours))
-                    .font(.system(.title, design: .monospaced, weight: .bold))
-                    .foregroundStyle(.white)
+            VStack(spacing: 0) {
+                Picker("Type", selection: $isAdding) {
+                    Text("Add Sleep").tag(true)
+                    Text("Subtract Sleep").tag(false)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 24)
+                .padding(.top, 24)
 
-                DatePicker("Bedtime", selection: $bedtime, displayedComponents: [.date, .hourAndMinute])
-                    .font(.system(.body, design: .monospaced))
+                durationLabel
+                    .padding(.top, 28)
 
-                DatePicker("Wake-up", selection: $wakeTime, displayedComponents: [.date, .hourAndMinute])
-                    .font(.system(.body, design: .monospaced))
+                timeWheels
+                    .frame(height: 180)
+                    .padding(.horizontal, 40)
 
                 Spacer()
             }
-            .padding(24)
             .background(Color.black)
-            .navigationTitle("Log Sleep")
+            .navigationTitle("Adjust Sleep")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -55,33 +59,63 @@ struct SleepManualAdjustmentView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
                         .font(.system(.body, design: .monospaced, weight: .bold))
-                        .disabled(durationHours <= 0)
+                        .disabled(totalMinutes == 0)
                 }
             }
         }
         .preferredColorScheme(.dark)
     }
 
+    private var durationLabel: some View {
+        HStack(spacing: 6) {
+            Text(isAdding ? "+" : "−")
+                .font(.system(size: 28, weight: .light, design: .monospaced))
+                .foregroundStyle(isAdding
+                    ? Color(red: 0.40, green: 0.55, blue: 0.90)
+                    : Color(red: 0.90, green: 0.35, blue: 0.40))
+
+            Text(formattedDuration)
+                .font(.system(size: 28, weight: .light, design: .monospaced))
+                .foregroundStyle(.white)
+        }
+        .animation(.none, value: isAdding)
+    }
+
+    private var timeWheels: some View {
+        HStack(spacing: 0) {
+            Picker("Hours", selection: $hours) {
+                ForEach(hourRange, id: \.self) { h in
+                    Text("\(h) hr")
+                        .font(.system(.title3, design: .monospaced))
+                        .tag(h)
+                }
+            }
+            .pickerStyle(.wheel)
+
+            Picker("Minutes", selection: $minutes) {
+                ForEach(minuteRange, id: \.self) { m in
+                    Text("\(m) min")
+                        .font(.system(.title3, design: .monospaced))
+                        .tag(m)
+                }
+            }
+            .pickerStyle(.wheel)
+        }
+    }
+
     private func save() {
-        guard durationHours > 0 else { return }
+        guard totalMinutes > 0 else { return }
 
-        let session = SleepSession(startTime: bedtime, source: .manual)
-        let ended = session.ended(at: wakeTime)
-        modelContext.insert(ended)
-
-        let score = ScoreCalculator.sleepScore(
-            hours: durationHours,
-            goalHours: AppConstants.defaultSleepGoalHours
-        )
-
-        let logicalDate = DateBoundary.logicalDate(for: wakeTime)
+        let adjustmentHours = Double(totalMinutes) / 60.0
 
         do {
-            let summary = try DailySummary.fetchOrCreate(for: logicalDate, in: modelContext)
-            summary.sleepStart = bedtime
-            summary.sleepEnd = wakeTime
-            summary.sleepHours = durationHours
-            summary.sleepScore = score
+            let summary = try DailySummary.fetchOrCreate(for: selectedDate, in: modelContext)
+            let newHours = max(0, summary.sleepHours + (isAdding ? adjustmentHours : -adjustmentHours))
+            summary.sleepHours = newHours
+            summary.sleepScore = ScoreCalculator.sleepScore(
+                hours: newHours,
+                goalHours: AppConstants.defaultSleepGoalHours
+            )
             summary.sleepSource = .manual
             try modelContext.save()
         } catch {

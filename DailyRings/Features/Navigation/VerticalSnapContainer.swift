@@ -657,6 +657,8 @@ private struct AccordionOwnedScrollView<Content: View>: UIViewRepresentable {
         scrollView.showsVerticalScrollIndicator = false
         scrollView.backgroundColor = .clear
 
+        context.coordinator.hostingController.sizingOptions = .intrinsicContentSize
+
         let hostedView = context.coordinator.hostingController.view!
         hostedView.backgroundColor = .clear
         hostedView.translatesAutoresizingMaskIntoConstraints = false

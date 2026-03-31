@@ -12,13 +12,14 @@ struct ProductivityDetailView: View {
 
     @State private var showManualAdjustment = false
     @State private var showDebugPanel = false
+    @State private var showAllSessions = false
 
     private var dateString: String {
         DateBoundary.dateString(from: selectedDate)
     }
 
     private var todaySessions: [PomodoroSession] {
-        sessions.filter { $0.dateString == dateString }
+        sessions.filter { $0.dateString == dateString && $0.endTime != nil }
             .sorted { $0.startTime > $1.startTime }
     }
 
@@ -127,9 +128,13 @@ struct ProductivityDetailView: View {
         .frame(maxWidth: .infinity)
     }
 
+    private var visibleSessions: [PomodoroSession] {
+        showAllSessions ? todaySessions : Array(todaySessions.prefix(5))
+    }
+
     private var sessionsList: some View {
         VStack(spacing: 0) {
-            ForEach(todaySessions.prefix(5), id: \.sessionID) { session in
+            ForEach(visibleSessions, id: \.sessionID) { session in
                 PomodoroSessionView(session: session)
                 Divider().background(Color.white.opacity(0.05))
             }
@@ -142,10 +147,20 @@ struct ProductivityDetailView: View {
             }
 
             if todaySessions.count > 5 {
-                Text("+\(todaySessions.count - 5) more")
-                    .font(.system(.caption, design: .monospaced))
+                Button {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        showAllSessions.toggle()
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(showAllSessions ? "Show less" : "+\(todaySessions.count - 5) more")
+                            .font(.system(.caption, design: .monospaced))
+                        Image(systemName: showAllSessions ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 8, weight: .bold))
+                    }
                     .foregroundStyle(.white.opacity(0.3))
                     .padding(.vertical, 8)
+                }
             }
         }
     }
