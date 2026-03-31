@@ -86,10 +86,10 @@ struct MiniRingView: View {
 
 #Preview("Large Ring") {
     RingView(scores: [0.9, 0.7, 0.5, 0.3], size: 240)
-        .background(.black)
+        .background(Theme.background)
 }
 
 #Preview("Mini Ring") {
     MiniRingView(scores: [1.0, 0.8, 0.6, 0.4])
-        .background(.black)
+        .background(Theme.background)
 }

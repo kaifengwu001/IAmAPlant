@@ -5,8 +5,8 @@ struct PomodoroSessionView: View {
 
     private var statusColor: Color {
         session.isCompleted
-            ? Color(red: 0.30, green: 0.85, blue: 0.55)
-            : Color(red: 0.90, green: 0.35, blue: 0.40)
+            ? Theme.accent
+            : Theme.exercise
     }
 
     private var statusIcon: String {
@@ -28,16 +28,16 @@ struct PomodoroSessionView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(session.goalLabel)
                     .font(.system(.subheadline, design: .monospaced, weight: .medium))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
 
                 HStack(spacing: 8) {
                     Text(session.category)
                         .font(.system(.caption2, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.4))
+                        .foregroundStyle(Theme.textTertiary)
 
                     Text(timeLabel)
                         .font(.system(.caption2, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.4))
+                        .foregroundStyle(Theme.textTertiary)
                 }
             }
 
@@ -46,12 +46,12 @@ struct PomodoroSessionView: View {
             VStack(alignment: .trailing, spacing: 2) {
                 Text("\(session.durationMinutes)m")
                     .font(.system(.subheadline, design: .monospaced, weight: .medium))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
 
                 if session.distractedSeconds > 0 {
                     Text("\(session.distractedSeconds / 60)m off")
                         .font(.system(.caption2, design: .monospaced))
-                        .foregroundStyle(Color(red: 0.90, green: 0.35, blue: 0.40).opacity(0.7))
+                        .foregroundStyle(Theme.exercise.opacity(0.7))
                 }
             }
         }

@@ -17,13 +17,13 @@ struct DistractionPickerView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Select apps that count as distractions during Pomodoro sessions.")
                 .font(.system(.caption, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(Theme.textSecondary)
                 .padding(.horizontal, 16)
 
             if selectionCount > 0 {
                 Text("\(selectionCount) selected")
                     .font(.system(.caption2, design: .monospaced, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.4))
+                    .foregroundStyle(Theme.textTertiary)
                     .padding(.horizontal, 16)
             }
 

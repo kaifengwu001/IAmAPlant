@@ -48,7 +48,7 @@ struct SleepManualAdjustmentView: View {
 
                 Spacer()
             }
-            .background(Color.black)
+            .background(Theme.background)
             .navigationTitle("Adjust Sleep")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -63,7 +63,7 @@ struct SleepManualAdjustmentView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 
     private var durationLabel: some View {
@@ -71,12 +71,12 @@ struct SleepManualAdjustmentView: View {
             Text(isAdding ? "+" : "−")
                 .font(.system(size: 28, weight: .light, design: .monospaced))
                 .foregroundStyle(isAdding
-                    ? Color(red: 0.40, green: 0.55, blue: 0.90)
-                    : Color(red: 0.90, green: 0.35, blue: 0.40))
+                    ? Theme.sleep
+                    : Theme.exercise)
 
             Text(formattedDuration)
                 .font(.system(size: 28, weight: .light, design: .monospaced))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textPrimary)
         }
         .animation(.none, value: isAdding)
     }

@@ -24,18 +24,18 @@ struct SleepSessionView: View {
         VStack(spacing: 20) {
             Image(systemName: "moon.fill")
                 .font(.system(size: 40))
-                .foregroundStyle(Color(red: 0.40, green: 0.55, blue: 0.90))
+                .foregroundStyle(Theme.sleep)
 
             Text("Sleeping...")
                 .font(.system(.title3, design: .monospaced, weight: .medium))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textPrimary)
 
             let elapsed = session.elapsedSinceStart
             let hours = Int(elapsed) / 3600
             let minutes = (Int(elapsed) % 3600) / 60
             Text("\(hours)h \(minutes)m elapsed")
                 .font(.system(.subheadline, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(Theme.textSecondary)
 
             Button {
                 editStart = session.startTime
@@ -44,12 +44,12 @@ struct SleepSessionView: View {
             } label: {
                 Text("I'm Awake")
                     .font(.system(.subheadline, design: .monospaced, weight: .medium))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Theme.background)
                     .padding(.horizontal, 32)
                     .padding(.vertical, 14)
                     .background(
                         Capsule()
-                            .fill(Color(red: 0.40, green: 0.55, blue: 0.90))
+                            .fill(Theme.sleep)
                     )
             }
         }
@@ -64,19 +64,19 @@ struct SleepSessionView: View {
         VStack(spacing: 16) {
             Image(systemName: "moon.zzz")
                 .font(.system(size: 32))
-                .foregroundStyle(.white.opacity(0.3))
+                .foregroundStyle(Theme.textTertiary)
 
             Button {
                 sleepManager.startSleepSession()
             } label: {
                 Text("I'm Going to Sleep")
                     .font(.system(.subheadline, design: .monospaced, weight: .medium))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Theme.background)
                     .padding(.horizontal, 32)
                     .padding(.vertical, 14)
                     .background(
                         Capsule()
-                            .fill(Color(red: 0.40, green: 0.55, blue: 0.90))
+                            .fill(Theme.sleep)
                     )
             }
         }
@@ -90,7 +90,7 @@ struct SleepSessionView: View {
                 let hours = editEnd.timeIntervalSince(editStart) / 3600
                 Text(String(format: "%.1f hours", hours))
                     .font(.system(.title, design: .monospaced, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
 
                 DatePicker("Bedtime", selection: $editStart, displayedComponents: [.hourAndMinute])
                     .font(.system(.body, design: .monospaced))
@@ -101,7 +101,7 @@ struct SleepSessionView: View {
                 Spacer()
             }
             .padding(24)
-            .background(Color.black)
+            .background(Theme.background)
             .navigationTitle("Confirm Sleep")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -116,6 +116,6 @@ struct SleepSessionView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 }

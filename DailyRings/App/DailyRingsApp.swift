@@ -38,7 +38,7 @@ struct DailyRingsApp: App {
             ProgressView()
                 .tint(Theme.textTertiary)
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 
     private func restoreSession() async {

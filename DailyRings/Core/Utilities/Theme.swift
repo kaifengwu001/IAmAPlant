@@ -1,24 +1,33 @@
 import SwiftUI
 
 enum Theme {
-    // MARK: - Colors
+    // MARK: - Palette
 
-    static let background = Color.black
-    static let surfacePrimary = Color.white.opacity(0.04)
-    static let surfaceSecondary = Color.white.opacity(0.08)
-    static let border = Color.white.opacity(0.1)
+    private static let moss = Color(red: 0.14, green: 0.24, blue: 0.00)
 
-    static let textPrimary = Color.white
-    static let textSecondary = Color.white.opacity(0.7)
-    static let textTertiary = Color.white.opacity(0.4)
-    static let textQuaternary = Color.white.opacity(0.2)
+    // MARK: - Backgrounds & Surfaces
 
-    static let sleep = Color(red: 0.40, green: 0.55, blue: 0.90)
-    static let exercise = Color(red: 0.30, green: 0.85, blue: 0.55)
-    static let nutrition = Color(red: 0.95, green: 0.65, blue: 0.25)
-    static let productivity = Color(red: 0.90, green: 0.35, blue: 0.40)
+    static let background = Color(red: 0.95, green: 0.93, blue: 0.83) // Parchment
+    static let surfacePrimary = moss.opacity(0.02)
+    static let surfaceSecondary = moss.opacity(0.07)
+    static let border = moss.opacity(0.15)
 
-    static let ringTrack = Color.white.opacity(0.08)
+    // MARK: - Text
+
+    static let textPrimary = moss
+    static let textSecondary = moss.opacity(0.7)
+    static let textTertiary = moss.opacity(0.4)
+    static let textQuaternary = moss.opacity(0.2)
+
+    // MARK: - Ring Colors
+
+    static let sleep = Color(red: 0.42, green: 0.50, blue: 0.26) // Herb
+    static let exercise = Color(red: 0.93, green: 0.48, blue: 0.07) // Radiate
+    static let nutrition = Color(red: 0.96, green: 0.76, blue: 0.04) // Gold
+    static let productivity = moss // Moss
+
+    static let ringTrack = moss.opacity(0.08)
+    static let accent = Color(red: 0.10, green: 0.28, blue: 0.11) // Forest
 
     static func ringColor(for ring: AppConstants.Ring) -> Color {
         switch ring {
@@ -52,7 +61,7 @@ enum Theme {
                     let brightness = Double.random(in: 0...1)
                     context.fill(
                         Path(CGRect(x: x, y: y, width: 1, height: 1)),
-                        with: .color(.white.opacity(brightness * opacity))
+                        with: .color(textPrimary.opacity(brightness * opacity))
                     )
                 }
             }

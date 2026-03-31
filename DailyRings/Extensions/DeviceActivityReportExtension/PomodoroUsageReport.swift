@@ -32,11 +32,11 @@ struct PomodoroReportView: View {
             if minutes > 0 {
                 Text("\(minutes)m distracted")
                     .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(Color(red: 0.90, green: 0.35, blue: 0.40))
+                    .foregroundStyle(Theme.exercise)
             } else {
                 Text("Fully focused")
                     .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(Color(red: 0.30, green: 0.85, blue: 0.55))
+                    .foregroundStyle(Theme.accent)
             }
         }
     }

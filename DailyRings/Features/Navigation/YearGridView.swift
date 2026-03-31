@@ -5,6 +5,7 @@ struct YearGridView: View {
     @Binding var selectedDate: Date
     let availableHeight: CGFloat
     let onDayTap: (Date) -> Void
+    var onSettingsTap: (() -> Void)?
 
     @Query private var summaries: [DailySummary]
 
@@ -26,13 +27,26 @@ struct YearGridView: View {
         let cells = buildCells()
 
         VStack(spacing: 0) {
-            Text(String(format: "%d", calendar.component(.year, from: selectedDate)))
-                .font(.system(size: 42, weight: .bold, design: .monospaced))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, layout.padding)
-                .padding(.top, 24)
-                .frame(height: titleHeight, alignment: .top)
+            HStack(alignment: .center) {
+                Text(String(format: "%d", calendar.component(.year, from: selectedDate)))
+                    .font(.system(size: 42, weight: .bold, design: .monospaced))
+                    .foregroundStyle(Theme.textPrimary)
+
+                Spacer()
+
+                if let onSettingsTap {
+                    Button(action: onSettingsTap) {
+                        Image(systemName: "gearshape")
+                            .font(.system(size: 23, weight: .thin))
+                            .foregroundStyle(Theme.textSecondary.opacity(0.85))
+                            .frame(width: 44, height: 44)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, layout.padding)
+            .padding(.top, 24)
+            .frame(height: titleHeight, alignment: .top)
 
             LazyVGrid(
                 columns: Array(
@@ -62,7 +76,7 @@ struct YearGridView: View {
                     weight: .bold,
                     design: .monospaced
                 ))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(Theme.textSecondary)
                 .frame(width: layout.cellSize, height: layout.cellSize)
 
         case .day(let date, let scores):
@@ -72,10 +86,19 @@ struct YearGridView: View {
 
             Button { onDayTap(date) } label: {
                 ZStack {
+                    if isToday {
+                        Circle()
+                            .fill(Theme.productivity)
+                            .frame(
+                                width: layout.cellSize * 0.95,
+                                height: layout.cellSize * 0.95
+                            )
+                    }
+
                     if isFuture {
                         Circle()
                             .stroke(
-                                Color.white.opacity(0.20),
+                                Theme.textQuaternary,
                                 lineWidth: 0.75
                             )
                             .frame(
@@ -91,14 +114,6 @@ struct YearGridView: View {
                         )
                     }
 
-                    if isToday {
-                        Circle()
-                            .stroke(Color.white.opacity(0.8), lineWidth: 1.5)
-                            .frame(
-                                width: layout.cellSize * 0.9,
-                                height: layout.cellSize * 0.9
-                            )
-                    }
                 }
                 .frame(width: layout.cellSize, height: layout.cellSize)
             }

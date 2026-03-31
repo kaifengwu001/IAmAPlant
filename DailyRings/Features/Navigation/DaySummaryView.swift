@@ -34,11 +34,11 @@ struct DaySummaryView: View {
             VStack(spacing: 4) {
                 Text(dateLabel)
                     .font(.system(.title2, design: .monospaced, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
 
                 Text(weekdayLabel)
                     .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(Theme.textSecondary)
             }
 
             RingView(scores: scores, size: 240)
@@ -62,7 +62,7 @@ struct DaySummaryView: View {
                         .foregroundStyle(Theme.ringColor(for: ring))
                     Text("\(Int(score * 100))%")
                         .font(.system(.caption2, design: .monospaced, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(Theme.textSecondary)
                 }
             }
         }
@@ -72,10 +72,10 @@ struct DaySummaryView: View {
         VStack(spacing: 4) {
             Image(systemName: "chevron.compact.down")
                 .font(.system(size: 20))
-                .foregroundStyle(.white.opacity(0.2))
+                .foregroundStyle(Theme.textQuaternary)
             Text("details")
                 .font(.system(.caption2, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.2))
+                .foregroundStyle(Theme.textQuaternary)
         }
         .padding(.bottom, 8)
     }
@@ -86,15 +86,20 @@ struct DaySummaryView: View {
         HStack {
             Text(dateLabel)
                 .font(.system(.subheadline, design: .monospaced, weight: .medium))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textPrimary)
 
             Spacer()
 
-            MiniRingView(scores: scores, size: 32)
+            MiniRingView(
+                scores: scores,
+                size: 32,
+                lineWidthRatio: 0.08,
+                gapRatio: 0.25
+            )
         }
         .padding(.horizontal, 20)
         .frame(height: 56)
-        .background(Color.white.opacity(0.04))
+        .background(Theme.surfacePrimary)
     }
 
     // MARK: - Helpers

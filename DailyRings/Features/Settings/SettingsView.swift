@@ -29,7 +29,7 @@ struct SettingsView: View {
                 accountSection
             }
             .scrollContentBackground(.hidden)
-            .background(Color.black)
+            .background(Theme.background)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -43,7 +43,7 @@ struct SettingsView: View {
             }
             .onAppear { loadSettings() }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 
     // MARK: - Sections
@@ -55,14 +55,14 @@ struct SettingsView: View {
                     .font(.system(.subheadline, design: .monospaced))
                 Slider(value: $sleepGoal, in: 4...12, step: 0.5)
             }
-            .listRowBackground(Color.white.opacity(0.05))
+            .listRowBackground(Theme.surfacePrimary)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("Exercise: \(Int(exerciseGoal)) minutes")
                     .font(.system(.subheadline, design: .monospaced))
                 Slider(value: $exerciseGoal, in: 10...120, step: 5)
             }
-            .listRowBackground(Color.white.opacity(0.05))
+            .listRowBackground(Theme.surfacePrimary)
 
             VStack(alignment: .leading, spacing: 8) {
                 let hours = Int(productivityGoal) / 60
@@ -71,7 +71,7 @@ struct SettingsView: View {
                     .font(.system(.subheadline, design: .monospaced))
                 Slider(value: $productivityGoal, in: 60...720, step: 30)
             }
-            .listRowBackground(Color.white.opacity(0.05))
+            .listRowBackground(Theme.surfacePrimary)
         } header: {
             Text("Goals")
                 .font(.system(.caption, design: .monospaced, weight: .bold))
@@ -89,10 +89,10 @@ struct SettingsView: View {
                     Spacer()
                     Text(DistractionPickerView.hasSelection ? "Configured" : "Not set")
                         .font(.system(.caption, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.4))
+                        .foregroundStyle(Theme.textTertiary)
                 }
             }
-            .listRowBackground(Color.white.opacity(0.05))
+            .listRowBackground(Theme.surfacePrimary)
         } header: {
             Text("Pomodoro")
                 .font(.system(.caption, design: .monospaced, weight: .bold))
@@ -108,14 +108,14 @@ struct SettingsView: View {
                     .font(.system(.caption, design: .monospaced))
                     .textContentType(.password)
             }
-            .listRowBackground(Color.white.opacity(0.05))
+            .listRowBackground(Theme.surfacePrimary)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("Day Boundary: \(Int(dayBoundary)):00 AM")
                     .font(.system(.subheadline, design: .monospaced))
                 Slider(value: $dayBoundary, in: 0...6, step: 1)
             }
-            .listRowBackground(Color.white.opacity(0.05))
+            .listRowBackground(Theme.surfacePrimary)
         } header: {
             Text("Integrations")
                 .font(.system(.caption, design: .monospaced, weight: .bold))
@@ -129,7 +129,7 @@ struct SettingsView: View {
                     .font(.system(.subheadline, design: .monospaced))
                 Slider(value: $photoRetention, in: 1...30, step: 1)
             }
-            .listRowBackground(Color.white.opacity(0.05))
+            .listRowBackground(Theme.surfacePrimary)
         } header: {
             Text("Data")
                 .font(.system(.caption, design: .monospaced, weight: .bold))
@@ -149,7 +149,7 @@ struct SettingsView: View {
             Text("Account")
                 .font(.system(.caption, design: .monospaced, weight: .bold))
         }
-        .listRowBackground(Color.white.opacity(0.05))
+        .listRowBackground(Theme.surfacePrimary)
     }
 
     // MARK: - Persistence

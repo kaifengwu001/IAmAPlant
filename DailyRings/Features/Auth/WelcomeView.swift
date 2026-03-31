@@ -46,7 +46,7 @@ struct WelcomeView: View {
             }
             .scrollDismissesKeyboard(.interactively)
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .onTapGesture { focusedField = nil }
     }
 
@@ -73,14 +73,14 @@ struct WelcomeView: View {
             if let errorMessage {
                 Text(errorMessage)
                     .font(Theme.mono(.caption))
-                    .foregroundStyle(Theme.productivity)
+                    .foregroundStyle(Theme.exercise)
                     .multilineTextAlignment(.center)
             }
 
             if let confirmationMessage {
                 Text(confirmationMessage)
                     .font(Theme.mono(.caption))
-                    .foregroundStyle(Theme.exercise)
+                    .foregroundStyle(Theme.nutrition)
                     .multilineTextAlignment(.center)
             }
 
@@ -124,12 +124,12 @@ struct WelcomeView: View {
                             .font(Theme.mono(.body, weight: .semibold))
                     }
                 }
-                .foregroundStyle(.black)
+                .foregroundStyle(Theme.background)
                 .frame(maxWidth: .infinity)
                 .frame(height: 52)
                 .background(
                     Capsule()
-                        .fill(.white)
+                        .fill(Theme.textPrimary)
                 )
             }
             .disabled(isLoading || email.isEmpty || password.isEmpty)

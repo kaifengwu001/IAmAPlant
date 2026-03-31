@@ -53,7 +53,7 @@ struct ManualAdjustmentView: View {
 
                 Spacer()
             }
-            .background(Color.black)
+            .background(Theme.background)
             .navigationTitle("Manual Adjustment")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -68,18 +68,18 @@ struct ManualAdjustmentView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
     }
 
     private var durationLabel: some View {
         HStack(spacing: 6) {
             Text(isAdding ? "+" : "−")
                 .font(.system(size: 28, weight: .light, design: .monospaced))
-                .foregroundStyle(isAdding ? .green.opacity(0.8) : Color(red: 0.90, green: 0.35, blue: 0.40))
+                .foregroundStyle(isAdding ? Theme.accent : Theme.exercise)
 
             Text(formattedDuration)
                 .font(.system(size: 28, weight: .light, design: .monospaced))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textPrimary)
         }
         .animation(.none, value: isAdding)
     }
@@ -109,12 +109,12 @@ struct ManualAdjustmentView: View {
     private var noteField: some View {
         TextField("Note (required)", text: $note)
             .font(.system(.body, design: .monospaced))
-            .foregroundStyle(.white)
+            .foregroundStyle(Theme.textPrimary)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.white.opacity(0.05))
+                    .fill(Theme.surfacePrimary)
             )
     }
 

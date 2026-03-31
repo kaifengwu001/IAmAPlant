@@ -65,7 +65,7 @@ struct PomodoroDebugStatusView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(Color.white.opacity(0.05))
+        .background(Theme.surfacePrimary)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .padding(.horizontal, 12)
     }
@@ -104,10 +104,10 @@ struct PomodoroDebugStatusView: View {
             sectionHeader("EXTENSION LOG (\(manager.extensionLog.count))")
 
             if manager.extensionLog.isEmpty {
-                monoText("No extension callbacks received", opacity: 0.3)
+                monoText("No extension callbacks received")
             } else {
                 ForEach(Array(manager.extensionLog.suffix(10).enumerated()), id: \.offset) { _, entry in
-                    monoText(entry, opacity: 0.4)
+                    monoText(entry)
                 }
             }
         }
@@ -120,10 +120,10 @@ struct PomodoroDebugStatusView: View {
             sectionHeader("APP LOG (\(manager.debugLog.count))")
 
             if manager.debugLog.isEmpty {
-                monoText("No app log entries", opacity: 0.3)
+                monoText("No app log entries")
             } else {
                 ForEach(Array(manager.debugLog.suffix(12).enumerated()), id: \.offset) { _, entry in
-                    monoText(entry, opacity: 0.35)
+                    monoText(entry)
                 }
             }
         }
@@ -134,14 +134,14 @@ struct PomodoroDebugStatusView: View {
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
             .font(.system(.caption2, design: .monospaced, weight: .bold))
-            .foregroundStyle(.white.opacity(0.25))
+            .foregroundStyle(Theme.textQuaternary)
             .padding(.top, 6)
     }
 
-    private func monoText(_ text: String, opacity: Double) -> some View {
+    private func monoText(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 9, design: .monospaced))
-            .foregroundStyle(.white.opacity(opacity))
+            .foregroundStyle(Theme.textTertiary)
             .fixedSize(horizontal: false, vertical: true)
     }
 
@@ -150,9 +150,9 @@ struct PomodoroDebugStatusView: View {
 
         var color: Color {
             switch self {
-            case .good: Color(red: 0.30, green: 0.85, blue: 0.55)
-            case .warning: Color(red: 1.0, green: 0.75, blue: 0.25)
-            case .bad: Color(red: 0.90, green: 0.35, blue: 0.40)
+            case .good: Theme.accent
+            case .warning: Theme.accent
+            case .bad: Theme.exercise
             }
         }
     }
@@ -166,14 +166,14 @@ struct PomodoroDebugStatusView: View {
 
             Text(label)
                 .font(.system(size: 9, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(Theme.textSecondary)
                 .layoutPriority(1)
 
             Spacer(minLength: 4)
 
             Text(value)
                 .font(.system(size: 9, weight: .medium, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.trailing)
                 .fixedSize(horizontal: false, vertical: true)
         }

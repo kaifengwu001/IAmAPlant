@@ -121,6 +121,7 @@ targets:
     sources:
       - path: DailyRings/Extensions/DeviceActivityReportExtension
       - path: Shared
+      - path: DailyRings/Core/Utilities/Theme.swift
     settings:
       base:
         INFOPLIST_FILE: DailyRings/Extensions/DeviceActivityReportExtension/Info.plist

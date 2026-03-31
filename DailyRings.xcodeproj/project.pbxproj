@@ -36,6 +36,7 @@
 		59E71C6F5A1A62F187AEE70E /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562047DDBD39DCEE25D2742F /* HealthKitManager.swift */; };
 		5CACFD4836D261F5AEBFCA71 /* MealPhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E0653CA891F4F454B9ACA37 /* MealPhotoStore.swift */; };
 		5E7737DCD503D091AA8311B4 /* ScoreCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5683A36D055095014309BA82 /* ScoreCalculatorTests.swift */; };
+		60D680CBF569B2D2B0B95B89 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6079EFEB2D6E3ACD6B3204F /* Theme.swift */; };
 		614B373AC0F274C74660AEFB /* SleepSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7A6D131AB1E7030771D6D3 /* SleepSession.swift */; };
 		633B0CBABE9362C33F06C715 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFDC550211AE50AC0A8A598 /* SettingsView.swift */; };
 		6B204B238E583C8235D0365B /* DailySummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5A9EA51A6B1408B805FB8A /* DailySummary.swift */; };
@@ -595,6 +596,7 @@
 				090FDFE34AC8DE3CE5CC4D26 /* AppConstants.swift in Sources */,
 				E37CF161A285A12163B545D1 /* PomodoroUsageReport.swift in Sources */,
 				3C61087003D438066797CF3E /* SharedPomodoroState.swift in Sources */,
+				60D680CBF569B2D2B0B95B89 /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

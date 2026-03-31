@@ -25,7 +25,7 @@ struct SleepDetailView: View {
             if isToday {
                 SleepSessionView()
                     .environment(sleepManager)
-                Divider().background(Color.white.opacity(0.1))
+                Divider().background(Theme.border).padding(.horizontal, 20)
             }
 
             if let summary = currentSummary {
@@ -68,10 +68,10 @@ struct SleepDetailView: View {
         VStack(spacing: 4) {
             Text(value)
                 .font(.system(.title3, design: .monospaced, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textPrimary)
             Text(label)
                 .font(.system(.caption2, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.4))
+                .foregroundStyle(Theme.textTertiary)
         }
     }
 
@@ -82,15 +82,15 @@ struct SleepDetailView: View {
         return HStack {
             Text(formatter.string(from: start))
                 .font(.system(.caption, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(Theme.textSecondary)
 
             GeometryReader { geo in
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(Color(red: 0.40, green: 0.55, blue: 0.90).opacity(0.3))
+                    .fill(Theme.sleep.opacity(0.3))
                     .frame(height: 8)
                     .overlay(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(red: 0.40, green: 0.55, blue: 0.90))
+                            .fill(Theme.sleep)
                             .frame(width: geo.size.width, height: 8)
                     }
             }
@@ -98,7 +98,7 @@ struct SleepDetailView: View {
 
             Text(formatter.string(from: end))
                 .font(.system(.caption, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(Theme.textSecondary)
         }
     }
 
@@ -112,7 +112,7 @@ struct SleepDetailView: View {
                 Text("Log Sleep Manually")
                     .font(.system(.caption, design: .monospaced, weight: .medium))
             }
-            .foregroundStyle(.white.opacity(0.5))
+            .foregroundStyle(Theme.textSecondary)
             .padding(.vertical, 12)
         }
     }
@@ -123,7 +123,7 @@ struct SleepDetailView: View {
         VStack(spacing: 8) {
             if sleepManager.isLoading {
                 ProgressView()
-                    .tint(.white.opacity(0.5))
+                    .tint(Theme.textSecondary)
                     .padding()
             }
 
@@ -142,11 +142,11 @@ struct SleepDetailView: View {
         return VStack(alignment: .leading, spacing: 8) {
             Text("Were you sleeping?")
                 .font(.system(.caption, design: .monospaced, weight: .bold))
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(Theme.textSecondary)
 
             Text("\(formatter.string(from: gap.start)) – \(formatter.string(from: gap.end)) (\(String(format: "%.1f", gap.durationHours))h)")
                 .font(.system(.subheadline, design: .monospaced))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textPrimary)
 
             HStack(spacing: 12) {
                 Button("Yes, log it") {
@@ -160,20 +160,20 @@ struct SleepDetailView: View {
                     }
                 }
                 .font(.system(.caption, design: .monospaced, weight: .medium))
-                .foregroundStyle(Color(red: 0.40, green: 0.55, blue: 0.90))
+                .foregroundStyle(Theme.sleep)
 
                 Button("Dismiss") {
                     sleepManager.dismissGap(gap)
                 }
                 .font(.system(.caption, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.4))
+                .foregroundStyle(Theme.textTertiary)
             }
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.04))
-                .stroke(Color(red: 0.40, green: 0.55, blue: 0.90).opacity(0.2), lineWidth: 1)
+                .fill(Theme.surfacePrimary)
+                .stroke(Theme.sleep.opacity(0.2), lineWidth: 1)
         )
     }
 }

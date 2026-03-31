@@ -17,13 +17,8 @@ struct DrawerHeaderView: View {
     }
 
     private var color: Color {
-        guard let ring else { return .white }
-        switch ring {
-        case .sleep: return Color(red: 0.40, green: 0.55, blue: 0.90)
-        case .exercise: return Color(red: 0.30, green: 0.85, blue: 0.55)
-        case .nutrition: return Color(red: 0.95, green: 0.65, blue: 0.25)
-        case .productivity: return Color(red: 0.90, green: 0.35, blue: 0.40)
-        }
+        guard let ring else { return Theme.textPrimary }
+        return Theme.ringColor(for: ring)
     }
 
     var body: some View {
@@ -38,17 +33,20 @@ struct DrawerHeaderView: View {
 
                 Text(ring?.label ?? "Summary")
                     .font(.system(.subheadline, design: .monospaced, weight: .medium))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
 
                 Spacer()
 
                 Text(summaryText)
                     .font(.system(.subheadline, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(Theme.textSecondary)
             }
             .padding(.horizontal, 20)
             .frame(height: 56)
-            .background(Color.white.opacity(0.04))
+            .background(Theme.surfacePrimary)
+            .overlay(alignment: .top) {
+                Rectangle().fill(Theme.border).frame(height: 1)
+            }
         }
         .buttonStyle(.plain)
     }

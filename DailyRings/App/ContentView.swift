@@ -22,14 +22,12 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Theme.background.ignoresSafeArea()
 
             horizontalDayPager
                 .environment(pomodoroManager)
-
-            settingsButton
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .sheet(isPresented: $showSettings) {
             SettingsView()
         }
@@ -77,7 +75,8 @@ struct ContentView: View {
             currentSection: $currentSection,
             onDayTap: { tappedDate in
                 navigateToDay(tappedDate)
-            }
+            },
+            onSettingsTap: { showSettings = true }
         )
     }
 
@@ -91,26 +90,6 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Settings Button
-
-    private var settingsButton: some View {
-        VStack {
-            HStack {
-                Spacer()
-                Button {
-                    showSettings = true
-                } label: {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.7))
-                        .frame(width: 44, height: 44)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            Spacer()
-        }
-    }
 }
 
 /// Bridges the non-Binding date into the VerticalSnapContainer's Binding<Date>.
@@ -119,6 +98,7 @@ private struct DayPageBinding: View {
     let isToday: Bool
     @Binding var currentSection: DrawerSection?
     var onDayTap: ((Date) -> Void)?
+    var onSettingsTap: (() -> Void)?
 
     @State private var localDate: Date
 
@@ -126,12 +106,14 @@ private struct DayPageBinding: View {
         date: Date,
         isToday: Bool,
         currentSection: Binding<DrawerSection?>,
-        onDayTap: ((Date) -> Void)?
+        onDayTap: ((Date) -> Void)?,
+        onSettingsTap: (() -> Void)? = nil
     ) {
         self.date = date
         self.isToday = isToday
         self._currentSection = currentSection
         self.onDayTap = onDayTap
+        self.onSettingsTap = onSettingsTap
         self._localDate = State(initialValue: date)
     }
 
@@ -140,7 +122,8 @@ private struct DayPageBinding: View {
             selectedDate: $localDate,
             currentSection: $currentSection,
             isToday: isToday,
-            onDayTap: onDayTap
+            onDayTap: onDayTap,
+            onSettingsTap: onSettingsTap
         )
         .onChange(of: date) { _, newDate in
             localDate = newDate

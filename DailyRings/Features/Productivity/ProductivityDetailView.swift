@@ -45,11 +45,11 @@ struct ProductivityDetailView: View {
                 }
             }
 
-            Divider().background(Color.white.opacity(0.1))
+            Divider().background(Theme.border).padding(.horizontal, 20)
 
             summaryBar
 
-            Divider().background(Color.white.opacity(0.1))
+            Divider().background(Theme.border).padding(.horizontal, 20)
 
             sessionsList
 
@@ -76,7 +76,7 @@ struct ProductivityDetailView: View {
                 Image(systemName: showDebugPanel ? "chevron.up" : "chevron.down")
                     .font(.system(size: 8))
             }
-            .foregroundStyle(.white.opacity(0.25))
+            .foregroundStyle(Theme.textQuaternary)
             .padding(.vertical, 6)
         }
     }
@@ -85,10 +85,10 @@ struct ProductivityDetailView: View {
         VStack(spacing: 8) {
             Image(systemName: "clock.arrow.circlepath")
                 .font(.system(size: 28))
-                .foregroundStyle(.white.opacity(0.2))
+                .foregroundStyle(Theme.textQuaternary)
             Text("Viewing past day")
                 .font(.system(.caption, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.3))
+                .foregroundStyle(Theme.textTertiary)
         }
         .padding(.vertical, 24)
     }
@@ -120,10 +120,10 @@ struct ProductivityDetailView: View {
         VStack(spacing: 4) {
             Text(value)
                 .font(.system(.title3, design: .monospaced, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.textPrimary)
             Text(label)
                 .font(.system(.caption2, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.4))
+                .foregroundStyle(Theme.textTertiary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -136,13 +136,13 @@ struct ProductivityDetailView: View {
         VStack(spacing: 0) {
             ForEach(visibleSessions, id: \.sessionID) { session in
                 PomodoroSessionView(session: session)
-                Divider().background(Color.white.opacity(0.05))
+                Divider().background(Theme.border).padding(.horizontal, 20)
             }
 
             if todaySessions.isEmpty {
                 Text("No sessions yet today")
                     .font(.system(.subheadline, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.3))
+                    .foregroundStyle(Theme.textTertiary)
                     .padding(.vertical, 32)
             }
 
@@ -158,7 +158,7 @@ struct ProductivityDetailView: View {
                         Image(systemName: showAllSessions ? "chevron.up" : "chevron.down")
                             .font(.system(size: 8, weight: .bold))
                     }
-                    .foregroundStyle(.white.opacity(0.3))
+                    .foregroundStyle(Theme.textTertiary)
                     .padding(.vertical, 8)
                 }
             }
@@ -171,7 +171,7 @@ struct ProductivityDetailView: View {
         return VStack(spacing: 0) {
             ForEach(adjustments) { adjustment in
                 manualAdjustmentRow(adjustment)
-                Divider().background(Color.white.opacity(0.05))
+                Divider().background(Theme.border).padding(.horizontal, 20)
             }
         }
     }
@@ -181,17 +181,17 @@ struct ProductivityDetailView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(adjustment.note)
                     .font(.system(.subheadline, design: .monospaced))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
                 Text(formatTimestamp(adjustment.timestamp))
                     .font(.system(.caption2, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.3))
+                    .foregroundStyle(Theme.textTertiary)
             }
 
             Spacer()
 
             Text(adjustment.minutes > 0 ? "+\(adjustment.minutes)m" : "\(adjustment.minutes)m")
                 .font(.system(.subheadline, design: .monospaced, weight: .medium))
-                .foregroundStyle(adjustment.minutes > 0 ? .green.opacity(0.8) : .red.opacity(0.8))
+                .foregroundStyle(adjustment.minutes > 0 ? Theme.accent : Theme.exercise)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
@@ -213,7 +213,7 @@ struct ProductivityDetailView: View {
                 Text("Manual Adjustment")
                     .font(.system(.caption, design: .monospaced, weight: .medium))
             }
-            .foregroundStyle(.white.opacity(0.5))
+            .foregroundStyle(Theme.textSecondary)
             .padding(.vertical, 12)
         }
     }

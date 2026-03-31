@@ -24,6 +24,7 @@ struct VerticalSnapContainer: View {
     @Binding var currentSection: DrawerSection?
     let isToday: Bool
     var onDayTap: ((Date) -> Void)?
+    var onSettingsTap: (() -> Void)?
 
     @Query private var summaries: [DailySummary]
 
@@ -200,15 +201,23 @@ struct VerticalSnapContainer: View {
             HStack {
                 Text(formattedDate(explicitDate: explicitDate))
                     .font(.system(.subheadline, design: .monospaced, weight: .medium))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
 
                 Spacer()
 
-                MiniRingView(scores: scores, size: 32)
+                MiniRingView(
+                    scores: scores,
+                    size: 32,
+                    lineWidthRatio: 0.08,
+                    gapRatio: 0.25
+                )
             }
             .padding(.horizontal, 20)
             .frame(height: headerHeight)
-            .background(Color.white.opacity(0.04))
+            .background(Theme.surfacePrimary)
+            .overlay(alignment: .top) {
+                Rectangle().fill(Theme.border).frame(height: 1)
+            }
         }
         .buttonStyle(.plain)
     }
@@ -518,7 +527,8 @@ struct VerticalSnapContainer: View {
             YearGridView(
                 selectedDate: $selectedDate,
                 availableHeight: availableHeight,
-                onDayTap: { date in onDayTap?(date) }
+                onDayTap: { date in onDayTap?(date) },
+                onSettingsTap: onSettingsTap
             )
         default:
             accordionPanelScrollView(

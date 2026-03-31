@@ -34,11 +34,11 @@ struct NutritionView: View {
         VStack(spacing: 0) {
             scoreSummary
 
-            Divider().background(Color.white.opacity(0.1))
+            Divider().background(Theme.border).padding(.horizontal, 20)
 
             if isToday {
                 captureButtons
-                Divider().background(Color.white.opacity(0.1))
+                Divider().background(Theme.border).padding(.horizontal, 20)
             }
 
             mealsList
@@ -68,14 +68,14 @@ struct NutritionView: View {
                 let score = currentSummary?.nutritionScore ?? 0
                 Text(String(format: "%.1f", score * 10))
                     .font(.system(.largeTitle, design: .monospaced, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
                 + Text("/10")
                     .font(.system(.body, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.4))
+                    .foregroundStyle(Theme.textTertiary)
 
                 Text("avg score")
                     .font(.system(.caption2, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.3))
+                    .foregroundStyle(Theme.textTertiary)
             }
 
             Spacer()
@@ -83,10 +83,10 @@ struct NutritionView: View {
             VStack(spacing: 4) {
                 Text("\(mealScores.count)")
                     .font(.system(.title2, design: .monospaced, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
                 Text("meals")
                     .font(.system(.caption2, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.3))
+                    .foregroundStyle(Theme.textTertiary)
             }
         }
         .padding(.horizontal, 20)
@@ -106,12 +106,12 @@ struct NutritionView: View {
                     Text("Take Photo")
                         .font(.system(.subheadline, design: .monospaced, weight: .medium))
                 }
-                .foregroundStyle(.black)
+                .foregroundStyle(Theme.textPrimary)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
                 .background(
                     Capsule()
-                        .fill(Color(red: 0.95, green: 0.65, blue: 0.25))
+                        .fill(Theme.nutrition)
                 )
             }
 
@@ -122,12 +122,12 @@ struct NutritionView: View {
                     Text("Import")
                         .font(.system(.subheadline, design: .monospaced, weight: .medium))
                 }
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(Theme.textSecondary)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
                 .background(
                     Capsule()
-                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        .stroke(Theme.border, lineWidth: 1)
                 )
             }
             .onChange(of: photoPickerItem) { _, newItem in
@@ -143,30 +143,30 @@ struct NutritionView: View {
         VStack(spacing: 0) {
             ForEach(mealScores.prefix(6)) { meal in
                 mealRow(meal)
-                Divider().background(Color.white.opacity(0.05))
+                Divider().background(Theme.border).padding(.horizontal, 20)
             }
 
             ForEach(Array(scoringService.pendingScores.prefix(3)), id: \.self) { filename in
                 pendingRow(filename)
-                Divider().background(Color.white.opacity(0.05))
+                Divider().background(Theme.border).padding(.horizontal, 20)
             }
 
             ForEach(Array(scoringService.scoringErrors), id: \.key) { filename, message in
                 errorRow(message)
-                Divider().background(Color.white.opacity(0.05))
+                Divider().background(Theme.border).padding(.horizontal, 20)
             }
 
             if mealScores.isEmpty && scoringService.pendingScores.isEmpty && scoringService.scoringErrors.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "fork.knife")
                         .font(.system(size: 32))
-                        .foregroundStyle(.white.opacity(0.2))
+                        .foregroundStyle(Theme.textQuaternary)
                     Text("No meals logged today")
                         .font(.system(.subheadline, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.3))
+                        .foregroundStyle(Theme.textTertiary)
                     Text("Take a photo of your meal to get started")
                         .font(.system(.caption, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.2))
+                        .foregroundStyle(Theme.textQuaternary)
                 }
                 .padding(32)
             }
@@ -183,18 +183,18 @@ struct NutritionView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.white.opacity(0.05))
+                    .fill(Theme.surfacePrimary)
                     .frame(width: 48, height: 48)
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(meal.timeLabel)
                     .font(.system(.subheadline, design: .monospaced, weight: .medium))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
 
                 Text(meal.briefDescription)
                     .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.4))
+                    .foregroundStyle(Theme.textTertiary)
                     .lineLimit(2)
             }
 
@@ -211,17 +211,17 @@ struct NutritionView: View {
     private func pendingRow(_ filename: String) -> some View {
         HStack(spacing: 12) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.white.opacity(0.05))
+                .fill(Theme.surfacePrimary)
                 .frame(width: 48, height: 48)
                 .overlay {
                     ProgressView()
-                        .tint(.white.opacity(0.5))
+                        .tint(Theme.textSecondary)
                         .scaleEffect(0.7)
                 }
 
             Text("Scoring...")
                 .font(.system(.subheadline, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.4))
+                .foregroundStyle(Theme.textTertiary)
 
             Spacer()
         }
@@ -232,7 +232,7 @@ struct NutritionView: View {
     private func errorRow(_ message: String) -> some View {
         HStack(spacing: 12) {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.white.opacity(0.05))
+                .fill(Theme.surfacePrimary)
                 .frame(width: 48, height: 48)
                 .overlay {
                     Image(systemName: "exclamationmark.triangle")
@@ -242,7 +242,7 @@ struct NutritionView: View {
 
             Text(message)
                 .font(.system(.caption, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(Theme.textSecondary)
                 .lineLimit(2)
 
             Spacer()
@@ -305,8 +305,8 @@ struct NutritionView: View {
     }
 
     private func scoreColor(_ score: Double) -> Color {
-        if score >= 7 { return Color(red: 0.30, green: 0.85, blue: 0.55) }
-        if score >= 4 { return Color(red: 0.95, green: 0.65, blue: 0.25) }
-        return Color(red: 0.90, green: 0.35, blue: 0.40)
+        if score >= 7 { return Theme.accent }
+        if score >= 4 { return Theme.textSecondary }
+        return Theme.exercise
     }
 }

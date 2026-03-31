@@ -43,7 +43,7 @@ struct ExerciseDetailView: View {
         VStack(spacing: 16) {
             progressBar
 
-            Divider().background(Color.white.opacity(0.1))
+            Divider().background(Theme.border).padding(.horizontal, 20)
 
             workoutsList
         }
@@ -55,14 +55,14 @@ struct ExerciseDetailView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("\(healthKitManager.exerciseMinutes)")
                         .font(.system(.largeTitle, design: .monospaced, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Theme.textPrimary)
                     + Text(" min")
                         .font(.system(.body, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.5))
+                        .foregroundStyle(Theme.textSecondary)
 
                     Text("of \(AppConstants.defaultExerciseGoalMinutes) min goal")
                         .font(.system(.caption, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.3))
+                        .foregroundStyle(Theme.textTertiary)
                 }
 
                 Spacer()
@@ -73,14 +73,14 @@ struct ExerciseDetailView: View {
                 )
                 Text(String(format: "%.0f%%", score * 100))
                     .font(.system(.title2, design: .monospaced, weight: .bold))
-                    .foregroundStyle(Color(red: 0.30, green: 0.85, blue: 0.55))
+                    .foregroundStyle(Theme.exercise)
             }
             .padding(.horizontal, 20)
 
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.white.opacity(0.08))
+                        .fill(Theme.surfaceSecondary)
                         .frame(height: 8)
 
                     let progress = min(
@@ -88,7 +88,7 @@ struct ExerciseDetailView: View {
                         1.0
                     )
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color(red: 0.30, green: 0.85, blue: 0.55))
+                        .fill(Theme.exercise)
                         .frame(width: geo.size.width * progress, height: 8)
                         .animation(.spring(response: 0.5), value: progress)
                 }
@@ -103,14 +103,14 @@ struct ExerciseDetailView: View {
         VStack(spacing: 0) {
             if healthKitManager.isLoading {
                 ProgressView()
-                    .tint(.white.opacity(0.5))
+                    .tint(Theme.textSecondary)
                     .padding(32)
             } else if healthKitManager.workouts.isEmpty {
                 emptyWorkoutsView
             } else {
                 ForEach(healthKitManager.workouts) { workout in
                     workoutRow(workout)
-                    Divider().background(Color.white.opacity(0.05))
+                    Divider().background(Theme.border).padding(.horizontal, 20)
                 }
             }
         }
@@ -123,17 +123,17 @@ struct ExerciseDetailView: View {
         return HStack(spacing: 12) {
             Image(systemName: "figure.run")
                 .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Color(red: 0.30, green: 0.85, blue: 0.55))
+                .foregroundStyle(Theme.exercise)
                 .frame(width: 24)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(workout.workoutType)
                     .font(.system(.subheadline, design: .monospaced, weight: .medium))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
 
                 Text(formatter.string(from: workout.startDate))
                     .font(.system(.caption2, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.4))
+                    .foregroundStyle(Theme.textTertiary)
             }
 
             Spacer()
@@ -141,12 +141,12 @@ struct ExerciseDetailView: View {
             VStack(alignment: .trailing, spacing: 2) {
                 Text("\(workout.durationMinutes)m")
                     .font(.system(.subheadline, design: .monospaced, weight: .medium))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.textPrimary)
 
                 if let cal = workout.caloriesBurned {
                     Text("\(Int(cal)) cal")
                         .font(.system(.caption2, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.4))
+                        .foregroundStyle(Theme.textTertiary)
                 }
             }
         }
@@ -160,10 +160,10 @@ struct ExerciseDetailView: View {
         VStack(spacing: 8) {
             Image(systemName: "figure.run")
                 .font(.system(size: 32))
-                .foregroundStyle(.white.opacity(0.2))
+                .foregroundStyle(Theme.textQuaternary)
             Text("No workouts recorded today")
                 .font(.system(.subheadline, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.3))
+                .foregroundStyle(Theme.textTertiary)
         }
         .padding(32)
     }
@@ -172,13 +172,13 @@ struct ExerciseDetailView: View {
         VStack(spacing: 12) {
             Image(systemName: "applewatch.slash")
                 .font(.system(size: 32))
-                .foregroundStyle(.white.opacity(0.3))
+                .foregroundStyle(Theme.textTertiary)
             Text("HealthKit not available")
                 .font(.system(.subheadline, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(Theme.textSecondary)
             Text("Exercise tracking requires an Apple Watch or manual workouts in the Health app.")
                 .font(.system(.caption, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.3))
+                .foregroundStyle(Theme.textTertiary)
                 .multilineTextAlignment(.center)
         }
         .padding(32)
@@ -188,17 +188,17 @@ struct ExerciseDetailView: View {
         VStack(spacing: 12) {
             Image(systemName: "lock.shield")
                 .font(.system(size: 32))
-                .foregroundStyle(.white.opacity(0.3))
+                .foregroundStyle(Theme.textTertiary)
             Text("Health access denied")
                 .font(.system(.subheadline, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(Theme.textSecondary)
             Button("Open Settings") {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url)
                 }
             }
             .font(.system(.caption, design: .monospaced, weight: .medium))
-            .foregroundStyle(Color(red: 0.30, green: 0.85, blue: 0.55))
+            .foregroundStyle(Theme.exercise)
         }
         .padding(32)
     }
@@ -207,16 +207,16 @@ struct ExerciseDetailView: View {
         VStack(spacing: 12) {
             Image(systemName: "heart.text.square")
                 .font(.system(size: 32))
-                .foregroundStyle(.white.opacity(0.3))
+                .foregroundStyle(Theme.textTertiary)
             Text("Grant Health access to track exercise")
                 .font(.system(.subheadline, design: .monospaced))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
             Button("Allow Access") {
                 Task { await healthKitManager.requestAuthorization() }
             }
             .font(.system(.caption, design: .monospaced, weight: .medium))
-            .foregroundStyle(Color(red: 0.30, green: 0.85, blue: 0.55))
+            .foregroundStyle(Theme.exercise)
         }
         .padding(32)
     }
