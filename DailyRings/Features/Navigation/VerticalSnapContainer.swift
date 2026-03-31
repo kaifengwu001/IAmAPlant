@@ -32,6 +32,10 @@ struct VerticalSnapContainer: View {
     @State private var accordionTarget: DrawerSection? = .daySummary
     @State private var accordionOffset: CGFloat = 0
     @State private var dragStartAccordionOffset: CGFloat?
+    @State private var accordionDragSourceSection: DrawerSection?
+    @State private var accordionViewportHeight: CGFloat = UIScreen.main.bounds.height
+    @State private var panelScrollLocked = false
+    @State private var snapUnlockToken = 0
     @State private var suppressCurrentSectionSync = false
     @State private var suppressOuterPageSync = false
 
@@ -60,10 +64,15 @@ struct VerticalSnapContainer: View {
                 }
                 .scrollTargetLayout()
             }
-            .scrollTargetBehavior(.paging)
+            .scrollDisabled(outerPage == .accordion)
+            .scrollTargetBehavior(.viewAligned)
             .scrollPosition(id: $outerPage)
             .onAppear {
+                accordionViewportHeight = geo.size.height
                 syncFromCurrentSection(viewportHeight: geo.size.height, animated: false)
+            }
+            .onChange(of: geo.size.height) { _, newHeight in
+                accordionViewportHeight = newHeight
             }
             .onChange(of: currentSection) { _, _ in
                 if suppressCurrentSectionSync {
@@ -103,7 +112,6 @@ struct VerticalSnapContainer: View {
             .frame(height: viewportHeight)
             .clipped()
             .contentShape(Rectangle())
-            .simultaneousGesture(accordionDragGesture(metrics: metrics))
     }
 
     // MARK: - Accordion Layout
@@ -112,6 +120,8 @@ struct VerticalSnapContainer: View {
         viewportHeight: CGFloat,
         metrics: AccordionMetrics
     ) -> some View {
+        let interactiveSection = activeAccordionSection(viewportHeight: viewportHeight)
+
         return ZStack(alignment: .top) {
             ForEach(Array(nonYearSections.enumerated()), id: \.element.id) { index, section in
                 let headerTop = headerY(for: index, metrics: metrics)
@@ -122,15 +132,23 @@ struct VerticalSnapContainer: View {
                 accordionContent(
                     for: section,
                     height: contentHeight,
-                    top: contentTop
+                    top: contentTop,
+                    expandedHeight: metrics.contentHeight,
+                    isInteractive: section == interactiveSection
                 )
-                .allowsHitTesting(contentHeight > 1)
+                .allowsHitTesting(contentHeight > 1 && section == interactiveSection)
             }
 
             ForEach(Array(nonYearSections.enumerated()), id: \.element.id) { index, section in
                 accordionHeader(for: section)
                     .offset(y: headerY(for: index, metrics: metrics))
                     .zIndex(3)
+                    .simultaneousGesture(
+                        accordionHeaderDragGesture(
+                            from: interactiveSection,
+                            metrics: metrics
+                        )
+                    )
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -139,9 +157,16 @@ struct VerticalSnapContainer: View {
     private func accordionContent(
         for section: DrawerSection,
         height: CGFloat,
-        top: CGFloat
+        top: CGFloat,
+        expandedHeight: CGFloat,
+        isInteractive: Bool
     ) -> some View {
-        sectionContent(section, availableHeight: height)
+        sectionContent(
+            section,
+            availableHeight: height,
+            expandedHeight: expandedHeight,
+            isInteractive: isInteractive
+        )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .frame(height: height, alignment: .top)
             .mask(alignment: .top) {
@@ -315,23 +340,27 @@ struct VerticalSnapContainer: View {
 
     private func selectAccordionSection(_ section: DrawerSection) {
         guard section != .yearOverview else {
-            withAnimation {
+            panelScrollLocked = true
+            withAnimation(.easeOut(duration: 0.22)) {
                 suppressOuterPageSync = true
                 suppressCurrentSectionSync = true
                 outerPage = .year
                 currentSection = .yearOverview
             }
+            schedulePanelScrollUnlock()
             return
         }
 
-        withAnimation {
+        panelScrollLocked = true
+        withAnimation(.easeOut(duration: 0.22)) {
             suppressOuterPageSync = true
             suppressCurrentSectionSync = true
             outerPage = .accordion
             accordionTarget = section
-            accordionOffset = offset(for: section)
+            accordionOffset = offset(for: section, viewportHeight: accordionViewportHeight)
             currentSection = section
         }
+        schedulePanelScrollUnlock()
     }
 
     private func offset(
@@ -343,50 +372,20 @@ struct VerticalSnapContainer: View {
         return CGFloat(index) * metrics.contentHeight
     }
 
-    private func accordionDragGesture(metrics: AccordionMetrics) -> some Gesture {
+    private func accordionHeaderDragGesture(
+        from section: DrawerSection,
+        metrics: AccordionMetrics
+    ) -> some Gesture {
         DragGesture(minimumDistance: 3)
             .onChanged { value in
-                if dragStartAccordionOffset == nil {
-                    dragStartAccordionOffset = accordionOffset
-                }
-
-                let startOffset = dragStartAccordionOffset ?? accordionOffset
-                let proposedOffset = startOffset - value.translation.height
-                accordionOffset = rubberBandedOffset(proposedOffset, metrics: metrics)
+                beginAccordionDrag(from: section)
+                updateAccordionDrag(translationY: value.translation.height, metrics: metrics)
             }
             .onEnded { value in
-                let startOffset = dragStartAccordionOffset ?? accordionOffset
-                dragStartAccordionOffset = nil
-
-                let projectedOffset = startOffset - value.predictedEndTranslation.height
-                let shouldPageToYear =
-                    projectedOffset < -headerHeight * 0.75
-                    && startOffset <= 1
-
-                if shouldPageToYear {
-                    withAnimation(.easeOut(duration: 0.22)) {
-                        accordionOffset = 0
-                        suppressOuterPageSync = true
-                        suppressCurrentSectionSync = true
-                        outerPage = .year
-                        currentSection = .yearOverview
-                    }
-                    return
-                }
-
-                let resolvedOffset = clampedAccordionOffset(projectedOffset, metrics: metrics)
-                let snappedIndex = Int(round(resolvedOffset / metrics.contentHeight))
-                let clampedIndex = min(max(snappedIndex, 0), nonYearSections.count - 1)
-                let section = nonYearSections[clampedIndex]
-
-                withAnimation(.easeOut(duration: 0.22)) {
-                    accordionOffset = CGFloat(clampedIndex) * metrics.contentHeight
-                    accordionTarget = section
-                    suppressOuterPageSync = true
-                    suppressCurrentSectionSync = true
-                    outerPage = .accordion
-                    currentSection = section
-                }
+                endAccordionDrag(
+                    predictedTranslationY: value.predictedEndTranslation.height,
+                    metrics: metrics
+                )
             }
     }
 
@@ -405,12 +404,114 @@ struct VerticalSnapContainer: View {
         return offset
     }
 
+    private func activeAccordionSection(viewportHeight: CGFloat) -> DrawerSection {
+        accordionDragSourceSection
+            ?? accordionTarget
+            ?? nearestAccordionSection(viewportHeight: viewportHeight)
+    }
+
+    private func isPanelScrollEnabled(for section: DrawerSection) -> Bool {
+        guard outerPage == .accordion else { return false }
+        guard !panelScrollLocked else { return false }
+        guard dragStartAccordionOffset == nil else { return false }
+        return section == activeAccordionSection(viewportHeight: accordionViewportHeight)
+    }
+
+    private func handlePanelEdgePan(
+        _ event: AccordionEdgePanEvent,
+        from section: DrawerSection
+    ) {
+        let metrics = accordionMetrics(viewportHeight: accordionViewportHeight)
+
+        switch event.phase {
+        case .began:
+            beginAccordionDrag(from: section)
+            updateAccordionDrag(translationY: event.translationY, metrics: metrics)
+        case .changed:
+            updateAccordionDrag(translationY: event.translationY, metrics: metrics)
+        case .ended, .cancelled:
+            endAccordionDrag(
+                predictedTranslationY: event.predictedEndTranslationY,
+                metrics: metrics
+            )
+        }
+    }
+
+    private func beginAccordionDrag(from section: DrawerSection) {
+        if dragStartAccordionOffset == nil {
+            dragStartAccordionOffset = accordionOffset
+            accordionDragSourceSection = section
+            panelScrollLocked = true
+        }
+    }
+
+    private func updateAccordionDrag(
+        translationY: CGFloat,
+        metrics: AccordionMetrics
+    ) {
+        let startOffset = dragStartAccordionOffset ?? accordionOffset
+        let proposedOffset = startOffset - translationY
+        accordionOffset = rubberBandedOffset(proposedOffset, metrics: metrics)
+    }
+
+    private func endAccordionDrag(
+        predictedTranslationY: CGFloat,
+        metrics: AccordionMetrics
+    ) {
+        let startOffset = dragStartAccordionOffset ?? accordionOffset
+        dragStartAccordionOffset = nil
+        accordionDragSourceSection = nil
+
+        let projectedOffset = startOffset - predictedTranslationY
+        let shouldPageToYear =
+            projectedOffset < -headerHeight * 0.75
+            && startOffset <= 1
+
+        if shouldPageToYear {
+            withAnimation(.easeOut(duration: 0.22)) {
+                accordionOffset = 0
+                suppressOuterPageSync = true
+                suppressCurrentSectionSync = true
+                outerPage = .year
+                currentSection = .yearOverview
+            }
+            schedulePanelScrollUnlock()
+            return
+        }
+
+        let resolvedOffset = clampedAccordionOffset(projectedOffset, metrics: metrics)
+        let snappedIndex = Int(round(resolvedOffset / metrics.contentHeight))
+        let clampedIndex = min(max(snappedIndex, 0), nonYearSections.count - 1)
+        let section = nonYearSections[clampedIndex]
+
+        withAnimation(.easeOut(duration: 0.22)) {
+            accordionOffset = CGFloat(clampedIndex) * metrics.contentHeight
+            accordionTarget = section
+            suppressOuterPageSync = true
+            suppressCurrentSectionSync = true
+            outerPage = .accordion
+            currentSection = section
+        }
+        schedulePanelScrollUnlock()
+    }
+
+    private func schedulePanelScrollUnlock() {
+        snapUnlockToken += 1
+        let token = snapUnlockToken
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
+            guard token == snapUnlockToken else { return }
+            panelScrollLocked = false
+        }
+    }
+
     // MARK: - Section Content
 
     @ViewBuilder
     private func sectionContent(
         _ section: DrawerSection,
-        availableHeight: CGFloat
+        availableHeight: CGFloat,
+        expandedHeight: CGFloat? = nil,
+        isInteractive: Bool = false
     ) -> some View {
         switch section {
         case .yearOverview:
@@ -419,6 +520,39 @@ struct VerticalSnapContainer: View {
                 availableHeight: availableHeight,
                 onDayTap: { date in onDayTap?(date) }
             )
+        default:
+            accordionPanelScrollView(
+                section: section,
+                availableHeight: availableHeight,
+                expandedHeight: expandedHeight ?? availableHeight,
+                isInteractive: isInteractive
+            )
+        }
+    }
+
+    private func accordionPanelScrollView(
+        section: DrawerSection,
+        availableHeight: CGFloat,
+        expandedHeight: CGFloat,
+        isInteractive: Bool
+    ) -> some View {
+        AccordionOwnedScrollView(
+            isScrollEnabled: isPanelScrollEnabled(for: section),
+            minContentHeight: expandedHeight,
+            onEdgePan: { event in
+                handlePanelEdgePan(event, from: section)
+            }
+        ) {
+            panelBodyContent(for: section)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .frame(height: availableHeight, alignment: .top)
+        .allowsHitTesting(isInteractive)
+    }
+
+    @ViewBuilder
+    private func panelBodyContent(for section: DrawerSection) -> some View {
+        switch section {
         case .daySummary:
             DaySummaryView(
                 scores: scores,
@@ -426,21 +560,15 @@ struct VerticalSnapContainer: View {
                 isExpanded: true
             )
         case .sleep:
-            ScrollView(.vertical, showsIndicators: false) {
-                SleepDetailView(selectedDate: selectedDate, isToday: isToday)
-            }
+            SleepDetailView(selectedDate: selectedDate, isToday: isToday)
         case .exercise:
-            ScrollView(.vertical, showsIndicators: false) {
-                ExerciseDetailView(selectedDate: selectedDate)
-            }
+            ExerciseDetailView(selectedDate: selectedDate)
         case .nutrition:
-            ScrollView(.vertical, showsIndicators: false) {
-                NutritionView(selectedDate: selectedDate, isToday: isToday)
-            }
+            NutritionView(selectedDate: selectedDate, isToday: isToday)
         case .productivity:
-            ScrollView(.vertical, showsIndicators: false) {
-                ProductivityDetailView(selectedDate: selectedDate, isToday: isToday)
-            }
+            ProductivityDetailView(selectedDate: selectedDate, isToday: isToday)
+        case .yearOverview:
+            EmptyView()
         }
     }
 
@@ -484,5 +612,208 @@ private struct AccordionMetrics {
 
     var maxOffset: CGFloat {
         CGFloat(max(sectionCount - 1, 0)) * contentHeight
+    }
+}
+
+private struct AccordionEdgePanEvent {
+    enum Phase {
+        case began
+        case changed
+        case ended
+        case cancelled
+    }
+
+    let phase: Phase
+    let translationY: CGFloat
+    let predictedEndTranslationY: CGFloat
+}
+
+private struct AccordionOwnedScrollView<Content: View>: UIViewRepresentable {
+    let isScrollEnabled: Bool
+    let minContentHeight: CGFloat
+    let onEdgePan: (AccordionEdgePanEvent) -> Void
+    let content: Content
+
+    init(
+        isScrollEnabled: Bool,
+        minContentHeight: CGFloat,
+        onEdgePan: @escaping (AccordionEdgePanEvent) -> Void,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.isScrollEnabled = isScrollEnabled
+        self.minContentHeight = minContentHeight
+        self.onEdgePan = onEdgePan
+        self.content = content()
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+        scrollView.delegate = context.coordinator
+        scrollView.alwaysBounceVertical = true
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.backgroundColor = .clear
+
+        let hostedView = context.coordinator.hostingController.view!
+        hostedView.backgroundColor = .clear
+        hostedView.translatesAutoresizingMaskIntoConstraints = false
+
+        scrollView.addSubview(hostedView)
+
+        NSLayoutConstraint.activate([
+            hostedView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            hostedView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            hostedView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            hostedView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            hostedView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor)
+        ])
+
+        scrollView.panGestureRecognizer.addTarget(
+            context.coordinator,
+            action: #selector(Coordinator.handlePan(_:))
+        )
+
+        return scrollView
+    }
+
+    func updateUIView(_ scrollView: UIScrollView, context: Context) {
+        context.coordinator.parent = self
+        context.coordinator.hostingController.rootView = AnyView(
+            VStack(spacing: 0) {
+                content
+                Spacer(minLength: 0)
+            }
+            .frame(maxWidth: .infinity, minHeight: minContentHeight, alignment: .top)
+        )
+
+        if !context.coordinator.isEdgeHandoffActive {
+            scrollView.isScrollEnabled = isScrollEnabled
+        }
+    }
+
+    final class Coordinator: NSObject, UIScrollViewDelegate {
+        var parent: AccordionOwnedScrollView
+        let hostingController = UIHostingController(rootView: AnyView(EmptyView()))
+        var isEdgeHandoffActive = false
+        private var handoffLocksToTop = false
+
+        init(parent: AccordionOwnedScrollView) {
+            self.parent = parent
+        }
+
+        func scrollViewDidScroll(_ scrollView: UIScrollView) {
+            guard isEdgeHandoffActive else { return }
+            clamp(scrollView)
+        }
+
+        @objc func handlePan(_ recognizer: UIPanGestureRecognizer) {
+            guard let scrollView = recognizer.view as? UIScrollView else { return }
+
+            let translationY = recognizer.translation(in: scrollView).y
+            let velocityY = recognizer.velocity(in: scrollView).y
+            let predictedTranslationY = translationY + velocityY * 0.12
+            let limits = offsetLimits(for: scrollView)
+            let atTop = scrollView.contentOffset.y <= limits.top + 0.5
+            let atBottom = scrollView.contentOffset.y >= limits.bottom - 0.5
+
+            switch recognizer.state {
+            case .began:
+                isEdgeHandoffActive = false
+
+            case .changed:
+                if parent.isScrollEnabled && !isEdgeHandoffActive {
+                    if atTop && translationY > 0 {
+                        isEdgeHandoffActive = true
+                        handoffLocksToTop = true
+                        parent.onEdgePan(
+                            AccordionEdgePanEvent(
+                                phase: .began,
+                                translationY: translationY,
+                                predictedEndTranslationY: predictedTranslationY
+                            )
+                        )
+                    } else if atBottom && translationY < 0 {
+                        isEdgeHandoffActive = true
+                        handoffLocksToTop = false
+                        parent.onEdgePan(
+                            AccordionEdgePanEvent(
+                                phase: .began,
+                                translationY: translationY,
+                                predictedEndTranslationY: predictedTranslationY
+                            )
+                        )
+                    }
+                }
+
+                if isEdgeHandoffActive {
+                    clamp(scrollView)
+                    parent.onEdgePan(
+                        AccordionEdgePanEvent(
+                            phase: .changed,
+                            translationY: translationY,
+                            predictedEndTranslationY: predictedTranslationY
+                        )
+                    )
+                }
+
+            case .ended:
+                finishHandoffIfNeeded(
+                    phase: .ended,
+                    translationY: translationY,
+                    predictedEndTranslationY: predictedTranslationY,
+                    scrollView: scrollView
+                )
+
+            case .cancelled, .failed:
+                finishHandoffIfNeeded(
+                    phase: .cancelled,
+                    translationY: translationY,
+                    predictedEndTranslationY: predictedTranslationY,
+                    scrollView: scrollView
+                )
+
+            default:
+                break
+            }
+        }
+
+        private func finishHandoffIfNeeded(
+            phase: AccordionEdgePanEvent.Phase,
+            translationY: CGFloat,
+            predictedEndTranslationY: CGFloat,
+            scrollView: UIScrollView
+        ) {
+            guard isEdgeHandoffActive else { return }
+
+            clamp(scrollView)
+            parent.onEdgePan(
+                AccordionEdgePanEvent(
+                    phase: phase,
+                    translationY: translationY,
+                    predictedEndTranslationY: predictedEndTranslationY
+                )
+            )
+            isEdgeHandoffActive = false
+            scrollView.isScrollEnabled = parent.isScrollEnabled
+        }
+
+        private func clamp(_ scrollView: UIScrollView) {
+            let limits = offsetLimits(for: scrollView)
+            scrollView.contentOffset.y = handoffLocksToTop ? limits.top : limits.bottom
+        }
+
+        private func offsetLimits(for scrollView: UIScrollView) -> (top: CGFloat, bottom: CGFloat) {
+            let top = -scrollView.adjustedContentInset.top
+            let bottom = max(
+                top,
+                scrollView.contentSize.height
+                    - scrollView.bounds.height
+                    + scrollView.adjustedContentInset.bottom
+            )
+            return (top, bottom)
+        }
     }
 }

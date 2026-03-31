@@ -106,7 +106,8 @@ final class SleepManager {
             screenMinutes: screenMinutes
         )
 
-        let date = DateBoundary.logicalDate(for: session.startTime)
+        let wakeTime = session.endTime ?? session.startTime
+        let date = DateBoundary.logicalDate(for: wakeTime)
         let dateStr = DateBoundary.dateString(from: date)
 
         let descriptor = FetchDescriptor<DailySummary>(predicate: #Predicate { $0.dateString == dateStr })
