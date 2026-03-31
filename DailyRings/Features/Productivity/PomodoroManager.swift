@@ -164,12 +164,17 @@ final class PomodoroManager {
     private func startTimer() {
         timerTask?.cancel()
         timerTask = Task { @MainActor in
+            guard let session = activeSession else { return }
+            let endTime = session.startTime.addingTimeInterval(TimeInterval(Self.totalSeconds))
             var ticksSinceLastPoll = 0
 
-            while remainingSeconds > 0 && !Task.isCancelled {
+            while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(1))
-                remainingSeconds -= 1
+                let remaining = Int(endTime.timeIntervalSince(Date.now).rounded(.up))
+                remainingSeconds = max(0, remaining)
                 ticksSinceLastPoll += 1
+
+                if remainingSeconds <= 0 { break }
 
                 if ticksSinceLastPoll >= 5 {
                     ticksSinceLastPoll = 0
@@ -249,6 +254,12 @@ final class PomodoroManager {
         remainingSeconds = 0
         clearPersistedSessionID()
         SharedPomodoroStorage.clearSessionData()
+        cancelCompletionNotification()
+    }
+
+    private func cancelCompletionNotification() {
+        UNUserNotificationCenter.current()
+            .removePendingNotificationRequests(withIdentifiers: ["pomodoro-complete"])
     }
 
     // MARK: - DeviceActivity Monitoring
