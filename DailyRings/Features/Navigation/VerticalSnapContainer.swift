@@ -39,6 +39,7 @@ struct VerticalSnapContainer: View {
     @State private var snapUnlockToken = 0
     @State private var suppressCurrentSectionSync = false
     @State private var suppressOuterPageSync = false
+    // Keep year cold by default; only warm it briefly near the top.
     @State private var isYearPreloaded = false
     @State private var yearPreloadToken = 0
     @State private var pageTransitionOffset: CGFloat = 0
@@ -57,6 +58,7 @@ struct VerticalSnapContainer: View {
     }
 
     private var shouldRenderYearPage: Bool {
+        // Render year only when visible, transitioning, or intentionally preloaded.
         isYearPreloaded
             || outerPage == .year
             || currentSection == .yearOverview
@@ -68,6 +70,7 @@ struct VerticalSnapContainer: View {
             let pageOffset = accordionPageOffset(viewportHeight: geo.size.height)
 
             ZStack(alignment: .top) {
+                // Keep year/day as two translated layers so the handoff tracks the finger.
                 yearPage(viewportHeight: geo.size.height)
                     .offset(y: pageOffset - pageTravelDistance(viewportHeight: geo.size.height))
                     .compositingGroup()
@@ -645,6 +648,7 @@ struct VerticalSnapContainer: View {
             return
         }
 
+        // Delay the mount so brief touches at the top do not wake the heavy year grid.
         let nextToken = yearPreloadToken + 1
         yearPreloadToken = nextToken
 
@@ -704,6 +708,7 @@ struct VerticalSnapContainer: View {
         expandedHeight: CGFloat,
         isInteractive: Bool
     ) -> some View {
+        // Host each drawer once and only swap content when its identity actually changes.
         AccordionOwnedScrollView(
             contentID: panelContentID(for: section),
             isScrollEnabled: isPanelScrollEnabled(for: section),
@@ -883,6 +888,7 @@ private struct AccordionOwnedScrollView<Content: View>: UIViewRepresentable {
         context.coordinator.parent = self
         context.coordinator.minHeightConstraint?.constant = minContentHeight
 
+        // Avoid replacing the hosted SwiftUI tree on every drag tick.
         if context.coordinator.contentID != contentID {
             context.coordinator.contentID = contentID
             context.coordinator.hostingController.rootView = AnyView(

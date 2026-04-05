@@ -18,6 +18,7 @@ struct YearGridView: View {
             screenWidth: UIScreen.main.bounds.width,
             availableHeight: availableHeight - titleHeight
         )
+        // Use cached eager rows so the transition does not lazily build cells mid-gesture.
         let rows = gridRows(columnCount: layout.columns)
 
         VStack(spacing: 0) {
