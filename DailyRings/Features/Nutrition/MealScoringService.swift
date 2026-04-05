@@ -41,6 +41,39 @@ final class MealScoringService {
         }
     }
 
+    // MARK: - Re-Score with Corrected Description
+
+    func rescoreWithDescription(filename: String, correctedDescription: String, timestamp: Date) async -> MealScore? {
+        guard let service = supabaseService else { return nil }
+
+        pendingScores.insert(filename)
+        defer { pendingScores.remove(filename) }
+
+        guard let base64 = await photoStore.loadBase64(filename: filename) else {
+            scoringErrors[filename] = "Failed to load photo"
+            return nil
+        }
+
+        do {
+            let response = try await service.rescoreMeal(
+                imageBase64: base64,
+                correctedDescription: correctedDescription,
+                timestamp: timestamp
+            )
+            let score = MealScore(
+                timestamp: timestamp,
+                score: response.score,
+                briefDescription: response.brief_description,
+                photoFilename: filename
+            )
+            scoringErrors.removeValue(forKey: filename)
+            return score
+        } catch {
+            scoringErrors[filename] = Self.friendlyError(from: error)
+            return nil
+        }
+    }
+
     // MARK: - Batch Fallback
 
     func scoreAllPending(date: Date, existingScores: [MealScore]) async -> [MealScore] {

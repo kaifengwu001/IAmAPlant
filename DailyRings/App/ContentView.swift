@@ -3,10 +3,13 @@ import SwiftUI
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(SyncCoordinator.self) private var syncCoordinator
     @State private var selectedDayOffset: Int? = 0
     @State private var currentSection: DrawerSection? = .daySummary
     @State private var showSettings = false
     @State private var pomodoroManager = PomodoroManager()
+
+    private let syncTimer = Timer.publish(every: 300, on: .main, in: .common).autoconnect()
 
     private let dayRange = -365...0
 
@@ -33,15 +36,40 @@ struct ContentView: View {
         }
         .onAppear {
             pomodoroManager.configure(modelContext: modelContext)
+            syncCoordinator.configure(modelContext: modelContext)
+            Task {
+                await syncCoordinator.pullSettings()
+                await syncCoordinator.pullRecent(days: 7)
+                await syncCoordinator.pushPendingChanges()
+            }
+        }
+        .onChange(of: selectedDayOffset) { _, _ in
+            Task {
+                await syncCoordinator.pullLatest(for: selectedDate)
+            }
         }
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .background:
-                Task { await pomodoroManager.onAppEnterBackground() }
+                Task {
+                    await pomodoroManager.onAppEnterBackground()
+                    await syncCoordinator.pushPendingChanges()
+                }
             case .active:
-                Task { await pomodoroManager.onAppReturnFromBackground() }
+                Task {
+                    await pomodoroManager.onAppReturnFromBackground()
+                    await syncCoordinator.pullLatest(for: selectedDate)
+                    await syncCoordinator.pushPendingChanges()
+                }
             default:
                 break
+            }
+        }
+        .onReceive(syncTimer) { _ in
+            if scenePhase == .active {
+                Task {
+                    await syncCoordinator.pushPendingChanges()
+                }
             }
         }
     }

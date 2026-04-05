@@ -18,7 +18,7 @@ final class PomodoroActivityMonitor: DeviceActivityMonitor {
         _ event: DeviceActivityEvent.Name,
         activity: DeviceActivityName
     ) {
-        guard let sessionID = UUID(uuidString: activity.rawValue) else {
+        guard UUID(uuidString: activity.rawValue) != nil else {
             storage.appendExtensionLog("ERROR: invalid activity UUID")
             return
         }
@@ -30,22 +30,28 @@ final class PomodoroActivityMonitor: DeviceActivityMonitor {
 
         if raw.hasPrefix("warn1_"), currentLevel < 1 {
             storage.saveDistractionLevel(1)
-            scheduleNotification(
-                id: "pomodoro_warn1_\(sessionID.uuidString)",
+            sendNotification(
+                id: "pomodoro-warn1",
                 title: "Distraction Warning",
                 body: "You've been on your phone for 1 minute. Put it down!"
             )
         } else if raw.hasPrefix("warn2_"), currentLevel < 2 {
             storage.saveDistractionLevel(2)
-            scheduleNotification(
-                id: "pomodoro_warn2_\(sessionID.uuidString)",
+            sendNotification(
+                id: "pomodoro-warn2",
                 title: "Distraction Warning",
                 body: "2:30 on phone — session fails at 3 minutes!"
             )
+        } else if raw.hasPrefix("urgent_"), currentLevel < 3 {
+            sendNotification(
+                id: "pomodoro-urgent",
+                title: "15 Seconds Left!",
+                body: "Put your phone down NOW or session fails!"
+            )
         } else if raw.hasPrefix("fail_"), currentLevel < 3 {
             storage.saveDistractionLevel(3)
-            scheduleNotification(
-                id: "pomodoro_fail_\(sessionID.uuidString)",
+            sendNotification(
+                id: "pomodoro-fail",
                 title: "Session Failed",
                 body: "3 minutes on phone. Pomodoro session FAILED."
             )
@@ -67,11 +73,12 @@ final class PomodoroActivityMonitor: DeviceActivityMonitor {
         storage.appendExtensionLog("thresholdWarning: \(event.rawValue.prefix(24))")
     }
 
-    private func scheduleNotification(id: String, title: String, body: String) {
+    private func sendNotification(id: String, title: String, body: String) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = .default
+        content.interruptionLevel = .timeSensitive
 
         let request = UNNotificationRequest(
             identifier: id,
@@ -83,7 +90,7 @@ final class PomodoroActivityMonitor: DeviceActivityMonitor {
             if let error {
                 storage.appendExtensionLog("Notif error: \(error.localizedDescription)")
             } else {
-                storage.appendExtensionLog("Notif sent: \(title)")
+                storage.appendExtensionLog("Notif sent: \(id.prefix(12))")
             }
         }
     }

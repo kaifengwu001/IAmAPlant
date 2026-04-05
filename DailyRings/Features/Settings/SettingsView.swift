@@ -6,6 +6,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(SupabaseService.self) private var supabaseService
+    @Environment(SyncCoordinator.self) private var syncCoordinator
     @Query private var settings: [UserSettings]
 
     private var currentSettings: UserSettings {
@@ -176,5 +177,7 @@ struct SettingsView: View {
         }
 
         try? modelContext.save()
+
+        Task { await syncCoordinator.syncSettings() }
     }
 }

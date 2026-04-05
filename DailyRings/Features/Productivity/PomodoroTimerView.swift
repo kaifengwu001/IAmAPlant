@@ -10,6 +10,8 @@ struct PomodoroTimerView: View {
     @State private var goalLabel = ""
     @State private var selectedCategory = "Work"
     @State private var hasLoadedLastSession = false
+    @State private var prefilledLabel = ""
+    @FocusState private var isGoalFieldFocused: Bool
 
     private let categories = ["Work", "Study", "Creative", "Admin", "Personal"]
 
@@ -25,6 +27,7 @@ struct PomodoroTimerView: View {
         .onAppear {
             guard !hasLoadedLastSession, let last = recentSessions.first else { return }
             goalLabel = last.goalLabel
+            prefilledLabel = last.goalLabel
             selectedCategory = last.category
             hasLoadedLastSession = true
         }
@@ -96,6 +99,12 @@ struct PomodoroTimerView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(Theme.surfacePrimary)
                 )
+                .focused($isGoalFieldFocused)
+                .onChange(of: isGoalFieldFocused) { _, focused in
+                    if focused && goalLabel == prefilledLabel && !prefilledLabel.isEmpty {
+                        goalLabel = ""
+                    }
+                }
 
             categoryPicker
 

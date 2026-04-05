@@ -15,6 +15,7 @@ final class PomodoroSession {
     var durationMinutes: Int
     var createdAt: Date
     var supabaseID: String?
+    var isSynced: Bool
 
     init(
         goalLabel: String,
@@ -31,6 +32,7 @@ final class PomodoroSession {
         self.distractedSeconds = 0
         self.durationMinutes = 0
         self.createdAt = .now
+        self.isSynced = false
     }
 
     func markCompleted(distractedSeconds: Int) {

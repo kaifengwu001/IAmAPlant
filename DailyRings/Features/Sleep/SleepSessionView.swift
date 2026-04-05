@@ -84,18 +84,25 @@ struct SleepSessionView: View {
 
     // MARK: - Edit Sheet
 
+    private var correctedEnd: Date {
+        if editEnd < editStart {
+            return Calendar.current.date(byAdding: .day, value: 1, to: editEnd) ?? editEnd
+        }
+        return editEnd
+    }
+
     private var sleepEditSheet: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                let hours = editEnd.timeIntervalSince(editStart) / 3600
+                let hours = correctedEnd.timeIntervalSince(editStart) / 3600
                 Text(String(format: "%.1f hours", hours))
                     .font(.system(.title, design: .monospaced, weight: .bold))
                     .foregroundStyle(Theme.textPrimary)
 
-                DatePicker("Bedtime", selection: $editStart, displayedComponents: [.hourAndMinute])
+                DatePicker("Bedtime", selection: $editStart, displayedComponents: [.date, .hourAndMinute])
                     .font(.system(.body, design: .monospaced))
 
-                DatePicker("Wake-up", selection: $editEnd, displayedComponents: [.hourAndMinute])
+                DatePicker("Wake-up", selection: $editEnd, displayedComponents: [.date, .hourAndMinute])
                     .font(.system(.body, design: .monospaced))
 
                 Spacer()
@@ -108,7 +115,10 @@ struct SleepSessionView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Confirm") {
                         Task {
-                            _ = await sleepManager.endSleepSession()
+                            _ = await sleepManager.endSleepSession(
+                                adjustedStart: editStart,
+                                adjustedEnd: correctedEnd
+                            )
                             showEditTimes = false
                         }
                     }

@@ -1,49 +1,63 @@
 import SwiftUI
 
-struct PomodoroSessionView: View {
-    let session: PomodoroSession
+struct SleepEntryView: View {
+    let session: SleepSession
+    var onTimesEdited: ((Date, Date) -> Void)?
 
     @Environment(\.modelContext) private var modelContext
     @State private var showEditSheet = false
-    @State private var editedGoalLabel = ""
+    @State private var editStart = Date.now
+    @State private var editEnd = Date.now
 
-    private var statusColor: Color {
-        session.isCompleted
-            ? Theme.accent
-            : Theme.exercise
+    private var sourceLabel: String {
+        switch session.source {
+        case .manual: "Manual"
+        case .autoDetected: "Auto-detected"
+        case .healthkit: "HealthKit"
+        }
     }
 
-    private var statusIcon: String {
-        session.isCompleted ? "checkmark.circle.fill" : "xmark.circle.fill"
+    private var sourceIcon: String {
+        switch session.source {
+        case .manual: "hand.raised"
+        case .autoDetected: "waveform.path.ecg"
+        case .healthkit: "heart.fill"
+        }
     }
 
     private var timeLabel: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm a"
-        return formatter.string(from: session.startTime)
+        let start = formatter.string(from: session.startTime)
+        let end = session.endTime.map { formatter.string(from: $0) } ?? "..."
+        return "\(start) – \(end)"
+    }
+
+    private var correctedEnd: Date {
+        if editEnd < editStart {
+            return Calendar.current.date(byAdding: .day, value: 1, to: editEnd) ?? editEnd
+        }
+        return editEnd
     }
 
     var body: some View {
         Button {
-            editedGoalLabel = session.goalLabel
+            editStart = session.startTime
+            editEnd = session.endTime ?? .now
             showEditSheet = true
         } label: {
             HStack(spacing: 12) {
                 Circle()
-                    .fill(statusColor)
+                    .fill(Theme.sleep)
                     .frame(width: 8, height: 8)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(session.goalLabel)
+                    Text(timeLabel)
                         .font(.system(.subheadline, design: .monospaced, weight: .medium))
                         .foregroundStyle(Theme.textPrimary)
 
                     HStack(spacing: 8) {
-                        Text(session.category)
-                            .font(.system(.caption2, design: .monospaced))
-                            .foregroundStyle(Theme.textTertiary)
-
-                        Text(timeLabel)
+                        Label(sourceLabel, systemImage: sourceIcon)
                             .font(.system(.caption2, design: .monospaced))
                             .foregroundStyle(Theme.textTertiary)
                     }
@@ -51,16 +65,10 @@ struct PomodoroSessionView: View {
 
                 Spacer()
 
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text("\(session.durationMinutes)m")
+                if let hours = session.durationHours {
+                    Text(String(format: "%.1fh", hours))
                         .font(.system(.subheadline, design: .monospaced, weight: .medium))
                         .foregroundStyle(Theme.textPrimary)
-
-                    if session.distractedSeconds > 0 {
-                        Text("\(session.distractedSeconds / 60)m off")
-                            .font(.system(.caption2, design: .monospaced))
-                            .foregroundStyle(Theme.exercise.opacity(0.7))
-                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -75,21 +83,22 @@ struct PomodoroSessionView: View {
     private var editSheet: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                TextField("Task name", text: $editedGoalLabel)
-                    .font(.system(.body, design: .monospaced))
+                let hours = correctedEnd.timeIntervalSince(editStart) / 3600
+                Text(String(format: "%.1f hours", hours))
+                    .font(.system(.title, design: .monospaced, weight: .bold))
                     .foregroundStyle(Theme.textPrimary)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Theme.surfacePrimary)
-                    )
+
+                DatePicker("Bedtime", selection: $editStart, displayedComponents: [.date, .hourAndMinute])
+                    .font(.system(.body, design: .monospaced))
+
+                DatePicker("Wake-up", selection: $editEnd, displayedComponents: [.date, .hourAndMinute])
+                    .font(.system(.body, design: .monospaced))
 
                 Spacer()
             }
             .padding(24)
             .background(Theme.background)
-            .navigationTitle("Edit Session")
+            .navigationTitle("Edit Sleep")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -98,14 +107,13 @@ struct PomodoroSessionView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        let trimmed = editedGoalLabel.trimmingCharacters(in: .whitespacesAndNewlines)
-                        guard !trimmed.isEmpty else { return }
-                        session.goalLabel = trimmed
+                        session.startTime = editStart
+                        session.endTime = correctedEnd
                         try? modelContext.save()
+                        onTimesEdited?(editStart, correctedEnd)
                         showEditSheet = false
                     }
                     .font(.system(.body, design: .monospaced, weight: .bold))
-                    .disabled(editedGoalLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
         }

@@ -20,6 +20,7 @@ Config/Secrets.xcconfig
 !.env.example
 supabase/.env
 supabase/.env.*
+Supabase/.temp/
 .xcode.env.local
 
 # Common mobile / signing material

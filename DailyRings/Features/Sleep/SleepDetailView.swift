@@ -8,9 +8,12 @@ struct SleepDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(SupabaseService.self) private var supabaseService
     @Query private var summaries: [DailySummary]
+    @Query(sort: \SleepSession.startTime, order: .reverse)
+    private var allSleepSessions: [SleepSession]
 
     @State private var sleepManager = SleepManager()
     @State private var showManualAdjustment = false
+    @State private var showAllSessions = false
 
     private var dateString: String {
         DateBoundary.dateString(from: selectedDate)
@@ -18,6 +21,15 @@ struct SleepDetailView: View {
 
     private var currentSummary: DailySummary? {
         summaries.first { $0.dateString == dateString }
+    }
+
+    private var daySessions: [SleepSession] {
+        let dayStart = DateBoundary.dayStart(for: selectedDate)
+        let dayEnd = DateBoundary.dayEnd(for: selectedDate)
+        return allSleepSessions.filter { session in
+            guard let endTime = session.endTime else { return false }
+            return endTime >= dayStart && endTime < dayEnd
+        }
     }
 
     var body: some View {
@@ -31,6 +43,10 @@ struct SleepDetailView: View {
             if let summary = currentSummary {
                 sleepSummary(summary)
             }
+
+            Divider().background(Theme.border).padding(.horizontal, 20)
+
+            sessionsList
 
             detectedGapsSection
 
@@ -117,6 +133,47 @@ struct SleepDetailView: View {
         }
     }
 
+    // MARK: - Sessions List
+
+    private var visibleSessions: [SleepSession] {
+        showAllSessions ? daySessions : Array(daySessions.prefix(5))
+    }
+
+    private var sessionsList: some View {
+        VStack(spacing: 0) {
+            ForEach(visibleSessions, id: \.sessionID) { session in
+                SleepEntryView(session: session) { newStart, newEnd in
+                    recalculateSleepScore(start: newStart, end: newEnd)
+                }
+                Divider().background(Theme.border).padding(.horizontal, 20)
+            }
+
+            if daySessions.isEmpty {
+                Text("No sleep sessions logged")
+                    .font(.system(.subheadline, design: .monospaced))
+                    .foregroundStyle(Theme.textTertiary)
+                    .padding(.vertical, 24)
+            }
+
+            if daySessions.count > 5 {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        showAllSessions.toggle()
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(showAllSessions ? "Show less" : "+\(daySessions.count - 5) more")
+                            .font(.system(.caption, design: .monospaced))
+                        Image(systemName: showAllSessions ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 8, weight: .bold))
+                    }
+                    .foregroundStyle(Theme.textTertiary)
+                    .padding(.vertical, 8)
+                }
+            }
+        }
+    }
+
     // MARK: - Detected Gaps
 
     private var detectedGapsSection: some View {
@@ -175,5 +232,22 @@ struct SleepDetailView: View {
                 .fill(Theme.surfacePrimary)
                 .stroke(Theme.sleep.opacity(0.2), lineWidth: 1)
         )
+    }
+
+    // MARK: - Score Recalculation
+
+    private func recalculateSleepScore(start: Date, end: Date) {
+        let hours = end.timeIntervalSince(start) / 3600.0
+        guard hours > 0, let summary = currentSummary else { return }
+
+        summary.sleepStart = start
+        summary.sleepEnd = end
+        summary.sleepHours = hours
+        summary.sleepScore = ScoreCalculator.sleepScore(
+            hours: hours,
+            goalHours: AppConstants.defaultSleepGoalHours
+        )
+        summary.status = .partial
+        try? modelContext.save()
     }
 }

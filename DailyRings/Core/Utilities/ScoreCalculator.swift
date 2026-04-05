@@ -11,10 +11,17 @@ enum ScoreCalculator {
         return min(Double(minutes) / Double(goalMinutes), 1.0)
     }
 
+    static let nutritionRingClosesAt: Double = 8.0
+
     static func nutritionScore(mealScores: [MealScore]) -> Double {
         guard !mealScores.isEmpty else { return 0 }
         let average = mealScores.map(\.score).reduce(0, +) / Double(mealScores.count)
-        return min(average / 10.0, 1.0)
+        return min(average / nutritionRingClosesAt, 1.0)
+    }
+
+    static func nutritionAverage(mealScores: [MealScore]) -> Double {
+        guard !mealScores.isEmpty else { return 0 }
+        return mealScores.map(\.score).reduce(0, +) / Double(mealScores.count)
     }
 
     static func productivityScore(

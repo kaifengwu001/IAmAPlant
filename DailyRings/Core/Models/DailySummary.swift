@@ -90,6 +90,7 @@ final class DailySummary {
         }
         set {
             mealScoresData = try? JSONEncoder().encode(newValue)
+            status = .partial
         }
     }
 
@@ -100,6 +101,7 @@ final class DailySummary {
         }
         set {
             manualAdjustmentsData = try? JSONEncoder().encode(newValue)
+            status = .partial
         }
     }
 

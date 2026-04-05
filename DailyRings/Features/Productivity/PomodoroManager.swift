@@ -4,6 +4,8 @@ import FamilyControls
 import DeviceActivity
 import ManagedSettings
 import UserNotifications
+import UIKit
+import ActivityKit
 
 @Observable
 final class PomodoroManager {
@@ -17,6 +19,8 @@ final class PomodoroManager {
     private let userDefaults = UserDefaults(suiteName: AppConstants.appGroupID)
     private var timerTask: Task<Void, Never>?
     private var modelContext: ModelContext?
+    private var lastReportedDistractionLevel: Int = 0
+    private var liveActivity: Activity<PomodoroActivityAttributes>?
 
     private static let totalSeconds = AppConstants.pomodoroWorkMinutes * 60
 
@@ -61,7 +65,8 @@ final class PomodoroManager {
         activeSession = session
         isRunning = true
         remainingSeconds = remaining
-        appendDebug("Restored session \(sessionID.uuidString.prefix(8)), \(remaining)s left")
+        liveActivity = Activity<PomodoroActivityAttributes>.activities.first
+        appendDebug("Restored session \(sessionID.uuidString.prefix(8)), \(remaining)s left, LA=\(liveActivity != nil)")
 
         if remaining <= 0 {
             Task { await completeSession() }
@@ -98,6 +103,7 @@ final class PomodoroManager {
         activeSession = session
         isRunning = true
         remainingSeconds = Self.totalSeconds
+        lastReportedDistractionLevel = 0
         SharedPomodoroStorage.saveDistractionLevel(0)
         persistSessionID(session.sessionID)
 
@@ -107,6 +113,7 @@ final class PomodoroManager {
 
         appendDebug("Started session, source: \(distractionSource)")
         await scheduleCompletionNotification()
+        startLiveActivity(label: label, category: category)
         startTimer()
     }
 
@@ -123,7 +130,7 @@ final class PomodoroManager {
         refreshProductivitySummary(for: session.date)
 
         appendDebug("Cancelled: \(distractedSeconds)s distracted, \(session.durationMinutes)m")
-        cleanup()
+        cleanup(phase: .cancelled)
     }
 
     func onAppReturnFromBackground() async {
@@ -144,6 +151,14 @@ final class PomodoroManager {
             return
         }
 
+        if level > lastReportedDistractionLevel && level >= 1 {
+            triggerWarningHaptic(level: level)
+        }
+        lastReportedDistractionLevel = level
+
+        let endTime = session.startTime.addingTimeInterval(TimeInterval(Self.totalSeconds))
+        updateLiveActivity(remaining: recalculated, distractionLevel: level, endTime: endTime)
+
         if recalculated <= 0 {
             await completeSession()
             return
@@ -155,8 +170,12 @@ final class PomodoroManager {
 
     func onAppEnterBackground() async {
         backgroundHandlerConnected = true
-        guard isRunning else { return }
-        appendDebug("Background: remaining \(remainingSeconds)s")
+        guard isRunning, let session = activeSession else { return }
+
+        let endTime = session.startTime.addingTimeInterval(TimeInterval(Self.totalSeconds))
+        let level = SharedPomodoroStorage.loadDistractionLevel()
+        updateLiveActivity(remaining: remainingSeconds, distractionLevel: level, endTime: endTime)
+        appendDebug("Background: remaining \(remainingSeconds)s, pushed LA update")
     }
 
     // MARK: - Timer
@@ -184,6 +203,11 @@ final class PomodoroManager {
                         await failSession()
                         return
                     }
+                    if level > lastReportedDistractionLevel && level >= 1 {
+                        triggerWarningHaptic(level: level)
+                        updateLiveActivity(remaining: remainingSeconds, distractionLevel: level, endTime: endTime)
+                    }
+                    lastReportedDistractionLevel = level
                 }
             }
 
@@ -208,7 +232,8 @@ final class PomodoroManager {
         refreshProductivitySummary(for: session.date)
 
         appendDebug("Completed: \(distractedSeconds)s distracted, \(session.durationMinutes)m")
-        cleanup()
+        triggerCompletionHaptic()
+        cleanup(phase: .completed)
     }
 
     private func failSession() async {
@@ -223,7 +248,7 @@ final class PomodoroManager {
         refreshProductivitySummary(for: session.date)
 
         appendDebug("FAILED: 180s distracted, \(session.durationMinutes)m (3 min limit)")
-        cleanup()
+        cleanup(phase: .failed)
     }
 
     private func distractedSecondsFromLevel() -> Int {
@@ -246,7 +271,7 @@ final class PomodoroManager {
         }
     }
 
-    private func cleanup() {
+    private func cleanup(phase: PomodoroActivityAttributes.Phase = .completed) {
         timerTask?.cancel()
         timerTask = nil
         activeSession = nil
@@ -255,6 +280,7 @@ final class PomodoroManager {
         clearPersistedSessionID()
         SharedPomodoroStorage.clearSessionData()
         cancelCompletionNotification()
+        endLiveActivity(phase: phase)
     }
 
     private func cancelCompletionNotification() {
@@ -321,15 +347,24 @@ final class PomodoroManager {
             threshold: DateComponents(minute: 3)
         )
 
-        let events: [DeviceActivityEvent.Name: DeviceActivityEvent] = [
+        var events: [DeviceActivityEvent.Name: DeviceActivityEvent] = [
             warn1Name: warn1,
             warn2Name: warn2,
             failName: fail,
         ]
 
+        let urgentName = DeviceActivityEvent.Name(rawValue: "urgent_\(sessionID.uuidString)")
+        let urgent = DeviceActivityEvent(
+            applications: appTokens,
+            categories: catTokens,
+            webDomains: webTokens,
+            threshold: DateComponents(minute: 2, second: 45)
+        )
+        events[urgentName] = urgent
+
         let hasFilter = !appTokens.isEmpty || !catTokens.isEmpty || !webTokens.isEmpty
         appendDebug("DA schedule: \(start.hour ?? 0):\(start.minute ?? 0):\(start.second ?? 0) → \(end.hour ?? 0):\(end.minute ?? 0):\(end.second ?? 0)")
-        appendDebug("DA events: 3 thresholds (1m, 2:30, 3m), filter=\(hasFilter ? "apps" : "all")")
+        appendDebug("DA events: \(events.count) thresholds (1m, 2:30, 2:45, 3m), filter=\(hasFilter ? "apps" : "all")")
 
         do {
             try center.startMonitoring(activityName, during: schedule, events: events)
@@ -366,6 +401,123 @@ final class PomodoroManager {
         )
 
         try? await UNUserNotificationCenter.current().add(request)
+    }
+
+    // MARK: - Live Activity
+
+    private func startLiveActivity(label: String, category: String) {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+            appendDebug("Live Activities not enabled")
+            return
+        }
+
+        endAllStaleActivities()
+
+        let endTime = Date.now.addingTimeInterval(TimeInterval(Self.totalSeconds))
+        let attributes = PomodoroActivityAttributes(
+            goalLabel: label,
+            category: category,
+            totalSeconds: Self.totalSeconds
+        )
+        let state = PomodoroActivityAttributes.ContentState(
+            remainingSeconds: Self.totalSeconds,
+            endTime: endTime,
+            distractionLevel: 0,
+            phase: .running
+        )
+        let content = ActivityContent(state: state, staleDate: endTime.addingTimeInterval(60))
+
+        do {
+            liveActivity = try Activity.request(
+                attributes: attributes,
+                content: content,
+                pushType: nil
+            )
+            appendDebug("Live Activity started")
+        } catch {
+            appendDebug("Live Activity failed: \(error.localizedDescription)")
+        }
+    }
+
+    private func endAllStaleActivities() {
+        let finalState = PomodoroActivityAttributes.ContentState(
+            remainingSeconds: 0,
+            endTime: .now,
+            distractionLevel: 0,
+            phase: .completed
+        )
+        let content = ActivityContent(state: finalState, staleDate: .now)
+
+        for activity in Activity<PomodoroActivityAttributes>.activities {
+            Task {
+                await activity.end(content, dismissalPolicy: .immediate)
+            }
+        }
+        liveActivity = nil
+    }
+
+    private func updateLiveActivity(remaining: Int, distractionLevel: Int, endTime: Date) {
+        guard let activity = liveActivity else { return }
+
+        let state = PomodoroActivityAttributes.ContentState(
+            remainingSeconds: remaining,
+            endTime: endTime,
+            distractionLevel: distractionLevel,
+            phase: .running
+        )
+        let content = ActivityContent(state: state, staleDate: endTime.addingTimeInterval(60))
+
+        Task {
+            await activity.update(content)
+        }
+    }
+
+    private func endLiveActivity(phase: PomodoroActivityAttributes.Phase) {
+        let finalState = PomodoroActivityAttributes.ContentState(
+            remainingSeconds: 0,
+            endTime: .now,
+            distractionLevel: lastReportedDistractionLevel,
+            phase: phase
+        )
+        let content = ActivityContent(state: finalState, staleDate: .now)
+
+        for activity in Activity<PomodoroActivityAttributes>.activities {
+            Task {
+                await activity.end(content, dismissalPolicy: .immediate)
+            }
+        }
+        liveActivity = nil
+        appendDebug("Live Activity ended (\(phase.rawValue))")
+    }
+
+    // MARK: - Haptics
+
+    private func triggerWarningHaptic(level: Int) {
+        let pulseCount = level >= 2 ? 3 : 2
+        let feedbackType: UINotificationFeedbackGenerator.FeedbackType = level >= 2 ? .error : .warning
+
+        Task { @MainActor in
+            for i in 0..<pulseCount {
+                let generator = UINotificationFeedbackGenerator()
+                generator.prepare()
+                try? await Task.sleep(for: .milliseconds(i == 0 ? 0 : 500))
+                generator.notificationOccurred(feedbackType)
+            }
+        }
+    }
+
+    private func triggerCompletionHaptic() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
+
+        Task { @MainActor in
+            let impact = UIImpactFeedbackGenerator(style: .light)
+            impact.impactOccurred()
+            try? await Task.sleep(for: .milliseconds(150))
+            impact.impactOccurred(intensity: 0.6)
+            try? await Task.sleep(for: .milliseconds(150))
+            generator.notificationOccurred(.success)
+        }
     }
 
     // MARK: - Formatting

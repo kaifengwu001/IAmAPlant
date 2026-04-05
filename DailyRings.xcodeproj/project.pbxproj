@@ -16,12 +16,14 @@
 		0DB7293D3883AF77DF2032D7 /* PomodoroActivityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB45787C32970572063811D5 /* PomodoroActivityMonitor.swift */; };
 		0F2899977B6C24F10936C93A /* ProductivityCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED6D116109A1C541F3282ED /* ProductivityCalculator.swift */; };
 		1014537F96D6193E9841213C /* SleepManualAdjustmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C6B5ECA4D9DCFDBE809EDC1 /* SleepManualAdjustmentView.swift */; };
+		1642B6A3DCB7FEDB64CD96AF /* SleepEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F199D399B96C5D7F7602C4BB /* SleepEntryView.swift */; };
 		1BA2F9919657AA937980DFC9 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 4088D5692BE15B19C377052C /* Supabase */; };
 		1C7440DD173909C7F1778D98 /* VerticalSnapContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91440E04FC2DDFC23826B94A /* VerticalSnapContainer.swift */; };
 		1DC2964C1A2E4F4D8C52C329 /* NotificationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F709FA8324A95E85DC85B9B3 /* NotificationDelegate.swift */; };
 		21308B5B78A986EBF6D2D5BC /* DateBoundaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF987F847EB66B3D256FF3F6 /* DateBoundaryTests.swift */; };
 		224072E05D0A547AED588EE2 /* ClockDriftService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074379523278D60092F23FDC /* ClockDriftService.swift */; };
 		260D2FD4C9490F6A8318E447 /* DaySummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA085E61E6F18B17743A0D5C /* DaySummaryView.swift */; };
+		272DA95212EE529DE2D09536 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C7E809CE04F84183851497 /* PomodoroActivityAttributes.swift */; };
 		27CCCB96FD5A0DCE075AD233 /* RingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B916F7716F77CBEEB390960E /* RingView.swift */; };
 		2A038AE6FB9F7BD94504E08F /* ProductivityDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE0B448F1A0B349400270F27 /* ProductivityDetailView.swift */; };
 		2BEA2E9EF4BD0A2B344B7247 /* PomodoroTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43F922C4A7F99FAD042E5CE /* PomodoroTimerView.swift */; };
@@ -29,13 +31,18 @@
 		2E4ACB3281F2F96CA23BBFFE /* DailyRingsMonitorExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 74423A6FAA667C282C0F879E /* DailyRingsMonitorExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		30340D74B32C9AB47BDD7ABE /* PomodoroSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF63E7DA92294443FBBEB1EE /* PomodoroSession.swift */; };
 		31AAB13D12BF8807559D00A9 /* SleepSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BBB130925FEB6FC61745E5 /* SleepSessionView.swift */; };
+		35E30A8861AEDD497F0557EB /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB8FAC2D129F630311FF3964 /* AppConstants.swift */; };
+		3C1FE4B66BD9B68C4D8E717B /* PomodoroWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A9C81B026F969898376F08 /* PomodoroWidgetBundle.swift */; };
 		3C61087003D438066797CF3E /* SharedPomodoroState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307888CEF958E164025969A9 /* SharedPomodoroState.swift */; };
 		4195DCD9A4151FDFE4067657 /* SyncCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163E7816751365BB38C26E75 /* SyncCoordinator.swift */; };
+		44BD320F32646AE9295EAF0E /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C7E809CE04F84183851497 /* PomodoroActivityAttributes.swift */; };
+		45016218D39EA1E5903C9AE9 /* PomodoroActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C7E809CE04F84183851497 /* PomodoroActivityAttributes.swift */; };
 		48140784ECADE043AB32F8BD /* ScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E69704E4847AFCE6DF010181 /* ScoreCalculator.swift */; };
 		5841744BE6904FB83AEFD21C /* SleepManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6B890B16D8DB28C44C25F3A /* SleepManager.swift */; };
 		59E71C6F5A1A62F187AEE70E /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562047DDBD39DCEE25D2742F /* HealthKitManager.swift */; };
 		5CACFD4836D261F5AEBFCA71 /* MealPhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E0653CA891F4F454B9ACA37 /* MealPhotoStore.swift */; };
 		5E7737DCD503D091AA8311B4 /* ScoreCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5683A36D055095014309BA82 /* ScoreCalculatorTests.swift */; };
+		60849E08CDB5D967C4F961D8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D23A7C20D4D668091440E6C9 /* Foundation.framework */; };
 		60D680CBF569B2D2B0B95B89 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6079EFEB2D6E3ACD6B3204F /* Theme.swift */; };
 		614B373AC0F274C74660AEFB /* SleepSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7A6D131AB1E7030771D6D3 /* SleepSession.swift */; };
 		633B0CBABE9362C33F06C715 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFDC550211AE50AC0A8A598 /* SettingsView.swift */; };
@@ -47,10 +54,12 @@
 		7FE65D58BBBCFEA6ADCF256D /* MealScoringService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA689301003192C1E467C4CB /* MealScoringService.swift */; };
 		8AC812A0AB5053AE7B3104FF /* SharedPomodoroState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 307888CEF958E164025969A9 /* SharedPomodoroState.swift */; };
 		8B6842288422E9683EBBD79A /* PomodoroManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DF71191D9EE6F478DD136A /* PomodoroManager.swift */; };
+		8C89D50E125390C3CFEB2C9A /* PomodoroLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05FDDF570E2F5A6E5EBA51D0 /* PomodoroLiveActivity.swift */; };
 		8DF43104609D91982EC78DCA /* PomodoroDebugStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD5312FA53F738281A727E36 /* PomodoroDebugStatusView.swift */; };
 		908C119F70B60017E82A24DE /* DailyRingsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FA7954E233DBF9CFAFB54A9 /* DailyRingsApp.swift */; };
 		91AD29A2D1A724DD805B4907 /* RescueTimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF580A0EBC624BE6F8AC4B18 /* RescueTimeService.swift */; };
 		93DBF0035E7E424D339CC47B /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EA571C035C667FF3A3C6FD /* WelcomeView.swift */; };
+		9A2A7248ECECF9FE5B47C75B /* DailyRingsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 045DB2486CC1FABBD5B1850D /* DailyRingsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9A7CA6402D39BEDCE1A4AD8D /* DistractionPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43E51EA78C7BBE910B917F8E /* DistractionPickerView.swift */; };
 		A7D986A56516A65FFE499AEA /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EBC8FD1DEC9830A80D8AFB2 /* UserSettings.swift */; };
 		B174B2525F003FEF8D8A36C0 /* ManualAdjustmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25253E75C988C85C7BF555CC /* ManualAdjustmentView.swift */; };
@@ -73,6 +82,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = FC98F98871E2A87393BEC73E;
 			remoteInfo = DailyRingsMonitorExtension;
+		};
+		62A8BFBB948BAAAFFF453991 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1CCF77BAF094998783A6C11D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ECA44D1E8B8322C130ADDF5E;
+			remoteInfo = DailyRingsWidgetExtension;
 		};
 		7B25B2809C0EEEAE12C92242 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -99,6 +115,7 @@
 			files = (
 				2E4ACB3281F2F96CA23BBFFE /* DailyRingsMonitorExtension.appex in Embed Foundation Extensions */,
 				F094675520A2D1FD30123FC7 /* DailyRingsReportExtension.appex in Embed Foundation Extensions */,
+				9A2A7248ECECF9FE5B47C75B /* DailyRingsWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -106,7 +123,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		045DB2486CC1FABBD5B1850D /* DailyRingsWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DailyRingsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		04A9C81B026F969898376F08 /* PomodoroWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PomodoroWidgetBundle.swift; sourceTree = "<group>"; };
 		05CE9E2C6AD56FD24193530B /* Report.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Report.entitlements; sourceTree = "<group>"; };
+		05FDDF570E2F5A6E5EBA51D0 /* PomodoroLiveActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PomodoroLiveActivity.swift; sourceTree = "<group>"; };
 		074379523278D60092F23FDC /* ClockDriftService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockDriftService.swift; sourceTree = "<group>"; };
 		07BBB130925FEB6FC61745E5 /* SleepSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepSessionView.swift; sourceTree = "<group>"; };
 		0C6B5ECA4D9DCFDBE809EDC1 /* SleepManualAdjustmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepManualAdjustmentView.swift; sourceTree = "<group>"; };
@@ -133,11 +153,13 @@
 		658381B3263F078257EFE2C2 /* ExerciseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDetailView.swift; sourceTree = "<group>"; };
 		6A091EFC4191BBF5EF17FBB4 /* DailyRingsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DailyRingsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6ED6D116109A1C541F3282ED /* ProductivityCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductivityCalculator.swift; sourceTree = "<group>"; };
+		73A8FF50D01B2046A15E9FA7 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		74423A6FAA667C282C0F879E /* DailyRingsMonitorExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DailyRingsMonitorExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		7468B640D0293211DE7791BC /* ProductivityCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductivityCalculatorTests.swift; sourceTree = "<group>"; };
 		7B29BEC868AADBC9CFB9DE26 /* PomodoroUsageReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroUsageReport.swift; sourceTree = "<group>"; };
 		8145C1BBA1C877554F48B9D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		91440E04FC2DDFC23826B94A /* VerticalSnapContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalSnapContainer.swift; sourceTree = "<group>"; };
+		99C7E809CE04F84183851497 /* PomodoroActivityAttributes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PomodoroActivityAttributes.swift; sourceTree = "<group>"; };
 		9E0653CA891F4F454B9ACA37 /* MealPhotoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealPhotoStore.swift; sourceTree = "<group>"; };
 		A6079EFEB2D6E3ACD6B3204F /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		ABFDC550211AE50AC0A8A598 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -154,6 +176,7 @@
 		CB8FAC2D129F630311FF3964 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		CF7A6D131AB1E7030771D6D3 /* SleepSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepSession.swift; sourceTree = "<group>"; };
 		D13BF12E2EE87ED71DF96EFE /* Monitor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Monitor.entitlements; sourceTree = "<group>"; };
+		D23A7C20D4D668091440E6C9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		D3FF8FB28D4E32D968921B11 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		D6B890B16D8DB28C44C25F3A /* SleepManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepManager.swift; sourceTree = "<group>"; };
 		D8C3C4B2739A5ED5820F2F82 /* DateBoundary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateBoundary.swift; sourceTree = "<group>"; };
@@ -162,6 +185,7 @@
 		DF987F847EB66B3D256FF3F6 /* DateBoundaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateBoundaryTests.swift; sourceTree = "<group>"; };
 		E69704E4847AFCE6DF010181 /* ScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCalculator.swift; sourceTree = "<group>"; };
 		EA085E61E6F18B17743A0D5C /* DaySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySummaryView.swift; sourceTree = "<group>"; };
+		F199D399B96C5D7F7602C4BB /* SleepEntryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SleepEntryView.swift; sourceTree = "<group>"; };
 		F425DA4163988FEE88C84DEA /* PomodoroSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroSessionView.swift; sourceTree = "<group>"; };
 		F709FA8324A95E85DC85B9B3 /* NotificationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDelegate.swift; sourceTree = "<group>"; };
 		FB45787C32970572063811D5 /* PomodoroActivityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroActivityMonitor.swift; sourceTree = "<group>"; };
@@ -170,6 +194,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		431657030664414BD9F70BF2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				60849E08CDB5D967C4F961D8 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6EBE8DBB80AB16BDC409BBAB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -222,11 +254,20 @@
 			path = Productivity;
 			sourceTree = "<group>";
 		};
+		36B2772442F294DB78A2CC78 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				69E599628FD34D330E220124 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		42E4EC53F209C0D5B66639E1 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
 				CB8FAC2D129F630311FF3964 /* AppConstants.swift */,
 				307888CEF958E164025969A9 /* SharedPomodoroState.swift */,
+				99C7E809CE04F84183851497 /* PomodoroActivityAttributes.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -249,6 +290,7 @@
 				74423A6FAA667C282C0F879E /* DailyRingsMonitorExtension.appex */,
 				2B29AA8821E15A285050A7D4 /* DailyRingsReportExtension.appex */,
 				6A091EFC4191BBF5EF17FBB4 /* DailyRingsTests.xctest */,
+				045DB2486CC1FABBD5B1850D /* DailyRingsWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -299,6 +341,14 @@
 				562047DDBD39DCEE25D2742F /* HealthKitManager.swift */,
 			);
 			path = Exercise;
+			sourceTree = "<group>";
+		};
+		69E599628FD34D330E220124 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				D23A7C20D4D668091440E6C9 /* Foundation.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 		72B33189AFD4565F1A4FC0C1 /* DailyRings */ = {
@@ -385,6 +435,7 @@
 				D6B890B16D8DB28C44C25F3A /* SleepManager.swift */,
 				0C6B5ECA4D9DCFDBE809EDC1 /* SleepManualAdjustmentView.swift */,
 				07BBB130925FEB6FC61745E5 /* SleepSessionView.swift */,
+				F199D399B96C5D7F7602C4BB /* SleepEntryView.swift */,
 			);
 			path = Sleep;
 			sourceTree = "<group>";
@@ -397,6 +448,17 @@
 				05CE9E2C6AD56FD24193530B /* Report.entitlements */,
 			);
 			path = DeviceActivityReportExtension;
+			sourceTree = "<group>";
+		};
+		D663DBA093ED69F6AE5AD638 /* PomodoroWidgetExtension */ = {
+			isa = PBXGroup;
+			children = (
+				05FDDF570E2F5A6E5EBA51D0 /* PomodoroLiveActivity.swift */,
+				04A9C81B026F969898376F08 /* PomodoroWidgetBundle.swift */,
+				73A8FF50D01B2046A15E9FA7 /* Info.plist */,
+			);
+			name = PomodoroWidgetExtension;
+			path = PomodoroWidgetExtension;
 			sourceTree = "<group>";
 		};
 		F4E2C3A0F76613A1F0639A14 /* Supabase */ = {
@@ -425,6 +487,7 @@
 			children = (
 				48C85A7C5301048F1B68C840 /* DeviceActivityMonitorExtension */,
 				CA70B33AF77153A42507CD0A /* DeviceActivityReportExtension */,
+				D663DBA093ED69F6AE5AD638 /* PomodoroWidgetExtension */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -437,6 +500,7 @@
 				BA9EAF08331DC915D2AE122F /* DailyRingsTests */,
 				42E4EC53F209C0D5B66639E1 /* Shared */,
 				44D089E44519B841A0C4AF8D /* Products */,
+				36B2772442F294DB78A2CC78 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -455,8 +519,6 @@
 				22A5795C258DE6F2356A42B6 /* PBXTargetDependency */,
 			);
 			name = DailyRingsTests;
-			packageProductDependencies = (
-			);
 			productName = DailyRingsTests;
 			productReference = 6A091EFC4191BBF5EF17FBB4 /* DailyRingsTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -472,8 +534,6 @@
 			dependencies = (
 			);
 			name = DailyRingsReportExtension;
-			packageProductDependencies = (
-			);
 			productName = DailyRingsReportExtension;
 			productReference = 2B29AA8821E15A285050A7D4 /* DailyRingsReportExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -492,6 +552,7 @@
 			dependencies = (
 				29ED01320F5B8ED1DBDB1BD3 /* PBXTargetDependency */,
 				D6DAC6E81EB0985B93C0310F /* PBXTargetDependency */,
+				7B6C0FD856D77CC3F90F2580 /* PBXTargetDependency */,
 			);
 			name = DailyRings;
 			packageProductDependencies = (
@@ -500,6 +561,23 @@
 			productName = DailyRings;
 			productReference = 5BA97FA216022FE4010E0E09 /* DailyRings.app */;
 			productType = "com.apple.product-type.application";
+		};
+		ECA44D1E8B8322C130ADDF5E /* DailyRingsWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2588A609D63692CEA5801C87 /* Build configuration list for PBXNativeTarget "DailyRingsWidgetExtension" */;
+			buildPhases = (
+				819404B2DBE4719E854D76E7 /* Sources */,
+				431657030664414BD9F70BF2 /* Frameworks */,
+				D6670BEE1479F9C4EB3880D3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DailyRingsWidgetExtension;
+			productName = DailyRingsWidgetExtension;
+			productReference = 045DB2486CC1FABBD5B1850D /* DailyRingsWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		FC98F98871E2A87393BEC73E /* DailyRingsMonitorExtension */ = {
 			isa = PBXNativeTarget;
@@ -512,8 +590,6 @@
 			dependencies = (
 			);
 			name = DailyRingsMonitorExtension;
-			packageProductDependencies = (
-			);
 			productName = DailyRingsMonitorExtension;
 			productReference = 74423A6FAA667C282C0F879E /* DailyRingsMonitorExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -563,11 +639,19 @@
 				FC98F98871E2A87393BEC73E /* DailyRingsMonitorExtension */,
 				A56B74CB11C544EE17C55A51 /* DailyRingsReportExtension */,
 				970FFD29CE9A25915410BAF4 /* DailyRingsTests */,
+				ECA44D1E8B8322C130ADDF5E /* DailyRingsWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		D6670BEE1479F9C4EB3880D3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FA017D33871117577A4240EE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -579,6 +663,17 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		819404B2DBE4719E854D76E7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C89D50E125390C3CFEB2C9A /* PomodoroLiveActivity.swift in Sources */,
+				3C1FE4B66BD9B68C4D8E717B /* PomodoroWidgetBundle.swift in Sources */,
+				44BD320F32646AE9295EAF0E /* PomodoroActivityAttributes.swift in Sources */,
+				35E30A8861AEDD497F0557EB /* AppConstants.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B2736902455375CFAF753943 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -586,6 +681,7 @@
 				2C93CF9214B52001A8BBDEEA /* AppConstants.swift in Sources */,
 				0DB7293D3883AF77DF2032D7 /* PomodoroActivityMonitor.swift in Sources */,
 				8AC812A0AB5053AE7B3104FF /* SharedPomodoroState.swift in Sources */,
+				45016218D39EA1E5903C9AE9 /* PomodoroActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -647,6 +743,8 @@
 				1C7440DD173909C7F1778D98 /* VerticalSnapContainer.swift in Sources */,
 				93DBF0035E7E424D339CC47B /* WelcomeView.swift in Sources */,
 				D667D9A5A30E5D56160F6478 /* YearGridView.swift in Sources */,
+				1642B6A3DCB7FEDB64CD96AF /* SleepEntryView.swift in Sources */,
+				272DA95212EE529DE2D09536 /* PomodoroActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -672,6 +770,12 @@
 			isa = PBXTargetDependency;
 			target = FC98F98871E2A87393BEC73E /* DailyRingsMonitorExtension */;
 			targetProxy = 2F7C56AA0A62B4B362FBA4CC /* PBXContainerItemProxy */;
+		};
+		7B6C0FD856D77CC3F90F2580 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DailyRingsWidgetExtension;
+			target = ECA44D1E8B8322C130ADDF5E /* DailyRingsWidgetExtension */;
+			targetProxy = 62A8BFBB948BAAAFFF453991 /* PBXContainerItemProxy */;
 		};
 		D6DAC6E81EB0985B93C0310F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -784,6 +888,35 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
+		};
+		6EA50F4CDC411B7511BD5EAE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = W23Y365YR7;
+				ENABLE_PREVIEWS = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DailyRings/Extensions/PomodoroWidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kai.dailyrings.widget;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		76E82F5336EBA388999BE017 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -932,6 +1065,36 @@
 			};
 			name = Debug;
 		};
+		C9C627091313ADBCABE10DBB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = W23Y365YR7;
+				ENABLE_PREVIEWS = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DailyRings/Extensions/PomodoroWidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kai.dailyrings.widget;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		E819C831917D32FD69CB8E1E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -961,6 +1124,15 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
+		};
+		2588A609D63692CEA5801C87 /* Build configuration list for PBXNativeTarget "DailyRingsWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9C627091313ADBCABE10DBB /* Release */,
+				6EA50F4CDC411B7511BD5EAE /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		85A4C9D5EA7885C3CF5666B6 /* Build configuration list for PBXNativeTarget "DailyRingsTests" */ = {
 			isa = XCConfigurationList;

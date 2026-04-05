@@ -44,6 +44,8 @@ final class SyncCoordinator {
                 summary.status = .synced
             }
 
+            await pushPendingSessions()
+
             try context.save()
             lastSyncDate = .now
         } catch {
@@ -51,7 +53,93 @@ final class SyncCoordinator {
         }
     }
 
+    // MARK: - Pomodoro Session Sync
+
+    private func pushPendingSessions() async {
+        guard let context = modelContext,
+              let userID = supabaseService.currentUserID else { return }
+
+        do {
+            let descriptor = FetchDescriptor<PomodoroSession>(
+                predicate: #Predicate { session in
+                    session.isSynced == false && session.endTime != nil
+                }
+            )
+            let pending = try context.fetch(descriptor)
+            let formatter = ISO8601DateFormatter()
+
+            for session in pending {
+                let dto = PomodoroSessionDTO(
+                    id: session.sessionID.uuidString,
+                    user_id: userID,
+                    date: session.dateString,
+                    goal_label: session.goalLabel,
+                    category: session.category,
+                    start_time: formatter.string(from: session.startTime),
+                    end_time: session.endTime.map { formatter.string(from: $0) },
+                    completed: session.isCompleted,
+                    distracted_seconds: session.distractedSeconds,
+                    duration_minutes: session.durationMinutes
+                )
+                try await supabaseService.syncPomodoroSession(dto)
+                session.isSynced = true
+            }
+        } catch {
+            // Session sync failures are non-fatal
+        }
+    }
+
+    func pullPomodoroSessions(for date: Date) async {
+        guard supabaseService.isAuthenticated, let context = modelContext else { return }
+
+        let logicalDate = DateBoundary.logicalDate(for: date)
+        let dateStr = DateBoundary.dateString(from: logicalDate)
+
+        do {
+            let remoteSessions = try await supabaseService.fetchPomodoroSessions(date: dateStr)
+            let formatter = ISO8601DateFormatter()
+
+            for dto in remoteSessions {
+                guard let sessionUUID = UUID(uuidString: dto.id) else { continue }
+
+                let sessionID = sessionUUID
+                let descriptor = FetchDescriptor<PomodoroSession>(
+                    predicate: #Predicate { $0.sessionID == sessionID }
+                )
+                guard try context.fetch(descriptor).isEmpty else { continue }
+
+                let session = PomodoroSession(
+                    goalLabel: dto.goal_label,
+                    category: dto.category,
+                    date: logicalDate
+                )
+                session.sessionID = sessionUUID
+                session.startTime = formatter.date(from: dto.start_time) ?? logicalDate
+                session.endTime = dto.end_time.flatMap { formatter.date(from: $0) }
+                session.isCompleted = dto.completed
+                session.distractedSeconds = dto.distracted_seconds
+                session.durationMinutes = dto.duration_minutes
+                session.isSynced = true
+                context.insert(session)
+            }
+
+            try context.save()
+        } catch {
+            // Pull session failures are non-fatal
+        }
+    }
+
     // MARK: - Pull Remote → Local
+
+    func pullRecent(days: Int = 7) async {
+        guard supabaseService.isAuthenticated, let context = modelContext else { return }
+
+        let today = DateBoundary.today()
+        for i in 0..<days {
+            guard let date = Calendar.current.date(byAdding: .day, value: -i, to: today) else { continue }
+            await pullLatest(for: date)
+        }
+    }
 
     func pullLatest(for date: Date) async {
         guard supabaseService.isAuthenticated, let context = modelContext else { return }
@@ -82,6 +170,8 @@ final class SyncCoordinator {
         } catch {
             // Pull failures are non-fatal
         }
+
+        await pullPomodoroSessions(for: date)
     }
 
     // MARK: - Sync Settings
@@ -106,6 +196,38 @@ final class SyncCoordinator {
             try await supabaseService.syncUserSettings(dto)
         } catch {
             // Settings sync failure is non-fatal
+        }
+    }
+
+    func pullSettings() async {
+        guard supabaseService.isAuthenticated, let context = modelContext else { return }
+
+        do {
+            guard let remote = try await supabaseService.fetchUserSettings() else { return }
+
+            let descriptor = FetchDescriptor<UserSettings>()
+            let local = try context.fetch(descriptor).first
+
+            if let local {
+                local.sleepGoalHours = remote.sleep_goal_hours
+                local.exerciseGoalMinutes = remote.exercise_goal_minutes
+                local.productivityGoalMinutes = remote.productivity_goal_minutes
+                local.rescueTimeAPIKey = remote.rescuetime_api_key
+                local.dayBoundaryHour = remote.day_boundary_hour
+                local.updatedAt = .now
+            } else {
+                let settings = UserSettings(userID: supabaseService.currentUserID ?? "local")
+                settings.sleepGoalHours = remote.sleep_goal_hours
+                settings.exerciseGoalMinutes = remote.exercise_goal_minutes
+                settings.productivityGoalMinutes = remote.productivity_goal_minutes
+                settings.rescueTimeAPIKey = remote.rescuetime_api_key
+                settings.dayBoundaryHour = remote.day_boundary_hour
+                context.insert(settings)
+            }
+
+            try context.save()
+        } catch {
+            // Pull settings failure is non-fatal
         }
     }
 
@@ -155,7 +277,9 @@ final class SyncCoordinator {
         summary.exerciseScore = dto.exercise_score
         summary.nutritionScore = dto.nutrition_score
         summary.mealCount = dto.meal_count
-        if let meals = dto.meal_scores { summary.mealScores = meals }
+        if let meals = dto.meal_scores {
+            summary.mealScoresData = try? JSONEncoder().encode(meals)
+        }
         summary.pomodoroCompleted = dto.pomodoro_completed
         summary.pomodoroInterrupted = dto.pomodoro_interrupted
         summary.pomodoroTotalMinutes = dto.pomodoro_total_minutes
@@ -163,7 +287,9 @@ final class SyncCoordinator {
         summary.rescueTimeDistractingMinutes = dto.rescuetime_distracting_minutes
         summary.overlapMinutes = dto.overlap_minutes
         summary.manualAdjustmentMinutes = dto.manual_adjustment_minutes
-        if let adj = dto.manual_adjustments { summary.manualAdjustments = adj }
+        if let adj = dto.manual_adjustments {
+            summary.manualAdjustmentsData = try? JSONEncoder().encode(adj)
+        }
         summary.productiveMinutesTotal = dto.productive_minutes_total
         summary.productivityScore = dto.productivity_score
     }

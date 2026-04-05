@@ -97,6 +97,18 @@ final class SupabaseService {
         return response
     }
 
+    func rescoreMeal(imageBase64: String, correctedDescription: String, timestamp: Date) async throws -> MealScoreResponse {
+        let iso = ISO8601DateFormatter().string(from: timestamp)
+        let body = MealRescoreRequest(
+            image_base64: imageBase64,
+            corrected_description: correctedDescription,
+            timestamp: iso
+        )
+        let response: MealScoreResponse = try await client.functions
+            .invoke("score-meal", options: .init(body: body))
+        return response
+    }
+
     func fetchRescueTimeData(startDate: String, endDate: String, type: String) async throws -> RescueTimeResponse {
         let body = RescueTimeRequest(start_date: startDate, end_date: endDate, data_type: type)
         let response: RescueTimeResponse = try await client.functions
@@ -122,6 +134,27 @@ final class SupabaseService {
             .execute()
             .value
         return response.first
+    }
+
+    // MARK: - Pomodoro Sessions
+
+    func syncPomodoroSession(_ session: PomodoroSessionDTO) async throws {
+        try await client
+            .from("pomodoro_sessions")
+            .upsert(session, onConflict: "id")
+            .execute()
+    }
+
+    func fetchPomodoroSessions(date: String) async throws -> [PomodoroSessionDTO] {
+        guard let userID = currentUserID else { return [] }
+        let response: [PomodoroSessionDTO] = try await client
+            .from("pomodoro_sessions")
+            .select()
+            .eq("user_id", value: userID)
+            .eq("date", value: date)
+            .execute()
+            .value
+        return response
     }
 }
 
@@ -164,8 +197,27 @@ struct UserSettingsDTO: Codable {
     let day_boundary_hour: Int
 }
 
+struct PomodoroSessionDTO: Codable {
+    let id: String
+    let user_id: String
+    let date: String
+    let goal_label: String
+    let category: String
+    let start_time: String
+    let end_time: String?
+    let completed: Bool
+    let distracted_seconds: Int
+    let duration_minutes: Int
+}
+
 struct MealScoreRequest: Codable {
     let image_base64: String
+    let timestamp: String
+}
+
+struct MealRescoreRequest: Codable {
+    let image_base64: String
+    let corrected_description: String
     let timestamp: String
 }
 

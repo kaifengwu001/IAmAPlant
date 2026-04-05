@@ -38,13 +38,30 @@ final class ScoreCalculatorTests: XCTestCase {
 
     // MARK: - Nutrition Score
 
-    func testNutritionScore_average7_returns07() {
+    func testNutritionScore_average8_returns1() {
+        let meals = [
+            MealScore(timestamp: .now, score: 8, briefDescription: "test", photoFilename: "a.jpg"),
+            MealScore(timestamp: .now, score: 8, briefDescription: "test", photoFilename: "b.jpg"),
+        ]
+        let score = ScoreCalculator.nutritionScore(mealScores: meals)
+        XCTAssertEqual(score, 1.0, accuracy: 0.001)
+    }
+
+    func testNutritionScore_average7_returns0875() {
         let meals = [
             MealScore(timestamp: .now, score: 7, briefDescription: "test", photoFilename: "a.jpg"),
             MealScore(timestamp: .now, score: 7, briefDescription: "test", photoFilename: "b.jpg"),
         ]
         let score = ScoreCalculator.nutritionScore(mealScores: meals)
-        XCTAssertEqual(score, 0.7, accuracy: 0.001)
+        XCTAssertEqual(score, 0.875, accuracy: 0.001)
+    }
+
+    func testNutritionScore_above8_cappedAt1() {
+        let meals = [
+            MealScore(timestamp: .now, score: 9.5, briefDescription: "test", photoFilename: "a.jpg"),
+        ]
+        let score = ScoreCalculator.nutritionScore(mealScores: meals)
+        XCTAssertEqual(score, 1.0, accuracy: 0.001)
     }
 
     func testNutritionScore_noMeals_returns0() {

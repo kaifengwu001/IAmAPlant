@@ -39,6 +39,7 @@ struct VerticalSnapContainer: View {
     @State private var snapUnlockToken = 0
     @State private var suppressCurrentSectionSync = false
     @State private var suppressOuterPageSync = false
+    @State private var hasVisitedYearPage = false
 
     private var nonYearSections: [DrawerSection] {
         DrawerSection.allCases.filter { $0 != .yearOverview }
@@ -87,6 +88,9 @@ struct VerticalSnapContainer: View {
                     suppressOuterPageSync = false
                     return
                 }
+                if newPage == .year {
+                    hasVisitedYearPage = true
+                }
                 handleOuterPageChange(newPage, viewportHeight: geo.size.height)
             }
         }
@@ -98,7 +102,11 @@ struct VerticalSnapContainer: View {
         let pageHeight = viewportHeight - headerHeight
 
         return VStack(spacing: 0) {
-            sectionContent(.yearOverview, availableHeight: pageHeight)
+            if hasVisitedYearPage || outerPage == .year || currentSection == .yearOverview {
+                sectionContent(.yearOverview, availableHeight: pageHeight)
+            } else {
+                Color.clear
+            }
         }
         .frame(height: pageHeight)
         .clipped()
@@ -560,6 +568,7 @@ struct VerticalSnapContainer: View {
         isInteractive: Bool
     ) -> some View {
         AccordionOwnedScrollView(
+            contentID: panelContentID(for: section),
             isScrollEnabled: isPanelScrollEnabled(for: section),
             minContentHeight: expandedHeight,
             onEdgePan: { event in
@@ -571,6 +580,19 @@ struct VerticalSnapContainer: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .frame(height: availableHeight, alignment: .top)
         .allowsHitTesting(isInteractive)
+    }
+
+    private func panelContentID(for section: DrawerSection) -> AccordionPanelContentID {
+        let scoresHash = scores.reduce(into: Hasher()) { hasher, score in
+            hasher.combine(score.bitPattern)
+        }.finalize()
+
+        return AccordionPanelContentID(
+            section: section,
+            dateString: DateBoundary.dateString(from: selectedDate),
+            isToday: isToday,
+            scoresHash: scoresHash
+        )
     }
 
     @ViewBuilder
@@ -610,8 +632,8 @@ struct VerticalSnapContainer: View {
             let minutes = Int(score * Double(AppConstants.defaultExerciseGoalMinutes))
             return "\(minutes)m"
         case .nutrition:
-            let score = scores.count > 2 ? scores[2] : 0
-            return String(format: "%.1f/10", score * 10)
+            let average = ScoreCalculator.nutritionAverage(mealScores: currentSummary?.mealScores ?? [])
+            return String(format: "%.1f/10", average)
         case .productivity:
             let score = scores.count > 3 ? scores[3] : 0
             let minutes = Int(score * Double(AppConstants.defaultProductivityGoalMinutes))
@@ -651,18 +673,28 @@ private struct AccordionEdgePanEvent {
     let predictedEndTranslationY: CGFloat
 }
 
+private struct AccordionPanelContentID: Hashable {
+    let section: DrawerSection
+    let dateString: String
+    let isToday: Bool
+    let scoresHash: Int
+}
+
 private struct AccordionOwnedScrollView<Content: View>: UIViewRepresentable {
+    let contentID: AccordionPanelContentID
     let isScrollEnabled: Bool
     let minContentHeight: CGFloat
     let onEdgePan: (AccordionEdgePanEvent) -> Void
     let content: Content
 
     init(
+        contentID: AccordionPanelContentID,
         isScrollEnabled: Bool,
         minContentHeight: CGFloat,
         onEdgePan: @escaping (AccordionEdgePanEvent) -> Void,
         @ViewBuilder content: () -> Content
     ) {
+        self.contentID = contentID
         self.isScrollEnabled = isScrollEnabled
         self.minContentHeight = minContentHeight
         self.onEdgePan = onEdgePan
@@ -688,12 +720,18 @@ private struct AccordionOwnedScrollView<Content: View>: UIViewRepresentable {
 
         scrollView.addSubview(hostedView)
 
+        let minHeightConstraint = hostedView.heightAnchor.constraint(
+            greaterThanOrEqualToConstant: context.coordinator.parent.minContentHeight
+        )
+        context.coordinator.minHeightConstraint = minHeightConstraint
+
         NSLayoutConstraint.activate([
             hostedView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
             hostedView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
             hostedView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
             hostedView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
-            hostedView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor)
+            hostedView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
+            minHeightConstraint
         ])
 
         scrollView.panGestureRecognizer.addTarget(
@@ -706,13 +744,18 @@ private struct AccordionOwnedScrollView<Content: View>: UIViewRepresentable {
 
     func updateUIView(_ scrollView: UIScrollView, context: Context) {
         context.coordinator.parent = self
-        context.coordinator.hostingController.rootView = AnyView(
-            VStack(spacing: 0) {
-                content
-                Spacer(minLength: 0)
-            }
-            .frame(maxWidth: .infinity, minHeight: minContentHeight, alignment: .top)
-        )
+        context.coordinator.minHeightConstraint?.constant = minContentHeight
+
+        if context.coordinator.contentID != contentID {
+            context.coordinator.contentID = contentID
+            context.coordinator.hostingController.rootView = AnyView(
+                VStack(spacing: 0) {
+                    content
+                    Spacer(minLength: 0)
+                }
+                .frame(maxWidth: .infinity, alignment: .top)
+            )
+        }
 
         if !context.coordinator.isEdgeHandoffActive {
             scrollView.isScrollEnabled = isScrollEnabled
@@ -722,11 +765,21 @@ private struct AccordionOwnedScrollView<Content: View>: UIViewRepresentable {
     final class Coordinator: NSObject, UIScrollViewDelegate {
         var parent: AccordionOwnedScrollView
         let hostingController = UIHostingController(rootView: AnyView(EmptyView()))
+        var contentID: AccordionPanelContentID?
         var isEdgeHandoffActive = false
+        var minHeightConstraint: NSLayoutConstraint?
         private var handoffLocksToTop = false
 
         init(parent: AccordionOwnedScrollView) {
             self.parent = parent
+            self.contentID = parent.contentID
+            self.hostingController.rootView = AnyView(
+                VStack(spacing: 0) {
+                    parent.content
+                    Spacer(minLength: 0)
+                }
+                .frame(maxWidth: .infinity, alignment: .top)
+            )
         }
 
         func scrollViewDidScroll(_ scrollView: UIScrollView) {

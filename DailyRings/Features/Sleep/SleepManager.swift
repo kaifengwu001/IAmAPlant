@@ -30,10 +30,14 @@ final class SleepManager {
         userDefaults?.set(session.startTime.timeIntervalSince1970, forKey: AppConstants.UserDefaultsKey.sleepStartTimestamp)
     }
 
-    func endSleepSession() async -> SleepSession? {
+    func endSleepSession(adjustedStart: Date? = nil, adjustedEnd: Date? = nil) async -> SleepSession? {
         guard let session = activeSession else { return nil }
 
-        let ended = session.ended()
+        if let adjustedStart {
+            session.startTime = adjustedStart
+        }
+
+        let ended = session.ended(at: adjustedEnd ?? .now)
         modelContext?.insert(ended)
         try? modelContext?.save()
 
@@ -124,6 +128,7 @@ final class SleepManager {
         summary.sleepScore = adjustedScore
         summary.sleepScreenMinutes = screenMinutes
         summary.sleepSource = session.source
+        summary.status = .partial
 
         try? modelContext?.save()
 

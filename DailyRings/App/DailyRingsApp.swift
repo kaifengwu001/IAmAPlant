@@ -4,9 +4,13 @@ import SwiftData
 @main
 struct DailyRingsApp: App {
     @State private var supabaseService = SupabaseService()
+    @State private var syncCoordinator: SyncCoordinator
     @State private var isRestoringSession = true
 
     init() {
+        let service = SupabaseService()
+        _supabaseService = State(initialValue: service)
+        _syncCoordinator = State(initialValue: SyncCoordinator(supabaseService: service))
         NotificationDelegate.shared.requestPermission()
     }
 
@@ -22,6 +26,7 @@ struct DailyRingsApp: App {
                 }
             }
             .environment(supabaseService)
+            .environment(syncCoordinator)
             .task { await restoreSession() }
         }
         .modelContainer(for: [

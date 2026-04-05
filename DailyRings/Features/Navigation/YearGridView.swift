@@ -11,20 +11,13 @@ struct YearGridView: View {
 
     private let calendar = Calendar.current
     private let titleHeight: CGFloat = 100
-
-    private var summaryLookup: [String: [Double]] {
-        Dictionary(
-            summaries.map { ($0.dateString, $0.scores) },
-            uniquingKeysWith: { first, _ in first }
-        )
-    }
+    @State private var cachedCells: [YearCell] = []
 
     var body: some View {
         let layout = GridLayout(
             screenWidth: UIScreen.main.bounds.width,
             availableHeight: availableHeight - titleHeight
         )
-        let cells = buildCells()
 
         VStack(spacing: 0) {
             HStack(alignment: .center) {
@@ -55,7 +48,7 @@ struct YearGridView: View {
                 ),
                 spacing: layout.verticalSpacing
             ) {
-                ForEach(cells) { cell in
+                ForEach(cachedCells) { cell in
                     cellView(cell, layout: layout)
                 }
             }
@@ -64,6 +57,15 @@ struct YearGridView: View {
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            refreshCache()
+        }
+        .onChange(of: selectedYear) { _, _ in
+            refreshCache()
+        }
+        .onChange(of: summaryRevision) { _, _ in
+            refreshCache()
+        }
     }
 
     @ViewBuilder
@@ -127,9 +129,38 @@ struct YearGridView: View {
 
     // MARK: - Build Cells
 
-    private func buildCells() -> [YearCell] {
+    private var selectedYear: Int {
+        calendar.component(.year, from: selectedDate)
+    }
+
+    private var summaryRevision: Int {
+        var hasher = Hasher()
+        hasher.combine(selectedYear)
+
+        for summary in summaries where summary.dateString.hasPrefix("\(selectedYear)-") {
+            hasher.combine(summary.dateString)
+            for score in summary.scores {
+                hasher.combine(score.bitPattern)
+            }
+        }
+
+        return hasher.finalize()
+    }
+
+    private func refreshCache() {
+        let lookup = Dictionary(
+            summaries
+                .filter { $0.dateString.hasPrefix("\(selectedYear)-") }
+                .map { ($0.dateString, $0.scores) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        cachedCells = buildCells(summaryLookup: lookup)
+    }
+
+    private func buildCells(summaryLookup: [String: [Double]]) -> [YearCell] {
         var result: [YearCell] = []
-        let year = calendar.component(.year, from: selectedDate)
+        let year = selectedYear
 
         for month in 1...12 {
             let monthName = calendar.shortMonthSymbols[month - 1].uppercased()

@@ -117,6 +117,7 @@ struct SleepManualAdjustmentView: View {
                 goalHours: AppConstants.defaultSleepGoalHours
             )
             summary.sleepSource = .manual
+            summary.status = .partial
             try modelContext.save()
         } catch {
             return
