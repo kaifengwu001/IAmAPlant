@@ -18,6 +18,7 @@ struct YearGridView: View {
             screenWidth: UIScreen.main.bounds.width,
             availableHeight: availableHeight - titleHeight
         )
+        let rows = gridRows(columnCount: layout.columns)
 
         VStack(spacing: 0) {
             HStack(alignment: .center) {
@@ -41,15 +42,13 @@ struct YearGridView: View {
             .padding(.top, 24)
             .frame(height: titleHeight, alignment: .top)
 
-            LazyVGrid(
-                columns: Array(
-                    repeating: GridItem(.fixed(layout.cellSize), spacing: layout.horizontalSpacing),
-                    count: layout.columns
-                ),
-                spacing: layout.verticalSpacing
-            ) {
-                ForEach(cachedCells) { cell in
-                    cellView(cell, layout: layout)
+            VStack(spacing: layout.verticalSpacing) {
+                ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                    HStack(spacing: layout.horizontalSpacing) {
+                        ForEach(row) { cell in
+                            cellView(cell, layout: layout)
+                        }
+                    }
                 }
             }
             .padding(.horizontal, layout.padding)
@@ -185,6 +184,15 @@ struct YearGridView: View {
         }
 
         return result
+    }
+
+    private func gridRows(columnCount: Int) -> [[YearCell]] {
+        guard columnCount > 0 else { return [] }
+
+        return stride(from: 0, to: cachedCells.count, by: columnCount).map { startIndex in
+            let endIndex = min(startIndex + columnCount, cachedCells.count)
+            return Array(cachedCells[startIndex..<endIndex])
+        }
     }
 }
 

@@ -39,7 +39,9 @@ struct VerticalSnapContainer: View {
     @State private var snapUnlockToken = 0
     @State private var suppressCurrentSectionSync = false
     @State private var suppressOuterPageSync = false
-    @State private var hasVisitedYearPage = false
+    @State private var isYearPreloaded = false
+    @State private var yearPreloadToken = 0
+    @State private var pageTransitionOffset: CGFloat = 0
 
     private var nonYearSections: [DrawerSection] {
         DrawerSection.allCases.filter { $0 != .yearOverview }
@@ -54,24 +56,32 @@ struct VerticalSnapContainer: View {
         currentSummary?.scores ?? [0, 0, 0, 0]
     }
 
+    private var shouldRenderYearPage: Bool {
+        isYearPreloaded
+            || outerPage == .year
+            || currentSection == .yearOverview
+            || pageTransitionOffset != 0
+    }
+
     var body: some View {
         GeometryReader { geo in
-            ScrollView(.vertical, showsIndicators: false) {
-                LazyVStack(spacing: 0) {
-                    yearPage(viewportHeight: geo.size.height)
-                        .id(VerticalPage.year)
+            let pageOffset = accordionPageOffset(viewportHeight: geo.size.height)
 
-                    accordionPage(viewportHeight: geo.size.height)
-                        .id(VerticalPage.accordion)
-                }
-                .scrollTargetLayout()
+            ZStack(alignment: .top) {
+                yearPage(viewportHeight: geo.size.height)
+                    .offset(y: pageOffset - pageTravelDistance(viewportHeight: geo.size.height))
+                    .compositingGroup()
+
+                accordionPage(viewportHeight: geo.size.height)
+                    .offset(y: pageOffset)
+                    .compositingGroup()
             }
-            .scrollDisabled(outerPage == .accordion)
-            .scrollTargetBehavior(.viewAligned)
-            .scrollPosition(id: $outerPage)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .clipped()
             .onAppear {
                 accordionViewportHeight = geo.size.height
                 syncFromCurrentSection(viewportHeight: geo.size.height, animated: false)
+                updateYearPreloadState()
             }
             .onChange(of: geo.size.height) { _, newHeight in
                 accordionViewportHeight = newHeight
@@ -79,19 +89,17 @@ struct VerticalSnapContainer: View {
             .onChange(of: currentSection) { _, _ in
                 if suppressCurrentSectionSync {
                     suppressCurrentSectionSync = false
+                    updateYearPreloadState()
                     return
                 }
                 syncFromCurrentSection(viewportHeight: geo.size.height, animated: true)
+                updateYearPreloadState()
             }
-            .onChange(of: outerPage) { _, newPage in
-                if suppressOuterPageSync {
-                    suppressOuterPageSync = false
-                    return
-                }
-                if newPage == .year {
-                    hasVisitedYearPage = true
-                }
-                handleOuterPageChange(newPage, viewportHeight: geo.size.height)
+            .onChange(of: outerPage) { _, _ in
+                updateYearPreloadState()
+            }
+            .onChange(of: panelScrollLocked) { _, _ in
+                updateYearPreloadState()
             }
         }
     }
@@ -102,14 +110,18 @@ struct VerticalSnapContainer: View {
         let pageHeight = viewportHeight - headerHeight
 
         return VStack(spacing: 0) {
-            if hasVisitedYearPage || outerPage == .year || currentSection == .yearOverview {
+            if shouldRenderYearPage {
                 sectionContent(.yearOverview, availableHeight: pageHeight)
             } else {
                 Color.clear
             }
+
+            Spacer(minLength: 0)
         }
-        .frame(height: pageHeight)
+        .frame(height: viewportHeight, alignment: .top)
         .clipped()
+        .contentShape(Rectangle())
+        .simultaneousGesture(yearPageDragGesture(viewportHeight: viewportHeight))
     }
 
     // MARK: - Accordion Page
@@ -306,13 +318,14 @@ struct VerticalSnapContainer: View {
 
         let updates = {
             if resolvedSection == .yearOverview {
-                suppressOuterPageSync = true
                 outerPage = .year
+                cancelYearPreload(dismount: false)
+                pageTransitionOffset = 0
             } else {
-                suppressOuterPageSync = true
                 outerPage = .accordion
                 accordionTarget = resolvedSection
                 accordionOffset = targetOffset
+                pageTransitionOffset = 0
             }
         }
 
@@ -360,9 +373,10 @@ struct VerticalSnapContainer: View {
         guard section != .yearOverview else {
             panelScrollLocked = true
             withAnimation(.easeOut(duration: 0.22)) {
-                suppressOuterPageSync = true
                 suppressCurrentSectionSync = true
                 outerPage = .year
+                cancelYearPreload(dismount: false)
+                pageTransitionOffset = 0
                 currentSection = .yearOverview
             } completion: {
                 self.snapHaptic()
@@ -373,11 +387,11 @@ struct VerticalSnapContainer: View {
 
         panelScrollLocked = true
         withAnimation(.easeOut(duration: 0.22)) {
-            suppressOuterPageSync = true
             suppressCurrentSectionSync = true
             outerPage = .accordion
             accordionTarget = section
             accordionOffset = offset(for: section, viewportHeight: accordionViewportHeight)
+            pageTransitionOffset = 0
             currentSection = section
         } completion: {
             self.snapHaptic()
@@ -472,6 +486,19 @@ struct VerticalSnapContainer: View {
         metrics: AccordionMetrics
     ) {
         let startOffset = dragStartAccordionOffset ?? accordionOffset
+
+        if startOffset <= 1, translationY > 0 {
+            cancelYearPreload(dismount: false)
+            accordionOffset = 0
+            pageTransitionOffset = rubberBandedPageOffset(
+                translationY,
+                travelDistance: pageTravelDistance(viewportHeight: metrics.viewportHeight)
+            )
+            return
+        }
+
+        cancelYearPreload()
+        pageTransitionOffset = 0
         let proposedOffset = startOffset - translationY
         accordionOffset = rubberBandedOffset(proposedOffset, metrics: metrics)
     }
@@ -484,25 +511,40 @@ struct VerticalSnapContainer: View {
         dragStartAccordionOffset = nil
         accordionDragSourceSection = nil
 
-        let projectedOffset = startOffset - predictedTranslationY
-        let shouldPageToYear =
-            projectedOffset < -headerHeight * 0.75
-            && startOffset <= 1
+        if pageTransitionOffset > 0 {
+            let travelDistance = pageTravelDistance(viewportHeight: metrics.viewportHeight)
+            let projectedPageOffset = max(
+                0,
+                min(
+                    travelDistance,
+                    predictedTranslationY
+                )
+            )
+            let shouldPageToYear = projectedPageOffset > headerHeight * 0.75 && startOffset <= 1
 
-        if shouldPageToYear {
-            withAnimation(.easeOut(duration: 0.22)) {
-                accordionOffset = 0
-                suppressOuterPageSync = true
-                suppressCurrentSectionSync = true
-                outerPage = .year
-                currentSection = .yearOverview
-            } completion: {
-                self.snapHaptic()
+            if shouldPageToYear {
+                withAnimation(.easeOut(duration: 0.22)) {
+                    accordionOffset = 0
+                    pageTransitionOffset = 0
+                    suppressCurrentSectionSync = true
+                    outerPage = .year
+                    cancelYearPreload(dismount: false)
+                    currentSection = .yearOverview
+                } completion: {
+                    self.snapHaptic()
+                }
+            } else {
+                withAnimation(.easeOut(duration: 0.22)) {
+                    pageTransitionOffset = 0
+                    outerPage = .accordion
+                }
             }
+
             schedulePanelScrollUnlock()
             return
         }
 
+        let projectedOffset = startOffset - predictedTranslationY
         let resolvedOffset = clampedAccordionOffset(projectedOffset, metrics: metrics)
         let snappedIndex = Int(round(resolvedOffset / metrics.contentHeight))
         let clampedIndex = min(max(snappedIndex, 0), nonYearSections.count - 1)
@@ -511,9 +553,9 @@ struct VerticalSnapContainer: View {
         withAnimation(.easeOut(duration: 0.22)) {
             accordionOffset = CGFloat(clampedIndex) * metrics.contentHeight
             accordionTarget = section
-            suppressOuterPageSync = true
             suppressCurrentSectionSync = true
             outerPage = .accordion
+            pageTransitionOffset = 0
             currentSection = section
         } completion: {
             self.snapHaptic()
@@ -521,8 +563,103 @@ struct VerticalSnapContainer: View {
         schedulePanelScrollUnlock()
     }
 
+    private func accordionPageOffset(viewportHeight: CGFloat) -> CGFloat {
+        let baseOffset: CGFloat = outerPage == .year
+            ? pageTravelDistance(viewportHeight: viewportHeight)
+            : 0
+        return baseOffset + pageTransitionOffset
+    }
+
+    private func pageTravelDistance(viewportHeight: CGFloat) -> CGFloat {
+        max(viewportHeight, 1)
+    }
+
+    private func rubberBandedPageOffset(
+        _ offset: CGFloat,
+        travelDistance: CGFloat
+    ) -> CGFloat {
+        if offset < 0 {
+            return offset * 0.28
+        }
+
+        if offset > travelDistance {
+            return travelDistance + (offset - travelDistance) * 0.28
+        }
+
+        return offset
+    }
+
+    private func yearPageDragGesture(viewportHeight: CGFloat) -> some Gesture {
+        DragGesture(minimumDistance: 3)
+            .onChanged { value in
+                guard outerPage == .year else { return }
+                let translation = min(0, value.translation.height)
+                pageTransitionOffset = max(
+                    translation,
+                    -pageTravelDistance(viewportHeight: viewportHeight)
+                )
+            }
+            .onEnded { value in
+                guard outerPage == .year else { return }
+                let predictedTranslation = min(0, value.predictedEndTranslation.height)
+                let shouldPageToAccordion = abs(predictedTranslation) > headerHeight * 0.75
+                let fallback = accordionTarget ?? .daySummary
+
+                if shouldPageToAccordion {
+                    withAnimation(.easeOut(duration: 0.22)) {
+                        suppressCurrentSectionSync = true
+                        outerPage = .accordion
+                        accordionTarget = fallback
+                        accordionOffset = offset(for: fallback, viewportHeight: viewportHeight)
+                        pageTransitionOffset = 0
+                        currentSection = fallback
+                    } completion: {
+                        self.snapHaptic()
+                    }
+                } else {
+                    withAnimation(.easeOut(duration: 0.22)) {
+                        pageTransitionOffset = 0
+                    }
+                }
+            }
+    }
+
     private func snapHaptic() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
+    private func shouldPreloadYearPage() -> Bool {
+        guard outerPage == .accordion else { return false }
+        guard !panelScrollLocked else { return false }
+        guard dragStartAccordionOffset == nil else { return false }
+        guard pageTransitionOffset == 0 else { return false }
+        guard abs(accordionOffset) < 0.5 else { return false }
+
+        let resolvedSection = accordionTarget ?? currentSection ?? .daySummary
+        return resolvedSection == .daySummary
+    }
+
+    private func updateYearPreloadState() {
+        guard shouldPreloadYearPage() else {
+            cancelYearPreload()
+            return
+        }
+
+        let nextToken = yearPreloadToken + 1
+        yearPreloadToken = nextToken
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            guard nextToken == yearPreloadToken else { return }
+            guard shouldPreloadYearPage() else { return }
+            isYearPreloaded = true
+        }
+    }
+
+    private func cancelYearPreload(dismount: Bool = true) {
+        yearPreloadToken += 1
+        if dismount {
+            isYearPreloaded = false
+        }
     }
 
     private func schedulePanelScrollUnlock() {
