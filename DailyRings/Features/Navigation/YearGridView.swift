@@ -50,6 +50,7 @@ struct YearGridView: View {
                             cellView(cell, layout: layout)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .padding(.horizontal, layout.padding)

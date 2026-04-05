@@ -41,13 +41,22 @@ struct DaySummaryView: View {
                     .foregroundStyle(Theme.textSecondary)
             }
 
-            RingView(scores: scores, size: 240)
+            ZStack {
+                RingView(scores: scores, size: 240)
+
+                HStack {
+                    edgeDayHint(systemImage: "chevron.left", firstLine: "prev", secondLine: "day", alignment: .leading)
+                    Spacer()
+                    edgeDayHint(systemImage: "chevron.right", firstLine: "next", secondLine: "day", alignment: .trailing)
+                }
+                .padding(.horizontal, -20)
+            }
 
             ringLegend
 
             Spacer()
 
-            pullHint
+            gestureHints
         }
         .padding(.horizontal, 24)
     }
@@ -68,7 +77,7 @@ struct DaySummaryView: View {
         }
     }
 
-    private var pullHint: some View {
+    private var gestureHints: some View {
         VStack(spacing: 4) {
             Image(systemName: "chevron.compact.down")
                 .font(.system(size: 20))
@@ -78,6 +87,29 @@ struct DaySummaryView: View {
                 .foregroundStyle(Theme.textQuaternary)
         }
         .padding(.bottom, 8)
+    }
+
+    private func edgeDayHint(
+        systemImage: String,
+        firstLine: String,
+        secondLine: String,
+        alignment: HorizontalAlignment
+    ) -> some View {
+        ZStack(alignment: systemImage == "chevron.left" ? .leading : .trailing) {
+            VStack(alignment: alignment, spacing: 0) {
+                Text(firstLine)
+                Text(secondLine)
+            }
+            .font(.system(.caption2, design: .monospaced))
+            .frame(maxWidth: .infinity, alignment: systemImage == "chevron.left" ? .leading : .trailing)
+            .padding(.leading, systemImage == "chevron.left" ? 14 : 0)
+            .padding(.trailing, systemImage == "chevron.right" ? 14 : 0)
+
+            Image(systemName: systemImage)
+                .font(.system(size: 14, weight: .medium))
+        }
+        .foregroundStyle(Theme.textQuaternary)
+        .frame(width: 56)
     }
 
     // MARK: - Collapsed

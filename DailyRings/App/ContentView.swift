@@ -87,6 +87,7 @@ struct ContentView: View {
             }
             .scrollTargetLayout()
         }
+        .scrollDisabled(currentSection != .daySummary)
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $selectedDayOffset)
     }
